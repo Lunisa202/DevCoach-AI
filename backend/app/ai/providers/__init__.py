@@ -1,4 +1,4 @@
-"""AI module — provider abstraction and intelligent agents."""
+"""AI providers — abstract interface and concrete implementations."""
 
 from app.ai.providers.base import AIProvider, get_provider
 
