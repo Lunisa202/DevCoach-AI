@@ -28,51 +28,51 @@ Implementation of a single-page application that converts a GitHub repository fo
     - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5_
 
 - [ ] 2. Implement AI provider abstraction and agents
-  - [ ] 2.1 Implement AI provider interface and factory
+  - [x] 2.1 Implement AI provider interface and factory
     - Create `backend/app/ai/provider.py` with abstract `AIProvider` class and `get_provider()` factory
     - Factory reads `AI_PROVIDER` env var, returns `GeminiProvider` or `GroqProvider` singleton
     - Raise `ValueError` at startup for invalid/missing values
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
 
-  - [ ] 2.2 Implement Gemini provider
+  - [x] 2.2 Implement Gemini provider
     - Create `backend/app/ai/gemini_provider.py` implementing `AIProvider`
     - Use `google-generativeai` SDK with model "gemini-2.5-flash"
     - Implement 30-second timeout on generate calls
     - _Requirements: 8.2, 8.6_
 
-  - [ ] 2.3 Implement Groq provider
+  - [x] 2.3 Implement Groq provider
     - Create `backend/app/ai/groq_provider.py` implementing `AIProvider`
     - Use `groq` SDK with model "llama3-70b-8192"
     - Implement 30-second timeout on generate calls
     - _Requirements: 8.2, 8.6_
 
-  - [ ] 2.4 Implement Code_Reviewer agent
+  - [x] 2.4 Implement Code_Reviewer agent
     - Create `backend/app/ai/code_reviewer.py` with `analyze_code(provider, files)` function
     - Build prompt that instructs the AI to analyze code and return JSON with `fortalezas` and `debilidades` arrays
     - Parse and validate response as `CodeReviewResult` Pydantic model
     - Raise validation error if response doesn't match expected schema
     - _Requirements: 3.3, 3.8_
 
-  - [ ] 2.5 Implement Ticket_Generator agent
+  - [x] 2.5 Implement Ticket_Generator agent
     - Create `backend/app/ai/ticket_generator.py` with `generate_tickets(provider, review)` function
     - Build prompt that instructs the AI to generate exactly 3 improvement tickets from code review
     - Parse and validate response: exactly 3 tickets with título (≤120 chars), descripción, prioridad ∈ {alta, media, baja}, dificultad ∈ {fácil, media, difícil}, tiempo_estimado_minutos ∈ [15, 480]
     - Raise validation error if response doesn't match
     - _Requirements: 3.4, 3.5_
 
-  - [ ] 2.6 Implement Tech_Lead agent
+  - [x] 2.6 Implement Tech_Lead agent
     - Create `backend/app/ai/tech_lead.py` with `generate_questions(provider, ticket, diff)` function
     - Build prompt that instructs the AI to generate 2-3 interview questions based on ticket and diff
     - Parse and validate response: list of 2-3 string questions
     - _Requirements: 6.8_
 
-  - [ ] 2.7 Implement Evaluator agent
+  - [x] 2.7 Implement Evaluator agent
     - Create `backend/app/ai/evaluator.py` with `evaluate_answers(provider, ticket, diff, questions, answers)` function
     - Build prompt that instructs the AI to evaluate answers and return feedback + approval
     - Parse and validate response: feedback (≤3000 chars) + aprobado (boolean)
     - _Requirements: 7.1_
 
-  - [ ]* 2.8 Write unit tests for AI response parsers
+  - [x]* 2.8 Write unit tests for AI response parsers
     - Create `backend/tests/test_ai_parsers.py`
     - Test Code_Reviewer parser: valid JSON, missing fields, wrong types, empty response
     - Test Ticket_Generator parser: valid 3-ticket JSON, wrong count, invalid enum values, missing fields
