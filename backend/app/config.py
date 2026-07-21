@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     """Environment-based settings with startup validation."""
 
     AI_PROVIDER: str
+    GEMINI_API_KEY: str = ""
+    GROQ_API_KEY: str = ""
     GITHUB_TOKEN: str
     SUPABASE_URL: str
     SUPABASE_KEY: str
