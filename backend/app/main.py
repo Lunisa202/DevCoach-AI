@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
+from app.api.projects import router as projects_router
 
 # Validate environment on import (fail-fast)
 settings = get_settings()
@@ -28,3 +29,7 @@ app.add_middleware(
 async def health_check():
     """Basic health check endpoint."""
     return {"status": "ok", "ai_provider": settings.AI_PROVIDER}
+
+
+# --- Register API routers ---
+app.include_router(projects_router)
