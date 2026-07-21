@@ -1,0 +1,1 @@
+correr test: python -m pytest tests/test_ai_parsers.py -v
