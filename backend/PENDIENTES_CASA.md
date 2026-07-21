@@ -167,7 +167,15 @@ La siguiente tarea es **7.1 — Endpoints de Projects** (rama: `feature/backend/
 
 Prioridad: hacer `POST /api/projects/validate-repo` PRIMERO porque desbloquea a Carolina.
 
-Eso ya se hace en la siguiente sesión con Kiro.
+**NOTA:** El endpoint `validate-repo` ya está hecho en la rama `feature/backend/api-endpoints`.
+Para probarlo:
+1. `git checkout feature/backend/api-endpoints`
+2. `git pull origin feature/backend/api-endpoints`
+3. Configura `.env` y corre `uvicorn app.main:app --reload`
+4. Abre http://localhost:8000/docs y prueba el endpoint
+5. Revisa `TESTING_VALIDATE_REPO.md` para los 6 casos de prueba
+
+Si funciona, también mergea esa rama a development.
 
 ---
 
@@ -180,6 +188,7 @@ Eso ya se hace en la siguiente sesión con Kiro.
 | 5.1 Modelos Pydantic | ✅ Completo + merged | development | `app/models/*.py` |
 | 3.1 GitHub Service | ✅ Código listo, falta probar | feature/backend/github-service | `app/services/github_service.py` |
 | 4.1 DB Service | ✅ Código listo, falta probar | feature/backend/db-service | `app/services/db_service.py` |
+| 7.1 validate-repo | ✅ Código listo, falta probar | feature/backend/api-endpoints | `app/api/projects.py` |
 
 ---
 
