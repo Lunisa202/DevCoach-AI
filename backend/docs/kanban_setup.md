@@ -103,15 +103,33 @@ Pedile a Kiro cualquiera de estas cosas para verificar:
 
 Si Kiro responde con datos reales de Jira, todo listo.
 
-## Cómo funciona el hook automático
+## Cómo funcionan los hooks automáticos
 
-El archivo `.kiro/hooks/update-kanban-on-task-complete.json` está en el repo y se activa solo cuando abrís el proyecto en Kiro. Se dispara con el evento `PostTaskExec`: cada vez que Kiro marca una tarea del spec (`.kiro/specs/devcoach-ai/tasks.md`) como completada, este hook:
+Hay **dos hooks** en `.kiro/hooks/`, ambos versionados en el repo y activos solos cuando abrís el proyecto en Kiro:
 
-1. Detecta qué número de tarea se completó (ej: `2.4`)
-2. Busca en Jira una tarjeta cuyo título empiece con `2.4 —`
-3. La transiciona al estado "Listo" (transition_id 41)
+### 1. `update-kanban-on-task-complete.json` — trigger `PostTaskExec`
 
-Si el MCP de Atlassian no está configurado en tu Kiro local (paso 2 no hecho), el hook simplemente no hace nada — no te molesta ni rompe nada.
+Se dispara cuando Kiro **ejecuta y cierra una tarea en modo Spec**. Ejemplo típico: le pedís a Kiro "arrancá con la tarea 3.1", Kiro trabaja, la termina y marca el checkbox. En ese instante:
+
+1. Detecta el número de tarea que acaba de completarse.
+2. Busca en Jira la tarjeta cuyo título empiece con ese número (ej: `3.1 —`).
+3. La transiciona al estado "Listo" (transition_id 41).
+
+### 2. `update-kanban-on-tasks-md-save.json` — trigger `PostFileSave` (matcher `tasks.md`)
+
+Cubre el caso de **edición manual**: alguien marca `[x]` a mano en el editor y guarda. En ese momento:
+
+1. Corre `git diff HEAD -- .kiro/specs/devcoach-ai/tasks.md` para ver qué cambió.
+2. Si algún checkbox pasó de `[ ]` a `[x]`, procesa esas tareas (una o varias).
+3. Si el save no incluye completaciones nuevas (por ejemplo auto-save de una edición cualquiera), sale silencioso — no te molesta.
+4. Si detecta más de 5 tareas completadas en el mismo save, pide confirmación antes de actualizar en masa (defensa contra un replace accidental).
+
+### Reglas comunes a ambos hooks
+
+- **Checkpoints ignorados** — las tareas tipo "6 — Checkpoint", "8 — Checkpoint" etc. son puntos de revisión de equipo, no work items. Nunca se marcan como Listo automáticamente.
+- **Sin MCP, no hacen nada** — si tu Kiro no tiene el MCP de Atlassian configurado (paso 2 arriba), los hooks se saltan silenciosamente. No rompen tu flujo.
+- **Solo tocan Jira** — nunca modifican archivos del proyecto ni hacen commits.
+- **Solo se disparan hacia adelante** — un `[x]` que vuelve a `[ ]` (revert de una edición) se ignora.
 
 ## Preguntas frecuentes
 
@@ -125,4 +143,13 @@ Tenés que crear el archivo `mcp.json` en cada máquina donde uses Kiro. No se s
 Andá a https://id.atlassian.com/manage-profile/security/api-tokens, revocalo, generá uno nuevo, y actualizá tu `mcp.json`.
 
 **¿El hook puede pisarme una tarjeta que ya moví manualmente?**
-Puede — el hook solo transiciona a "Listo" cuando detecta una tarea completada en el spec. Si ya estaba en "En curso" o "En revisión", la pone en "Listo". Los checkpoints (tareas tipo "6 — Checkpoint", "8 — Checkpoint", etc.) están explícitamente excluidos.
+Puede — los hooks solo transicionan a "Listo" cuando detectan una tarea completada en el spec. Si la tarjeta ya estaba en "En curso" o "En revisión", la pone en "Listo". Los checkpoints (tareas tipo "6 — Checkpoint", "8 — Checkpoint", etc.) están explícitamente excluidos.
+
+**¿Qué pasa si guardo `tasks.md` muchas veces (auto-save)?**
+Nada. El hook de `PostFileSave` compara con el estado commiteado en git. Si no hay checkboxes nuevos marcados, sale silencioso. Solo actúa cuando detecta una transición real de `[ ]` a `[x]`.
+
+**¿Qué pasa si marco 10 tareas de un tirón con un find-replace?**
+El hook pide confirmación antes de actualizar en masa (umbral: más de 5). Es un cortafuegos por si alguien ejecuta un replace accidental.
+
+**¿Y si trabajo sin Kiro, solo con editor?**
+El hook `PostFileSave` te cubre igual: cuando guardás `tasks.md` con el `[x]` puesto, el hook detecta el cambio y actualiza Jira. Solo necesitás tener Kiro abierto en el proyecto para que el hook esté activo — no hace falta usarlo para editar.
