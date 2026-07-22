@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Update Jira Kanban on tasks.md save",
+      "trigger": "PostFileSave",
+      "description": "When someone manually saves .kiro/specs/**/tasks.md, detect newly checked [x] tasks and move the matching Jira cards to Listo. Uses git diff to avoid re-processing already-completed tasks.",
+      "matcher": "\\.kiro/specs/.*/tasks\\.md$",
+      "action": {
+        "type": "agent",
+        "prompt": "Someone just saved a Kiro spec tasks.md file (matched by regex). Your job is to sync any newly-completed tasks to the team's Jira Kanban board.\n\nSteps:\n1. Determine which tasks were just flipped from [ ] to [x] in this save. Use `git diff HEAD -- .kiro/specs/devcoach-ai/tasks.md` (or the corresponding spec path) to compare against the last committed state. Focus only on lines that changed from \"- [ ] N.M ...\" to \"- [x] N.M ...\".\n2. If no such transition is found (file saved without new completions), STOP silently — do nothing, do not reply. Auto-save must not be noisy.\n3. For each newly-completed task:\n   - Extract the task number from the start of the line (e.g. \"2.4\", \"3.1\", \"9.5\", \"INFRA-1\").\n   - Search project \"DA\" in Jira for the card whose summary starts with that number. Use mcp_atlassian_jira_search with JQL like: project = DA AND summary ~ \"\\\"2.4 —\\\"\"\n   - If exactly one match, transition it to \"Listo\" (transition_id = 41).\n   - If ambiguous or missing, report to the user which task was completed and ask for the correct Jira key.\n4. Skip checkpoints (lines like \"6 — Checkpoint\", \"8 — Checkpoint\", \"10 — ...\", \"12 — ...\"). Those are team review points, not work items.\n5. If mcp_atlassian_* tools are not available in this session, stop silently — the user has not configured their local MCP yet, that's fine.\n6. Do NOT modify any project files. Do NOT commit anything. Only interact with Jira.\n7. On success, reply with one short line per card updated: \"Jira card DA-XX marked as Listo (task N.M).\"\n\nGuardrails:\n- If the git diff shows more than 5 tasks flipped at once, ask the user to confirm before mass-updating (defense against accidental global replace).\n- Ignore reverse transitions ([x] → [ ]) — those are edits, not completions."
+      }
+    }
+  ]
+}
