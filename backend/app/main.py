@@ -3,6 +3,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.ai_debug import router as ai_debug_router
 from app.config import get_settings
 
 # Validate environment on import (fail-fast)
@@ -22,6 +23,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# Debug endpoints for AI agents (used to test agents individually via Swagger)
+app.include_router(ai_debug_router)
 
 
 @app.get("/health")
