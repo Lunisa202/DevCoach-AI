@@ -18,6 +18,11 @@ class Settings(BaseSettings):
     # Frontend origin for CORS
     FRONTEND_URL: str = "http://localhost:5173"
 
+    # JWT Auth
+    JWT_SECRET_KEY: str
+    JWT_ALGORITHM: str = "HS256"
+    JWT_EXPIRE_MINUTES: int = 60
+
     @field_validator("AI_PROVIDER")
     @classmethod
     def validate_ai_provider(cls, v: str) -> str:

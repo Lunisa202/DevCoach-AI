@@ -17,7 +17,7 @@ import re
 import logging
 import asyncio
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
 from app.config import get_settings
 from app.models.project import (
@@ -35,6 +35,7 @@ from app.services.github_service import (
     GitHubServiceError,
 )
 from app.services.db_service import DBService, DBServiceError
+from app.services.auth_service import get_current_user
 
 logger = logging.getLogger(__name__)
 
@@ -90,7 +91,10 @@ def parse_github_url(url: str) -> tuple[str, str] | None:
         503: {"description": "No se pudo conectar con GitHub"},
     },
 )
-async def validate_repo(request: ValidateRepoRequest):
+async def validate_repo(
+    request: ValidateRepoRequest,
+    current_user: dict = Depends(get_current_user),
+):
     """
     Valida que una URL de GitHub apunta a un repositorio público existente.
 
@@ -173,7 +177,10 @@ async def validate_repo(request: ValidateRepoRequest):
         500: {"description": "Error interno de persistencia"},
     },
 )
-async def create_project(request: ProjectCreate):
+async def create_project(
+    request: ProjectCreate,
+    current_user: dict = Depends(get_current_user),
+):
     """
     Crea un proyecto, descarga archivos de GitHub, ejecuta el pipeline de IA
     (Code_Reviewer → Ticket_Generator) y devuelve el proyecto con sus 3 tickets.
@@ -207,6 +214,7 @@ async def create_project(request: ProjectCreate):
         project = await db.create_project(
             repo_url=request.repo_url,
             archivos_seleccionados=request.archivos_seleccionados,
+            user_id=current_user["id"],
         )
     except DBServiceError:
         raise HTTPException(status_code=500, detail="No se pudo crear el proyecto")
@@ -303,7 +311,10 @@ async def create_project(request: ProjectCreate):
         500: {"description": "Error de persistencia"},
     },
 )
-async def get_project_tickets(project_id: str):
+async def get_project_tickets(
+    project_id: str,
+    current_user: dict = Depends(get_current_user),
+):
     """
     Devuelve los tickets asociados a un proyecto.
     El frontend (Dashboard) llama a esto para mostrar los tickets en el kanban.

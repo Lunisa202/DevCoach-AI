@@ -9,12 +9,13 @@ Maneja:
 import asyncio
 import logging
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
 from app.config import get_settings
 from app.models.review import InterviewStartRequest, InterviewAnswersRequest
 from app.models.ticket import EstadoTicket
 from app.services.db_service import DBService, DBServiceError, RecordNotFoundError
+from app.services.auth_service import get_current_user
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +36,10 @@ router = APIRouter(prefix="/api/interviews", tags=["Interviews"])
         503: {"description": "El Tech Lead no pudo generar preguntas"},
     },
 )
-async def start_interview(request: InterviewStartRequest):
+async def start_interview(
+    request: InterviewStartRequest,
+    current_user: dict = Depends(get_current_user),
+):
     """
     Inicia la entrevista simulada para un ticket.
 
@@ -163,7 +167,10 @@ async def start_interview(request: InterviewStartRequest):
         503: {"description": "El Evaluator no pudo completar la evaluación"},
     },
 )
-async def evaluate_answers(request: InterviewAnswersRequest):
+async def evaluate_answers(
+    request: InterviewAnswersRequest,
+    current_user: dict = Depends(get_current_user),
+):
     """
     Evalúa las respuestas del usuario y decide si aprueba el ticket.
 

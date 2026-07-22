@@ -11,12 +11,16 @@ Cada persona ya tiene su(s) rama(s) lista(s) para trabajar. Todas parten de `dev
 | Camilo (Plataforma) | `feature/backend/github-service` | 3.1, 3.2 |
 | Camilo (Plataforma) | `feature/backend/db-service` | 4.1, 5.1 |
 | Camilo (Plataforma) | `feature/backend/api-endpoints` | 7.1, 7.2, 7.3, 7.4, 7.5 |
-| Carolina (Frontend) | `feature/frontend/setup` | 1.2 |
+| Camilo (Plataforma) | `feature/backend/auth` | **A.1** ← nueva |
+| Carolina (Frontend) | `feature/frontend/setup` | 1.2 ✅ |
+| Carolina (Frontend) | `feature/frontend/auth` | **A.2** ← nueva (hacer antes de 9.1) |
 | Carolina (Frontend) | `feature/frontend/repo-input` | 9.1 |
 | Carolina (Frontend) | `feature/frontend/file-selector` | 9.2 |
 | Carolina (Frontend) | `feature/frontend/dashboard` | 9.3 |
 | Carolina/Abner (Frontend) | `feature/frontend/interview` | 9.4, 9.5, 9.6, 9.7 |
 | Carolina (Frontend) | `feature/frontend/routing` | 11.1, 11.2 |
+
+> 📄 Ver detalle completo de las tareas A.1 y A.2 en [`TAREAS_AUTH.md`](./TAREAS_AUTH.md)
 
 ---
 
@@ -110,13 +114,18 @@ DevCoach-AI/
 │   ├── src/
 │   │   ├── App.tsx
 │   │   ├── main.tsx
-│   │   ├── index.css      ← Directivas Tailwind
-│   │   ├── lib/api.ts     ← Helper fetch (lee VITE_API_URL)
-│   │   └── (componentes se agregan en tareas 9.x y 11.x)
+│   │   ├── index.css          ← Directivas Tailwind
+│   │   ├── lib/api.ts         ← Helper fetch para rutas públicas (VITE_API_URL)
+│   │   ├── store/             ← Redux Toolkit + Redux Persist (tarea A.2)
+│   │   ├── services/          ← axiosClient + authService (tarea A.2)
+│   │   ├── hooks/             ← useAuth, useLogin, useRegister (tarea A.2)
+│   │   ├── components/        ← ProtectedRoute y componentes UI (tareas A.2, 9.x)
+│   │   ├── pages/             ← LoginPage, RepoInputPage, etc. (tareas A.2, 9.x, 11.x)
+│   │   └── types/             ← Interfaces TypeScript compartidas
 │   ├── tailwind.config.js
 │   ├── postcss.config.js
 │   ├── vite.config.ts
-│   └── .env.local         ← VITE_API_URL (no se sube al repo)
+│   └── .env.local             ← VITE_API_URL (no se sube al repo)
 └── docs/
 ```
 
