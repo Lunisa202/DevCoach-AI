@@ -106,8 +106,17 @@ DevCoach-AI/
 │   ├── tests/             ← Tests con pytest
 │   ├── requirements.txt
 │   └── .env.example       ← Copiar a .env y llenar valores
-├── frontend/               ← React + Vite + Tailwind (Carolina y Abner)
-│   └── (se crea con la tarea 1.2)
+├── frontend/               ← React 19 + Vite + TypeScript + Tailwind CSS v3 + React Router v7 (Carolina y Abner)
+│   ├── src/
+│   │   ├── App.tsx
+│   │   ├── main.tsx
+│   │   ├── index.css      ← Directivas Tailwind
+│   │   ├── lib/api.ts     ← Helper fetch (lee VITE_API_URL)
+│   │   └── (componentes se agregan en tareas 9.x y 11.x)
+│   ├── tailwind.config.js
+│   ├── postcss.config.js
+│   ├── vite.config.ts
+│   └── .env.local         ← VITE_API_URL (no se sube al repo)
 └── docs/
 ```
 
@@ -136,14 +145,26 @@ uvicorn app.main:app --reload
 
 ## Setup del frontend (para Carolina y Abner)
 
-Se creará con la tarea 1.2, pero será algo como:
+**Stack:** React 19 + TypeScript + Vite + Tailwind CSS v3 + React Router v7
+
+**Manejador de paquetes:** `pnpm` (no usar `npm` ni `yarn` — generaría conflictos con `pnpm-lock.yaml`)
 
 ```bash
 cd frontend
-npm install
-npm run dev
+pnpm install
+pnpm dev
 # → Abrir http://localhost:5173
 ```
+
+### Variables de entorno
+
+Crear un archivo `.env.local` dentro de `frontend/` (no se sube al repo):
+
+```
+VITE_API_URL=http://localhost:8000
+```
+
+Para producción, configurar `VITE_API_URL` en el panel de Vercel apuntando al backend en Render.
 
 ---
 

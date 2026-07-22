@@ -215,6 +215,9 @@ Construye todo lo que el usuario ve y toca. Consume los endpoints que arma el M�
 
 ### Wave 0 — Tarea 1.2: Setup de React + Tailwind
 
+**Stack elegido:** React 19 + TypeScript + Vite + **Tailwind CSS v3** + React Router v7
+**Manejador de paquetes:** `pnpm`
+
 **Qué es:** React es una librería para construir interfaces dividiéndolas en "componentes" reutilizables. Tailwind es una forma de aplicar estilos visuales escribiendo clases directamente en el HTML, sin escribir CSS separado.
 
 **Conceptos nuevos:**
