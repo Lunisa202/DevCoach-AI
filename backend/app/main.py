@@ -5,6 +5,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
 from app.api.projects import router as projects_router
+from app.api.tickets import router as tickets_router
+from app.api.interviews import router as interviews_router
 
 # Validate environment on import (fail-fast)
 settings = get_settings()
@@ -33,3 +35,5 @@ async def health_check():
 
 # --- Register API routers ---
 app.include_router(projects_router)
+app.include_router(tickets_router)
+app.include_router(interviews_router)
