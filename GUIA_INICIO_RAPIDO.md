@@ -13,7 +13,8 @@ Cada persona ya tiene su(s) rama(s) lista(s) para trabajar. Todas parten de `dev
 | Camilo (Plataforma) | `feature/backend/api-endpoints` | 7.1, 7.2, 7.3, 7.4, 7.5 |
 | Camilo (Plataforma) | `feature/backend/auth` | **A.1** ← nueva |
 | Carolina (Frontend) | `feature/frontend/setup` | 1.2 ✅ |
-| Carolina (Frontend) | `feature/frontend/auth` | **A.2** ← nueva (hacer antes de 9.1) |
+| Carolina (Frontend) | `feature/frontend/auth` | **A.2** ✅ |
+| Carolina (Frontend) | `feature/frontend/sidebar` | **B.2** ← nueva (después de 9.1) |
 | Carolina (Frontend) | `feature/frontend/repo-input` | 9.1 |
 | Carolina (Frontend) | `feature/frontend/file-selector` | 9.2 |
 | Carolina (Frontend) | `feature/frontend/dashboard` | 9.3 |
@@ -21,6 +22,7 @@ Cada persona ya tiene su(s) rama(s) lista(s) para trabajar. Todas parten de `dev
 | Carolina (Frontend) | `feature/frontend/routing` | 11.1, 11.2 |
 
 > 📄 Ver detalle completo de las tareas A.1 y A.2 en [`TAREAS_AUTH.md`](./TAREAS_AUTH.md)
+> 📄 Ver detalle de las tareas B.1 y B.2 (sidebar + historial) en [`TAREAS_HISTORIAL.md`](./TAREAS_HISTORIAL.md)
 
 ---
 
@@ -157,6 +159,8 @@ uvicorn app.main:app --reload
 **Stack:** React 19 + TypeScript + Vite + Tailwind CSS v3 + React Router v7
 
 **Manejador de paquetes:** `pnpm` (no usar `npm` ni `yarn` — generaría conflictos con `pnpm-lock.yaml`)
+
+**Convención de tipos:** todas las interfaces y types se definen en `src/types/` en archivos que reflejen a dónde pertenecen (ej: `auth.ts`, `project.ts`). Nunca definir tipos inline en services o components — siempre importar desde `types/`. Nunca re-exportar tipos desde services.
 
 ```bash
 cd frontend

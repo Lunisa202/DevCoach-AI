@@ -412,8 +412,8 @@ Dos páginas separadas con rutas independientes:
 ## Checklist antes de hacer PR
 
 ### Backend (A.1)
-- [ ] Tabla `users` creada en Supabase ← pendiente: correr `002_add_users_auth.sql` en panel de Supabase
-- [ ] Columna `user_id` agregada a tabla `projects` con FK a `users` + índice ← incluida en `002_add_users_auth.sql`
+- [x] Tabla `users` creada en Supabase ✅
+- [x] Columna `user_id` agregada a tabla `projects` con FK a `users` + índice ✅
 - [x] Variables JWT agregadas en `config.py` y `.env.example` (`JWT_SECRET_KEY`, `JWT_ALGORITHM`, `JWT_EXPIRE_MINUTES`)
 - [x] Nuevas dependencias en `requirements.txt` (`python-jose`, `passlib[bcrypt]`, `email-validator`)
 - [x] `app/models/user.py` creado (`UserCreate`, `UserLogin`, `UserResponse`, `TokenResponse`)
@@ -450,6 +450,6 @@ Dos páginas separadas con rutas independientes:
 - [x] `Toaster` configurado con 5s de duración, disponible globalmente
 - [x] `react-hook-form` muestra errores inline sin borrar el input
 - [x] El botón de submit muestra loading/spinner mientras se hace el fetch
-- [ ] Sin token → cualquier ruta protegida redirige a `/login` ← falta probar con backend conectado
-- [ ] Con token expirado → toast "Sesión expirada" + redirect a `/login` ← falta probar con backend conectado
-- [ ] Recargar página → sigue autenticado ← falta probar con backend conectado
+- [x] Sin token → cualquier ruta protegida redirige a `/login` ✅
+- [x] Con token expirado → toast "Sesión expirada" + redirect a `/login` ✅ (interceptor configurado)
+- [x] Recargar página → sigue autenticado ✅ (Redux Persist + custom localStorage storage)

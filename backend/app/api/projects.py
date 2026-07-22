@@ -328,3 +328,114 @@ async def get_project_tickets(
         raise HTTPException(status_code=500, detail="No se pudieron obtener los tickets")
 
     return tickets
+
+
+# ============================================================
+# ENDPOINT: GET /api/projects
+# ============================================================
+
+
+@router.get(
+    "",
+    summary="Listar proyectos del usuario autenticado",
+    responses={
+        200: {"description": "Lista de proyectos"},
+        500: {"description": "Error de persistencia"},
+    },
+)
+async def list_projects(
+    current_user: dict = Depends(get_current_user),
+):
+    """
+    Devuelve todos los proyectos del usuario autenticado, ordenados por fecha descendente.
+    El sidebar del frontend usa este endpoint para mostrar el historial.
+    """
+    settings = get_settings()
+    db = DBService(url=settings.SUPABASE_URL, key=settings.SUPABASE_KEY)
+
+    try:
+        projects = await db.get_projects_by_user(current_user["id"])
+    except DBServiceError:
+        raise HTTPException(status_code=500, detail="No se pudieron obtener los proyectos")
+
+    return projects
+
+
+# ============================================================
+# ENDPOINT: DELETE /api/projects/{project_id}
+# ============================================================
+
+
+@router.delete(
+    "/{project_id}",
+    status_code=204,
+    summary="Eliminar un proyecto",
+    responses={
+        204: {"description": "Proyecto eliminado"},
+        403: {"description": "El proyecto no pertenece al usuario"},
+        404: {"description": "Proyecto no encontrado"},
+    },
+)
+async def delete_project(
+    project_id: str,
+    current_user: dict = Depends(get_current_user),
+):
+    """
+    Elimina un proyecto y todos sus tickets/reviews asociados (CASCADE).
+    Solo el dueño del proyecto puede eliminarlo.
+    """
+    settings = get_settings()
+    db = DBService(url=settings.SUPABASE_URL, key=settings.SUPABASE_KEY)
+
+    try:
+        deleted = await db.delete_project(project_id, current_user["id"])
+    except DBServiceError as e:
+        if "no pertenece" in str(e).lower():
+            raise HTTPException(status_code=403, detail="No tenés permiso para eliminar este proyecto")
+        if "no encontrado" in str(e).lower():
+            raise HTTPException(status_code=404, detail="Proyecto no encontrado")
+        raise HTTPException(status_code=500, detail="No se pudo eliminar el proyecto")
+
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Proyecto no encontrado")
+
+
+# ============================================================
+# ENDPOINT: GET /api/projects/tree/{owner}/{repo}
+# ============================================================
+
+
+@router.get(
+    "/tree/{owner}/{repo}",
+    summary="Obtener estructura de archivos del repositorio",
+    responses={
+        200: {"description": "Árbol de archivos"},
+        404: {"description": "Repositorio no encontrado"},
+        503: {"description": "No se pudo conectar con GitHub"},
+    },
+)
+async def get_repo_tree(
+    owner: str,
+    repo: str,
+    current_user: dict = Depends(get_current_user),
+):
+    """
+    Devuelve la estructura de carpetas/archivos del repositorio (hasta 3 niveles).
+    El frontend (FileSelector) usa esto para mostrar el árbol con checkboxes.
+    """
+    settings = get_settings()
+    github = GitHubService(token=settings.GITHUB_TOKEN)
+
+    try:
+        tree = await github.get_tree(owner, repo)
+    except RepoNotFoundError:
+        raise HTTPException(status_code=404, detail="Repositorio no encontrado")
+    except GitHubTimeoutError:
+        raise HTTPException(status_code=503, detail="No se pudo conectar con GitHub")
+    except RateLimitExceededError:
+        raise HTTPException(status_code=503, detail="Se excedió el límite de peticiones a GitHub")
+    except GitHubServiceError as e:
+        logger.error(f"GitHub error getting tree: {e}")
+        raise HTTPException(status_code=503, detail="No se pudo obtener la estructura del repositorio")
+
+    return tree

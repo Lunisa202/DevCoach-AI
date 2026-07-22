@@ -170,3 +170,44 @@ async def verify_ticket(
         "diff": full_diff,
         "message": f"Cambios detectados en {len(intersection)} archivo(s). Ticket en revisión.",
     }
+
+
+# ============================================================
+# ENDPOINT: GET /api/tickets/{ticket_id}/reviews
+# ============================================================
+
+
+@router.get(
+    "/{ticket_id}/reviews",
+    summary="Obtener historial de entrevistas de un ticket",
+    responses={
+        200: {"description": "Lista de reviews"},
+        404: {"description": "Ticket no encontrado"},
+    },
+)
+async def get_ticket_reviews(
+    ticket_id: str,
+    current_user: dict = Depends(get_current_user),
+):
+    """
+    Devuelve todas las reviews/entrevistas de un ticket (historial de intentos).
+    Ordenadas por fecha (más reciente primero).
+    """
+    settings = get_settings()
+    db = DBService(url=settings.SUPABASE_URL, key=settings.SUPABASE_KEY)
+
+    # Verificar que el ticket existe
+    try:
+        ticket = await db.get_ticket(ticket_id)
+    except RecordNotFoundError:
+        raise HTTPException(status_code=404, detail="Ticket no encontrado")
+    except DBServiceError:
+        raise HTTPException(status_code=500, detail="No se pudo obtener el ticket")
+
+    # Obtener reviews
+    try:
+        reviews = await db.get_reviews_by_ticket(ticket_id)
+    except DBServiceError:
+        raise HTTPException(status_code=500, detail="No se pudieron obtener las reviews")
+
+    return reviews
