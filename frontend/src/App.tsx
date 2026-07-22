@@ -4,6 +4,7 @@ import { RegisterPage } from './pages/RegisterPage'
 import { RepoInputPage } from './pages/RepoInputPage'
 import { FileSelectorPage } from './pages/FileSelectorPage'
 import { DashboardPage } from './pages/DashboardPage'
+import { InterviewPage } from './pages/InterviewPage'
 import { AppLayout } from './components/AppLayout'
 
 function App() {
@@ -18,9 +19,7 @@ function App() {
         <Route path="/" element={<RepoInputPage />} />
         <Route path="/select" element={<FileSelectorPage />} />
         <Route path="/dashboard/:projectId" element={<DashboardPage />} />
-        {/* Futuras rutas:
         <Route path="/interview/:ticketId" element={<InterviewPage />} />
-        */}
       </Route>
 
       {/* Fallback */}

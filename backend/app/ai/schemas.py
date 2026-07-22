@@ -68,8 +68,19 @@ class TechLeadResult(BaseModel):
 # --- Evaluator schemas ---
 
 
-class EvaluationResult(BaseModel):
-    """Result of the Evaluator agent — feedback and approval decision."""
+class DimensionScore(BaseModel):
+    """Score for a single evaluation dimension (0-20 points)."""
 
-    feedback: str = Field(..., max_length=3000, description="Detailed feedback")
-    aprobado: bool = Field(..., description="Whether the answers are approved")
+    dimension: str = Field(..., description="Name of the dimension evaluated")
+    puntaje: int = Field(..., ge=0, le=20, description="Score 0-20")
+    comentario: str = Field(..., description="Brief comment about performance in this dimension")
+
+
+class EvaluationResult(BaseModel):
+    """Result of the Evaluator agent — detailed feedback with 5 dimensions."""
+
+    feedback: str = Field(..., max_length=3000, description="General constructive feedback")
+    aprobado: bool = Field(..., description="Whether the answers are approved (calificacion >= 70)")
+    calificacion: int = Field(..., ge=0, le=100, description="Overall score 0-100 (sum of 5 dimensions)")
+    aspectos_evaluados: list[DimensionScore] = Field(..., min_length=5, max_length=5, description="5 dimension scores")
+    conceptos_a_mejorar: list[str] = Field(..., description="Concepts the developer should study further")

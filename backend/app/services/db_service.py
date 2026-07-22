@@ -309,18 +309,12 @@ class DBService:
         respuestas: str,
         feedback: str,
         aprobado: bool,
+        calificacion: int | None = None,
+        aspectos_evaluados: list[dict] | None = None,
+        conceptos_a_mejorar: list[str] | None = None,
     ) -> dict:
         """
         Guarda una review (resultado de la entrevista) en la DB.
-
-        LÓGICA DE NEGOCIO:
-            Después de que el Evaluator califica las respuestas del usuario,
-            guardamos todo el registro: las preguntas que se hicieron, lo que
-            respondió el usuario, el feedback de la IA, y si fue aprobado o no.
-
-            Esto permite:
-            - Historial de intentos (un ticket puede tener varias reviews si no aprueba)
-            - Transparencia (el usuario ve el feedback detallado)
 
         PARÁMETROS:
             ticket_id: UUID del ticket evaluado
@@ -328,20 +322,33 @@ class DBService:
             respuestas: texto con las respuestas del usuario (concatenadas)
             feedback: texto del Evaluator explicando su decisión
             aprobado: True si el usuario demostró comprensión, False si no
+            calificacion: puntaje 0-100 (suma de 5 dimensiones)
+            aspectos_evaluados: lista de {dimension, puntaje, comentario}
+            conceptos_a_mejorar: conceptos que el usuario debería estudiar
 
         RETORNA:
             Diccionario con la review creada.
         """
         try:
+            row = {
+                "ticket_id": str(ticket_id),
+                "preguntas_generadas": preguntas,
+                "respuesta_usuario": respuestas,
+                "feedback_evaluator": feedback,
+                "aprobado": aprobado,
+            }
+
+            if calificacion is not None:
+                row["calificacion"] = calificacion
+            if aspectos_evaluados is not None:
+                import json
+                row["aspectos_evaluados"] = json.dumps(aspectos_evaluados)
+            if conceptos_a_mejorar is not None:
+                row["conceptos_a_mejorar"] = conceptos_a_mejorar
+
             result = (
                 self._client.table("reviews")
-                .insert({
-                    "ticket_id": str(ticket_id),
-                    "preguntas_generadas": preguntas,
-                    "respuesta_usuario": respuestas,
-                    "feedback_evaluator": feedback,
-                    "aprobado": aprobado,
-                })
+                .insert(row)
                 .execute()
             )
 

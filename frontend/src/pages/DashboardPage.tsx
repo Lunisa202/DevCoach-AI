@@ -3,14 +3,16 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { AxiosError } from 'axios'
 import toast from 'react-hot-toast'
 import { Spinner } from '../components/Spinner'
+import { InterviewModeModal } from '../components/InterviewModeModal'
 import { getProjectTickets } from '../services/projectService'
-import { verifyTicket } from '../services/ticketService'
+import { verifyTicket, getTicketReviews } from '../services/ticketService'
 import type { TicketResponse } from '../types/project'
+import type { ReviewDetailed } from '../types/interview'
 
 type ColumnId = 'to_do' | 'in_review' | 'done'
 
 // ============================================================
-// TicketCard — tarjeta expandible
+// TicketCard — tarjeta expandible con historial de reviews
 // ============================================================
 
 function TicketCard({
@@ -27,30 +29,62 @@ function TicketCard({
   onStartInterview: () => void
 }) {
   const [expanded, setExpanded] = useState(false)
+  const [reviews, setReviews] = useState<ReviewDetailed[]>([])
+  const [loadingReviews, setLoadingReviews] = useState(false)
+
+  const loadReviews = async () => {
+    if (reviews.length > 0) return // ya cargadas
+    setLoadingReviews(true)
+    try {
+      const data = await getTicketReviews(ticket.id)
+      setReviews(data)
+    } catch {
+      // silencioso — no es crítico
+    } finally {
+      setLoadingReviews(false)
+    }
+  }
+
+  const handleExpand = () => {
+    const next = !expanded
+    setExpanded(next)
+    if (next && (columnId === 'in_review' || columnId === 'done')) {
+      loadReviews()
+    }
+  }
+
+  const attemptCount = reviews.length
 
   return (
     <div
       className="p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 cursor-pointer transition-all hover:border-indigo-300 dark:hover:border-indigo-600"
-      onClick={() => setExpanded(!expanded)}
+      onClick={handleExpand}
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
         <h3 className="text-sm font-medium text-slate-800 dark:text-slate-100">
           {ticket.titulo}
         </h3>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className={`h-4 w-4 text-slate-400 flex-shrink-0 transition-transform ${expanded ? 'rotate-180' : ''}`}
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-        </svg>
+        <div className="flex items-center gap-1.5 flex-shrink-0">
+          {attemptCount > 0 && (
+            <span className="text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300">
+              {attemptCount} intento{attemptCount !== 1 ? 's' : ''}
+            </span>
+          )}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className={`h-4 w-4 text-slate-400 transition-transform ${expanded ? 'rotate-180' : ''}`}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
       </div>
 
-      {/* Description — truncated or full */}
+      {/* Description */}
       <p className={`text-xs text-slate-500 dark:text-slate-400 mt-2 ${expanded ? '' : 'line-clamp-2'}`}>
         {ticket.descripcion}
       </p>
@@ -68,9 +102,10 @@ function TicketCard({
         </span>
       </div>
 
-      {/* Actions — solo visibles al expandir */}
+      {/* Expanded content */}
       {expanded && (
         <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700" onClick={(e) => e.stopPropagation()}>
+          {/* Actions */}
           {columnId === 'to_do' && (
             <button
               onClick={onVerify}
@@ -107,6 +142,43 @@ function TicketCard({
               </svg>
               Aprobado
             </span>
+          )}
+
+          {/* Reviews history */}
+          {loadingReviews && (
+            <div className="mt-3 flex justify-center">
+              <Spinner size="sm" />
+            </div>
+          )}
+
+          {!loadingReviews && reviews.length > 0 && (
+            <div className="mt-3 space-y-2">
+              <p className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                Historial de intentos
+              </p>
+              {reviews.map((review, i) => (
+                <div key={review.id} className="p-2 rounded bg-slate-100 dark:bg-slate-700/50 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-slate-500 dark:text-slate-400">
+                      Intento {reviews.length - i}
+                      {review.created_at && ` — ${new Date(review.created_at).toLocaleDateString('es', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}`}
+                    </span>
+                    <span className={`text-xs font-medium ${review.aprobado ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                      {review.calificacion != null ? `${review.calificacion}/100` : (review.aprobado ? 'Aprobado' : 'No aprobado')}
+                    </span>
+                  </div>
+                  {review.conceptos_a_mejorar && review.conceptos_a_mejorar.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {review.conceptos_a_mejorar.map((c, j) => (
+                        <span key={j} className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300">
+                          {c}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           )}
         </div>
       )}
@@ -170,8 +242,17 @@ export function DashboardPage() {
     }
   }
 
+  const [interviewTicketId, setInterviewTicketId] = useState<string | null>(null)
+
   const handleStartInterview = (ticketId: string) => {
-    navigate(`/interview/${ticketId}`)
+    setInterviewTicketId(ticketId)
+  }
+
+  const handleSelectMode = (mode: 'chat' | 'voice') => {
+    if (interviewTicketId) {
+      navigate(`/interview/${interviewTicketId}?mode=${mode}`)
+      setInterviewTicketId(null)
+    }
   }
 
   const getColumnTickets = (estado: ColumnId): TicketResponse[] => {
@@ -245,6 +326,13 @@ export function DashboardPage() {
           )
         })}
       </div>
+
+      {/* Modal selector de modalidad */}
+      <InterviewModeModal
+        isOpen={interviewTicketId !== null}
+        onSelectMode={handleSelectMode}
+        onCancel={() => setInterviewTicketId(null)}
+      />
     </div>
   )
 }

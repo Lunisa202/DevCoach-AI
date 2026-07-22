@@ -215,25 +215,30 @@ src/hooks/useSpeechRecognition.ts   ← wrapper de STT con transcript + error ha
 ## Checklist
 
 ### C.1 — Chat
-- [ ] `interviewService.ts` con `startInterview()` y `evaluateAnswers()`
-- [ ] `ChatInterviewPage.tsx` con burbujas + campos de texto
-- [ ] Spinner mientras carga preguntas y durante evaluación
-- [ ] Resultado con feedback + badge
-- [ ] Toast de éxito/error
+- [x] `interviewService.ts` con `startInterview()` y `evaluateAnswers()`
+- [x] `ChatInterviewPage.tsx` con burbujas + campos de texto
+- [x] Spinner mientras carga preguntas y durante evaluación
+- [x] Resultado detallado con calificación + 5 dimensiones + conceptos
+- [x] Toast de éxito/error
+- [x] Botón "Intentar de nuevo" si no aprueba
 
 ### C.3 — Modal selector
-- [ ] `InterviewModeModal.tsx` con feature detection
-- [ ] Botón "Llamada" deshabilitado si no soporta SpeechRecognition
-- [ ] Tooltip explicativo en botón deshabilitado
-- [ ] Navega a la ruta correcta según elección
+- [x] `InterviewModeModal.tsx` con feature detection
+- [x] Botón "Llamada" deshabilitado si no soporta SpeechRecognition
+- [x] Tooltip explicativo en botón deshabilitado
+- [x] Navega a la ruta correcta según elección (`?mode=chat` o `?mode=voice`)
 
 ### C.2 — Voice
-- [ ] `useSpeechSynthesis.ts` hook (speak, stop, isSpeaking)
-- [ ] `useSpeechRecognition.ts` hook (start, stop, transcript, error)
-- [ ] `AvatarSpeaker.tsx` con animación de "hablando"
-- [ ] `VoiceRecorder.tsx` con transcripción en tiempo real
-- [ ] `VoiceInterviewPage.tsx` con flujo completo
-- [ ] Permiso de micrófono (y cámara opcional)
-- [ ] Botón "Terminé de responder" para avanzar entre preguntas
-- [ ] Fallback a chat si algo falla
-- [ ] Preview de cámara del usuario (decorativo)
+- [x] `useSpeechSynthesis.ts` hook (speak, stop, isSpeaking)
+- [x] `useSpeechRecognition.ts` hook (start, stop, transcript, error, resetTranscript)
+- [x] `AvatarSpeaker.tsx` con animación de "hablando" + estados (speaking/listening/processing)
+- [x] `VoiceInterviewPage.tsx` con flujo completo
+- [x] Greeting del avatar antes de las preguntas
+- [x] Permiso de micrófono con fallback a chat si falla
+- [x] Botón "Terminé de responder" siempre visible durante fase listening
+- [x] Botón "🔁 Repetir pregunta" para que el avatar lea de nuevo
+- [x] Botón "🎤 Reiniciar micrófono" si pierde el foco
+- [x] Pantalla de revisión con textareas editables + "Volver a grabar" con ícono micrófono
+- [x] Indicador visual de grabación (ícono micrófono rojo + "Grabando..." + transcripción parcial)
+- [x] Avatar lee feedback del evaluador al final
+- [x] Fallback automático a chat si STT falla
