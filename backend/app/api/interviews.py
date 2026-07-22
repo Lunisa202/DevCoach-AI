@@ -251,6 +251,9 @@ async def evaluate_answers(
         )
         feedback = result.feedback
         aprobado = result.aprobado
+        calificacion = result.calificacion
+        aspectos_evaluados = [a.model_dump() for a in result.aspectos_evaluados]
+        conceptos_a_mejorar = result.conceptos_a_mejorar
 
     except asyncio.TimeoutError:
         raise HTTPException(
@@ -262,6 +265,15 @@ async def evaluate_answers(
         logger.warning("Evaluator agent not available, using mock evaluation")
         feedback = "Buenas respuestas. Demuestran comprensión del problema y la solución implementada."
         aprobado = True
+        calificacion = 82
+        aspectos_evaluados = [
+            {"dimension": "Comprensión del problema", "puntaje": 18, "comentario": "Demuestra entender el problema."},
+            {"dimension": "Justificación técnica", "puntaje": 16, "comentario": "Buena justificación."},
+            {"dimension": "Conocimiento de alternativas", "puntaje": 15, "comentario": "Menciona alternativas."},
+            {"dimension": "Conciencia de limitaciones", "puntaje": 17, "comentario": "Reconoce limitaciones."},
+            {"dimension": "Claridad de comunicación", "puntaje": 16, "comentario": "Se expresa con claridad."},
+        ]
+        conceptos_a_mejorar = ["Testing unitario", "Principios SOLID"]
     except Exception as e:
         logger.error(f"Evaluator error: {e}")
         raise HTTPException(
@@ -278,10 +290,12 @@ async def evaluate_answers(
             respuestas=respuestas_texto,
             feedback=feedback,
             aprobado=aprobado,
+            calificacion=calificacion,
+            aspectos_evaluados=aspectos_evaluados,
+            conceptos_a_mejorar=conceptos_a_mejorar,
         )
     except DBServiceError as e:
         logger.error(f"Error saving review: {e}")
-        # No lanzar error — la evaluación ya se hizo, solo falla persistencia
 
     # --- Actualizar estado del ticket ---
     try:
@@ -294,4 +308,7 @@ async def evaluate_answers(
     return {
         "feedback": feedback,
         "aprobado": aprobado,
+        "calificacion": calificacion,
+        "aspectos_evaluados": aspectos_evaluados,
+        "conceptos_a_mejorar": conceptos_a_mejorar,
     }

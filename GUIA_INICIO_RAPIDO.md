@@ -17,13 +17,14 @@ Cada persona ya tiene su(s) rama(s) lista(s) para trabajar. Todas parten de `dev
 | Carolina (Frontend) | `feature/frontend/repo-input` | 9.1 | ✅ |
 | Carolina (Frontend) | `feature/frontend/sidebar` | **B.2** | ✅ |
 | Carolina (Frontend) | `feature/frontend/file-selector` | 9.2 | ✅ |
-| Carolina (Frontend) | `feature/frontend/dashboard` | 9.3 | ✅ |
-| Carolina (Frontend) | `feature/frontend/interview` | **C.1**, **C.2**, **C.3** | ⏭️ Siguiente |
+| Carolina (Frontend) | `feature/frontend/dashboard` | 9.3, **D.1** | ✅ |
+| Carolina (Frontend) | `feature/frontend/interview` | **C.1**, **C.2**, **C.3** | ✅ |
 | Carolina (Frontend) | `feature/frontend/routing` | 11.1, 11.2 | |
 
 > 📄 Ver detalle de las tareas A.1 y A.2 en [`TAREAS_AUTH.md`](./TAREAS_AUTH.md)
 > 📄 Ver detalle de las tareas B.1 y B.2 (sidebar + historial) en [`TAREAS_HISTORIAL.md`](./TAREAS_HISTORIAL.md)
 > 📄 Ver detalle de las tareas C.1, C.2 y C.3 (entrevista chat + voz) en [`TAREAS_ENTREVISTA.md`](./TAREAS_ENTREVISTA.md)
+> 📄 Ver detalle de la tarea D.1 (evaluación detallada con 5 dimensiones) en [`TAREAS_EVALUACION_DETALLADA.md`](./TAREAS_EVALUACION_DETALLADA.md)
 
 ---
 
