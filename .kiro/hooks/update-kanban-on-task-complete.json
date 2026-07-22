@@ -1,0 +1,14 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Update Jira Kanban on task complete",
+      "trigger": "PostTaskExec",
+      "description": "When a spec task is marked as completed in .kiro/specs/devcoach-ai/tasks.md, move the corresponding Jira card (project DA) to \"Listo\" using the mcp-atlassian MCP.",
+      "action": {
+        "type": "agent",
+        "prompt": "A spec task in .kiro/specs/devcoach-ai/tasks.md has just been marked as completed. Your job is to reflect this in the team's Jira Kanban board.\n\nSteps:\n1. Detect which task was just completed. Look at recent conversation context and at .kiro/specs/devcoach-ai/tasks.md — find the checkbox that flipped from [ ] to [x]. The task number is at the start of the line (e.g. \"2.4\", \"3.1\", \"9.5\") or matches an infra name.\n2. In Jira project \"DA\" (DevCoach AI), search for the card whose summary starts with that number (or exact match for INFRA-* tasks). Use the mcp_atlassian_jira_search tool with a JQL query like: project = DA AND summary ~ \"\\\"2.4 —\\\"\"\n3. If exactly one match is found, transition it to \"Listo\" using mcp_atlassian_jira_transition_issue with transition_id = 41.\n4. If no match or multiple matches, do NOT guess — report to the user which task was completed and ask them to confirm which Jira card to update.\n5. Do NOT modify any project files. Only touch Jira.\n6. Reply with one short line: \"Jira card DA-XX marked as Listo.\" or the ambiguity you found.\n\nRules:\n- Never mark checkpoints (tasks like \"6 — Checkpoint\", \"8 — Checkpoint\", etc.) as done automatically — those are team review points, not work items. Skip them.\n- If the mcp-atlassian MCP is not available in this session (tools starting with mcp_atlassian_ are missing), stop silently — the user hasn't configured their local MCP yet, and that's fine.\n- Only project \"DA\" is in scope. Ignore anything else."
+      }
+    }
+  ]
+}
