@@ -408,6 +408,69 @@ class DBService:
         return f"{hours}h {remaining}min"
 
     # ---------------------------------------------------------------
+    # PROJECTS — HISTORIAL
+    # ---------------------------------------------------------------
+
+    async def get_projects_by_user(self, user_id: str) -> list[dict]:
+        """
+        Lista todos los proyectos de un usuario, ordenados por fecha descendente.
+
+        Usado por el sidebar del frontend para mostrar el historial.
+        """
+        try:
+            result = (
+                self._client.table("projects")
+                .select("*")
+                .eq("user_id", user_id)
+                .order("fecha_analisis", desc=True)
+                .execute()
+            )
+
+            return result.data or []
+
+        except Exception as e:
+            logger.error(f"Error obteniendo proyectos del usuario {user_id}: {e}")
+            raise DBServiceError("No se pudieron obtener los proyectos")
+
+    async def delete_project(self, project_id: str, user_id: str) -> bool:
+        """
+        Elimina un proyecto verificando que pertenezca al usuario.
+
+        SEGURIDAD: un usuario solo puede eliminar sus propios proyectos.
+        El CASCADE de la FK elimina tickets y reviews automáticamente.
+
+        RETORNA:
+            True si se eliminó, False si no existía.
+
+        LANZA:
+            DBServiceError si el proyecto no pertenece al usuario.
+        """
+        try:
+            # Verificar que el proyecto existe y pertenece al usuario
+            check = (
+                self._client.table("projects")
+                .select("id, user_id")
+                .eq("id", project_id)
+                .execute()
+            )
+
+            if not check.data:
+                return False
+
+            if check.data[0]["user_id"] != user_id:
+                raise DBServiceError("El proyecto no pertenece al usuario")
+
+            # Eliminar (CASCADE borra tickets y reviews)
+            self._client.table("projects").delete().eq("id", project_id).execute()
+            return True
+
+        except DBServiceError:
+            raise
+        except Exception as e:
+            logger.error(f"Error eliminando proyecto {project_id}: {e}")
+            raise DBServiceError("No se pudo eliminar el proyecto")
+
+    # ---------------------------------------------------------------
     # USERS
     # ---------------------------------------------------------------
 

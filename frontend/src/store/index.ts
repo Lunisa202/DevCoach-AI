@@ -1,9 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { persistStore, persistReducer } from 'redux-persist'
 import authReducer from './slices/authSlice'
+import projectsReducer from './slices/projectsSlice'
 
 // Custom storage para compatibilidad con Vite ESM
-// (redux-persist/lib/storage puede fallar con bundlers modernos)
 const storage = {
   getItem: (key: string) => Promise.resolve(localStorage.getItem(key)),
   setItem: (key: string, value: string) => Promise.resolve(localStorage.setItem(key, value)),
@@ -20,6 +20,7 @@ const persistedAuthReducer = persistReducer(persistConfig, authReducer)
 export const store = configureStore({
   reducer: {
     auth: persistedAuthReducer,
+    projects: projectsReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
