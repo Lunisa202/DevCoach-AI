@@ -7,7 +7,7 @@ Maneja:
 
 import logging
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
 from app.config import get_settings
 from app.models.ticket import EstadoTicket
@@ -18,6 +18,7 @@ from app.services.github_service import (
     GitHubServiceError,
 )
 from app.services.db_service import DBService, DBServiceError, RecordNotFoundError
+from app.services.auth_service import get_current_user
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +39,10 @@ router = APIRouter(prefix="/api/tickets", tags=["Tickets"])
         503: {"description": "Error al comunicarse con GitHub"},
     },
 )
-async def verify_ticket(ticket_id: str):
+async def verify_ticket(
+    ticket_id: str,
+    current_user: dict = Depends(get_current_user),
+):
     """
     Verifica que el último commit del repo contiene cambios en archivos del proyecto.
 

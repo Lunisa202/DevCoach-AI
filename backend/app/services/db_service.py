@@ -88,7 +88,7 @@ class DBService:
     # PROJECTS
     # ---------------------------------------------------------------
 
-    async def create_project(self, repo_url: str, archivos_seleccionados: list[str]) -> dict:
+    async def create_project(self, repo_url: str, archivos_seleccionados: list[str], user_id: str) -> dict:
         """
         Crea un nuevo proyecto en la DB.
 
@@ -99,6 +99,7 @@ class DBService:
         PARÁMETROS:
             repo_url: URL del repositorio (ya validada por el endpoint)
             archivos_seleccionados: lista de rutas de archivos elegidos por el usuario
+            user_id: ID del usuario autenticado (extraído del JWT, nunca del body)
 
         RETORNA:
             Diccionario con los datos del proyecto creado (incluye id y fecha_analisis
@@ -110,6 +111,7 @@ class DBService:
                 .insert({
                     "repo_url": repo_url,
                     "archivos_seleccionados": archivos_seleccionados,
+                    "user_id": user_id,
                 })
                 .execute()
             )
@@ -404,3 +406,107 @@ class DBService:
             return f"{hours}h"
 
         return f"{hours}h {remaining}min"
+
+    # ---------------------------------------------------------------
+    # USERS
+    # ---------------------------------------------------------------
+
+    async def create_user(self, full_name: str, email: str, hashed_password: str) -> dict:
+        """
+        Crea un nuevo usuario en la DB.
+
+        PARÁMETROS:
+            full_name: nombre completo del usuario
+            email: email único (la DB tiene UNIQUE constraint)
+            hashed_password: bcrypt hash — NUNCA texto claro
+
+        RETORNA:
+            Diccionario con los datos del usuario creado (sin password).
+
+        LANZA:
+            DBServiceError con mensaje "Email ya registrado" si el email ya existe.
+        """
+        try:
+            result = (
+                self._client.table("users")
+                .insert({
+                    "full_name": full_name,
+                    "email": email,
+                    "password": hashed_password,
+                })
+                .execute()
+            )
+
+            if not result.data:
+                raise DBServiceError("No se pudo crear el usuario")
+
+            user = result.data[0]
+            # Nunca devolver el hash de la contraseña
+            user.pop("password", None)
+            return user
+
+        except DBServiceError:
+            raise
+        except Exception as e:
+            error_str = str(e).lower()
+            if "unique" in error_str or "duplicate" in error_str or "23505" in error_str:
+                raise DBServiceError("Email ya registrado")
+            logger.error(f"Error creando usuario: {e}")
+            raise DBServiceError("No se pudo crear el usuario")
+
+    async def get_user_by_email(self, email: str) -> dict | None:
+        """
+        Busca un usuario por email. Incluye el hash de contraseña (para verificación).
+
+        RETORNA:
+            Diccionario con todos los campos del usuario (incluye password hash),
+            o None si no existe.
+
+        NOTA:
+            Este método incluye el password para que auth_service pueda verificarlo.
+            NUNCA devolver este dict directamente al frontend — usar UserResponse.
+        """
+        try:
+            result = (
+                self._client.table("users")
+                .select("*")
+                .eq("email", email)
+                .execute()
+            )
+
+            if not result.data:
+                return None
+
+            return result.data[0]
+
+        except Exception as e:
+            logger.error(f"Error buscando usuario por email: {e}")
+            raise DBServiceError("No se pudo completar la operación")
+
+    async def get_user_by_id(self, user_id: str) -> dict:
+        """
+        Obtiene un usuario por su ID. No incluye el hash de contraseña.
+
+        Usado por get_current_user para validar el token JWT.
+
+        LANZA:
+            DBServiceError si no existe o hay error de DB.
+        """
+        try:
+            result = (
+                self._client.table("users")
+                .select("id, full_name, email, created_at")
+                .eq("id", user_id)
+                .execute()
+            )
+
+            if not result.data:
+                raise DBServiceError("Usuario no encontrado")
+
+            return result.data[0]
+
+        except DBServiceError:
+            raise
+        except Exception as e:
+            logger.error(f"Error obteniendo usuario {user_id}: {e}")
+            raise DBServiceError("No se pudo obtener el usuario")
