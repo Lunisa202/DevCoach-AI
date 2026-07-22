@@ -4,25 +4,26 @@
 
 Cada persona ya tiene su(s) rama(s) lista(s) para trabajar. Todas parten de `development`.
 
-| Persona | Rama | Tareas |
-|---------|------|--------|
-| Génesis (Backend IA) | `feature/backend/ai-provider` | 2.1, 2.2, 2.3 |
-| Génesis (Backend IA) | `feature/backend/agents` | 2.4, 2.5, 2.6, 2.7, 2.8 |
-| Camilo (Plataforma) | `feature/backend/github-service` | 3.1, 3.2 |
-| Camilo (Plataforma) | `feature/backend/db-service` | 4.1, 5.1 |
-| Camilo (Plataforma) | `feature/backend/api-endpoints` | 7.1, 7.2, 7.3, 7.4, 7.5 |
-| Camilo (Plataforma) | `feature/backend/auth` | **A.1** ← nueva |
-| Carolina (Frontend) | `feature/frontend/setup` | 1.2 ✅ |
-| Carolina (Frontend) | `feature/frontend/auth` | **A.2** ✅ |
-| Carolina (Frontend) | `feature/frontend/sidebar` | **B.2** ← nueva (después de 9.1) |
-| Carolina (Frontend) | `feature/frontend/repo-input` | 9.1 |
-| Carolina (Frontend) | `feature/frontend/file-selector` | 9.2 |
-| Carolina (Frontend) | `feature/frontend/dashboard` | 9.3 |
-| Carolina/Abner (Frontend) | `feature/frontend/interview` | 9.4, 9.5, 9.6, 9.7 |
-| Carolina (Frontend) | `feature/frontend/routing` | 11.1, 11.2 |
+| Persona | Rama | Tareas | Estado |
+|---------|------|--------|--------|
+| Génesis (Backend IA) | `feature/backend/ai-provider` | 2.1, 2.2, 2.3 | |
+| Génesis (Backend IA) | `feature/backend/agents` | 2.4, 2.5, 2.6, 2.7, 2.8 | |
+| Camilo (Plataforma) | `feature/backend/github-service` | 3.1, 3.2 | |
+| Camilo (Plataforma) | `feature/backend/db-service` | 4.1, 5.1 | |
+| Camilo (Plataforma) | `feature/backend/api-endpoints` | 7.1, 7.2, 7.3, 7.4, 7.5, **B.1** | |
+| Camilo (Plataforma) | `feature/backend/auth` | **A.1** | ✅ |
+| Carolina (Frontend) | `feature/frontend/setup` | 1.2 | ✅ |
+| Carolina (Frontend) | `feature/frontend/auth` | **A.2** | ✅ |
+| Carolina (Frontend) | `feature/frontend/repo-input` | 9.1 | ✅ |
+| Carolina (Frontend) | `feature/frontend/sidebar` | **B.2** | ✅ |
+| Carolina (Frontend) | `feature/frontend/file-selector` | 9.2 | ✅ |
+| Carolina (Frontend) | `feature/frontend/dashboard` | 9.3 | ✅ |
+| Carolina (Frontend) | `feature/frontend/interview` | **C.1**, **C.2**, **C.3** | ⏭️ Siguiente |
+| Carolina (Frontend) | `feature/frontend/routing` | 11.1, 11.2 | |
 
-> 📄 Ver detalle completo de las tareas A.1 y A.2 en [`TAREAS_AUTH.md`](./TAREAS_AUTH.md)
+> 📄 Ver detalle de las tareas A.1 y A.2 en [`TAREAS_AUTH.md`](./TAREAS_AUTH.md)
 > 📄 Ver detalle de las tareas B.1 y B.2 (sidebar + historial) en [`TAREAS_HISTORIAL.md`](./TAREAS_HISTORIAL.md)
+> 📄 Ver detalle de las tareas C.1, C.2 y C.3 (entrevista chat + voz) en [`TAREAS_ENTREVISTA.md`](./TAREAS_ENTREVISTA.md)
 
 ---
 
