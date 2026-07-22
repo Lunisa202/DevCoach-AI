@@ -246,6 +246,9 @@ async def create_project(request: ProjectCreate):
             generate_tickets(provider, review),
             timeout=60.0,
         )
+        # generate_tickets returns TicketGenerationResult wrapper — extract the list
+        if hasattr(tickets_data, 'tickets'):
+            tickets_data = tickets_data.tickets
 
     except asyncio.TimeoutError:
         raise HTTPException(
