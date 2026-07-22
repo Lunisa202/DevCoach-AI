@@ -21,16 +21,12 @@ from uuid import UUID
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+import bcrypt
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 
 from app.config import get_settings
 
 logger = logging.getLogger(__name__)
-
-# Contexto de bcrypt para hashear contraseñas
-# bcrypt aplica un salt aleatorio automáticamente — dos hashes del mismo texto son distintos
-_pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Esquema de seguridad para Swagger — lee el header "Authorization: Bearer <token>"
 _bearer_scheme = HTTPBearer()
@@ -50,7 +46,11 @@ def hash_password(plain: str) -> str:
 
     NUNCA almacenar el valor de `plain` en logs o DB.
     """
-    return _pwd_context.hash(plain)
+    # bcrypt espera bytes, no str
+    password_bytes = plain.encode("utf-8")
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(password_bytes, salt)
+    return hashed.decode("utf-8")
 
 
 def verify_password(plain: str, hashed: str) -> bool:
@@ -59,7 +59,9 @@ def verify_password(plain: str, hashed: str) -> bool:
 
     Usa comparación de tiempo constante internamente para evitar timing attacks.
     """
-    return _pwd_context.verify(plain, hashed)
+    password_bytes = plain.encode("utf-8")
+    hashed_bytes = hashed.encode("utf-8")
+    return bcrypt.checkpw(password_bytes, hashed_bytes)
 
 
 # ---------------------------------------------------------------
