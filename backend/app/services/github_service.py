@@ -372,5 +372,6 @@ class GitHubService:
         return {
             "sha": commit_sha,
             "message": commit_detail.get("commit", {}).get("message", ""),
+            "date": commit_detail.get("commit", {}).get("author", {}).get("date", ""),
             "files": files,
         }

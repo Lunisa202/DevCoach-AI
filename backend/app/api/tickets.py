@@ -110,6 +110,28 @@ async def verify_ticket(ticket_id: str):
     commit_files = set(f["filename"] for f in commit["files"])
     intersection = project_files & commit_files
 
+    # --- Paso 4.5: Verificar que el commit es posterior al análisis ---
+    from datetime import datetime, timezone
+    commit_date_str = commit.get("date", "")
+    if commit_date_str and project.get("fecha_analisis"):
+        try:
+            commit_date = datetime.fromisoformat(commit_date_str.replace("Z", "+00:00"))
+            project_date = datetime.fromisoformat(str(project["fecha_analisis"]))
+            if commit_date < project_date:
+                # Commit es anterior al análisis — revertir
+                try:
+                    updated_ticket = await db.update_ticket_state(ticket_id, EstadoTicket.TO_DO)
+                except DBServiceError:
+                    updated_ticket = ticket
+                    updated_ticket["estado"] = "to_do"
+                return {
+                    "ticket": updated_ticket,
+                    "diff": None,
+                    "message": "El último commit es anterior al análisis. Haz un commit nuevo con tu solución y vuelve a verificar.",
+                }
+        except (ValueError, TypeError):
+            pass  # Si no se puede parsear la fecha, continuamos sin validar
+
     # --- Paso 5/6: Decidir ---
     if not intersection:
         # No hay cambios relevantes → revertir a to_do

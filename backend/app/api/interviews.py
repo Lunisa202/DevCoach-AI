@@ -119,6 +119,9 @@ async def start_interview(request: InterviewStartRequest):
             generate_questions(provider, ticket_data, diff),
             timeout=30.0,
         )
+        # generate_questions returns TechLeadResult wrapper — extract the list
+        if hasattr(questions, 'preguntas'):
+            questions = questions.preguntas
 
     except asyncio.TimeoutError:
         raise HTTPException(
