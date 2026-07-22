@@ -10,10 +10,24 @@ Este documento explica cómo conectar tu Kiro con el tablero Kanban de Jira del 
 ## Requisitos previos
 
 1. Tener cuenta de Atlassian con acceso al site `https://genesismoralesc1.atlassian.net`. Si Génesis todavía no te invitó, avisale con tu email.
-2. Tener `uv` instalado (trae `uvx`, que es lo que el MCP usa para arrancar). Si no lo tenés:
+2. Tener `uv` instalado (trae `uvx`, que es lo que el MCP usa para arrancar):
+
+   **Windows / cualquiera con Python:**
    ```
    pip install uv
    ```
+
+   **macOS (con Homebrew):**
+   ```
+   brew install uv
+   ```
+
+   **Linux (o macOS sin Homebrew):**
+   ```
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   ```
+
+   Verificá con `uvx --version` que responda.
 
 ## Paso 1 — Generar tu API token de Atlassian
 
@@ -30,23 +44,55 @@ Cada persona usa su propio token, nunca el de otra.
 
 ### Windows
 
-Ruta: `C:\Users\<tu-usuario>\.kiro\settings\mcp.json`
+Ruta completa: `C:\Users\<tu-usuario>\.kiro\settings\mcp.json`
 
-Si la carpeta no existe, creala:
+Podés crearlo así:
+
+```cmd
+mkdir "%USERPROFILE%\.kiro\settings"
+notepad "%USERPROFILE%\.kiro\settings\mcp.json"
 ```
-mkdir "C:\Users\<tu-usuario>\.kiro\settings"
+
+O si preferís PowerShell:
+```powershell
+New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.kiro\settings"
+notepad "$env:USERPROFILE\.kiro\settings\mcp.json"
 ```
 
-### macOS / Linux
+Notepad va a preguntarte si querés crear el archivo — decí que sí, pegá el JSON del bloque de abajo, guardá y cerrá.
 
-Ruta: `~/.kiro/settings/mcp.json`
+### macOS
 
-Si la carpeta no existe:
-```
+Ruta completa: `~/.kiro/settings/mcp.json` (equivale a `/Users/<tu-usuario>/.kiro/settings/mcp.json`)
+
+Desde la terminal:
+```bash
 mkdir -p ~/.kiro/settings
+touch ~/.kiro/settings/mcp.json
+open -a "TextEdit" ~/.kiro/settings/mcp.json
 ```
 
-### Contenido del archivo
+O si tenés VS Code / Kiro instalado con el CLI `code`:
+```bash
+mkdir -p ~/.kiro/settings
+code ~/.kiro/settings/mcp.json
+```
+
+Pegá el JSON del bloque de abajo y guardá.
+
+### Linux
+
+Ruta completa: `~/.kiro/settings/mcp.json` (equivale a `/home/<tu-usuario>/.kiro/settings/mcp.json`)
+
+Desde la terminal:
+```bash
+mkdir -p ~/.kiro/settings
+nano ~/.kiro/settings/mcp.json    # o vim, o code
+```
+
+Pegá el contenido del bloque de abajo y guardá (`Ctrl+O`, `Enter`, `Ctrl+X` en nano).
+
+### Contenido del archivo (igual en Windows, macOS y Linux)
 
 ```json
 {
@@ -84,7 +130,11 @@ Guardá el archivo.
 
 Tenés dos opciones:
 
-1. **Paleta de comandos**: Ctrl+Shift+P → buscá "MCP" → ejecutá "Reconnect MCP servers" (o el nombre equivalente en tu versión).
+1. **Paleta de comandos**:
+   - Windows / Linux: `Ctrl + Shift + P`
+   - macOS: `Cmd + Shift + P`
+
+   Buscá "MCP" → ejecutá "Reconnect MCP servers" (o el nombre equivalente en tu versión).
 2. **Cerrar y abrir Kiro** — hace lo mismo pero más lento.
 
 En el panel de MCP de Kiro (barra lateral izquierda) deberías ver:
