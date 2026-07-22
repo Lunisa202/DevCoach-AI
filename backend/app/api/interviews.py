@@ -101,7 +101,7 @@ async def start_interview(request: InterviewStartRequest):
     # --- Llamar al Tech_Lead ---
     try:
         from app.ai.providers import get_provider
-        from app.ai.tech_lead import generate_questions
+        from app.ai.agents.tech_lead import generate_questions
 
         provider = get_provider()
 
@@ -222,7 +222,7 @@ async def evaluate_answers(request: InterviewAnswersRequest):
     # --- Llamar al Evaluator ---
     try:
         from app.ai.providers import get_provider
-        from app.ai.evaluator import evaluate_answers as ai_evaluate
+        from app.ai.agents.evaluator import evaluate_answers as ai_evaluate
         from app.models.ticket import TicketData, Prioridad, Dificultad
 
         provider = get_provider()

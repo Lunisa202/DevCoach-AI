@@ -231,10 +231,9 @@ async def create_project(request: ProjectCreate):
 
     # --- Paso 4 y 5: Pipeline de IA (Code_Reviewer → Ticket_Generator) ---
     try:
-        # Importar agentes de IA (de Génesis)
         from app.ai.providers import get_provider
-        from app.ai.code_reviewer import analyze_code
-        from app.ai.ticket_generator import generate_tickets
+        from app.ai.agents.code_reviewer import analyze_code
+        from app.ai.agents.ticket_generator import generate_tickets
 
         provider = get_provider()
 
