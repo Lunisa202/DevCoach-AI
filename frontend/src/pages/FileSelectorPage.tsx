@@ -265,7 +265,7 @@ export function FileSelectorPage() {
           Seleccionar archivos
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          {state.owner}/{state.repo} — Seleccioná los archivos que querés que la IA analice
+          {state.owner}/{state.repo} — Selecciona los archivos que quieres que la IA analice
         </p>
       </div>
 

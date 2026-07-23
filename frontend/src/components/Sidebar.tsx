@@ -1,5 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
+import { Plus, LogOut } from 'lucide-react'
 import { DevCoachLogo } from './DevCoachLogo'
 import { Spinner } from './Spinner'
 import { SidebarProjectItem } from './SidebarProjectItem'
@@ -73,9 +74,7 @@ export function Sidebar({ isOpen, onClose }: Props) {
             onClick={handleNewAnalysis}
             className="w-full py-2 px-3 border border-indigo-600 dark:border-indigo-400 text-indigo-600 dark:text-indigo-400 rounded-lg text-sm font-medium hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors flex items-center justify-center gap-2"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-            </svg>
+            <Plus className="h-4 w-4" />
             Nuevo análisis
           </button>
         </div>
@@ -88,7 +87,7 @@ export function Sidebar({ isOpen, onClose }: Props) {
             </div>
           ) : projects.length === 0 ? (
             <p className="text-center text-sm text-slate-400 dark:text-slate-500 py-8">
-              No tenés proyectos aún
+              No tienes proyectos aún
             </p>
           ) : (
             projects.map((project) => (
@@ -109,9 +108,7 @@ export function Sidebar({ isOpen, onClose }: Props) {
             onClick={handleLogout}
             className="w-full py-2 px-3 text-sm text-slate-500 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors flex items-center gap-2"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
+            <LogOut className="h-4 w-4" />
             Cerrar sesión
           </button>
         </div>

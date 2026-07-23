@@ -4,6 +4,7 @@ import { RegisterPage } from './pages/RegisterPage'
 import { RepoInputPage } from './pages/RepoInputPage'
 import { FileSelectorPage } from './pages/FileSelectorPage'
 import { DashboardPage } from './pages/DashboardPage'
+import { TicketDetailPage } from './pages/TicketDetailPage'
 import { InterviewPage } from './pages/InterviewPage'
 import { AppLayout } from './components/AppLayout'
 
@@ -19,6 +20,7 @@ function App() {
         <Route path="/" element={<RepoInputPage />} />
         <Route path="/select" element={<FileSelectorPage />} />
         <Route path="/dashboard/:projectId" element={<DashboardPage />} />
+        <Route path="/ticket/:ticketId" element={<TicketDetailPage />} />
         <Route path="/interview/:ticketId" element={<InterviewPage />} />
       </Route>
 

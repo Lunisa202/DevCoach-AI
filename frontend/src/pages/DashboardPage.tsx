@@ -4,8 +4,8 @@ import { AxiosError } from 'axios'
 import toast from 'react-hot-toast'
 import { Spinner } from '../components/Spinner'
 import { InterviewModeModal } from '../components/InterviewModeModal'
-import { getProjectTickets } from '../services/projectService'
 import { verifyTicket, getTicketReviews } from '../services/ticketService'
+import { useTickets } from '../hooks/useTickets'
 import type { TicketResponse } from '../types/project'
 import type { ReviewDetailed } from '../types/interview'
 
@@ -21,12 +21,14 @@ function TicketCard({
   isVerifying,
   onVerify,
   onStartInterview,
+  onViewDetail,
 }: {
   ticket: TicketResponse
   columnId: ColumnId
   isVerifying: boolean
   onVerify: () => void
   onStartInterview: () => void
+  onViewDetail: () => void
 }) {
   const [expanded, setExpanded] = useState(false)
   const [reviews, setReviews] = useState<ReviewDetailed[]>([])
@@ -57,17 +59,17 @@ function TicketCard({
 
   return (
     <div
-      className="p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 cursor-pointer transition-all hover:border-indigo-300 dark:hover:border-indigo-600"
+      className="bg-slate-50 dark:bg-slate-900/50 p-3 border border-slate-200 hover:border-indigo-300 dark:border-slate-700 dark:hover:border-indigo-600 rounded-lg transition-all cursor-pointer"
       onClick={handleExpand}
     >
       {/* Header */}
-      <div className="flex items-start justify-between gap-2">
-        <h3 className="text-sm font-medium text-slate-800 dark:text-slate-100">
+      <div className="flex justify-between items-start gap-2">
+        <h3 className="font-medium text-slate-800 dark:text-slate-100 text-sm">
           {ticket.titulo}
         </h3>
-        <div className="flex items-center gap-1.5 flex-shrink-0">
+        <div className="flex flex-shrink-0 items-center gap-1.5">
           {attemptCount > 0 && (
-            <span className="text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300">
+            <span className="bg-slate-200 dark:bg-slate-600 px-1.5 py-0.5 rounded text-slate-600 dark:text-slate-300 text-xs">
               {attemptCount} intento{attemptCount !== 1 ? 's' : ''}
             </span>
           )}
@@ -94,27 +96,27 @@ function TicketCard({
         <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${PRIORITY_COLORS[ticket.prioridad]}`}>
           {ticket.prioridad}
         </span>
-        <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
+        <span className="bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-full text-slate-600 dark:text-slate-300 text-xs">
           {ticket.dificultad}
         </span>
-        <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
+        <span className="bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-full text-slate-600 dark:text-slate-300 text-xs">
           {ticket.tiempo_estimado}
         </span>
       </div>
 
       {/* Expanded content */}
       {expanded && (
-        <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700" onClick={(e) => e.stopPropagation()}>
+        <div className="mt-3 pt-3 border-slate-200 dark:border-slate-700 border-t" onClick={(e) => e.stopPropagation()}>
           {/* Actions */}
           {columnId === 'to_do' && (
             <button
               onClick={onVerify}
               disabled={isVerifying}
-              className="w-full py-1.5 px-3 text-xs font-medium bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white rounded-md transition-colors flex items-center justify-center gap-1.5"
+              className="flex justify-center items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 px-3 py-1.5 rounded-md w-full font-medium text-white text-xs transition-colors"
             >
               {isVerifying ? (
                 <>
-                  <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
@@ -129,37 +131,45 @@ function TicketCard({
           {columnId === 'in_review' && (
             <button
               onClick={onStartInterview}
-              className="w-full py-1.5 px-3 text-xs font-medium bg-amber-500 hover:bg-amber-600 text-white rounded-md transition-colors"
+              className="bg-amber-500 hover:bg-amber-600 px-3 py-1.5 rounded-md w-full font-medium text-white text-xs transition-colors"
             >
               Iniciar entrevista
             </button>
           )}
 
           {columnId === 'done' && (
-            <span className="inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <span className="inline-flex items-center gap-1 font-medium text-emerald-600 dark:text-emerald-400 text-xs">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
               Aprobado
             </span>
           )}
 
+          {/* View detail link */}
+          <button
+            onClick={onViewDetail}
+            className="hover:bg-indigo-50 dark:hover:bg-indigo-900/20 mt-2 px-3 py-1.5 border border-indigo-200 dark:border-indigo-700 rounded-md w-full font-medium text-indigo-600 dark:text-indigo-400 text-xs transition-colors"
+          >
+            Ver detalle completo
+          </button>
+
           {/* Reviews history */}
           {loadingReviews && (
-            <div className="mt-3 flex justify-center">
+            <div className="flex justify-center mt-3">
               <Spinner size="sm" />
             </div>
           )}
 
           {!loadingReviews && reviews.length > 0 && (
-            <div className="mt-3 space-y-2">
-              <p className="text-xs font-medium text-slate-600 dark:text-slate-300">
+            <div className="space-y-2 mt-3">
+              <p className="font-medium text-slate-600 dark:text-slate-300 text-xs">
                 Historial de intentos
               </p>
               {reviews.map((review, i) => (
-                <div key={review.id} className="p-2 rounded bg-slate-100 dark:bg-slate-700/50 space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-slate-500 dark:text-slate-400">
+                <div key={review.id} className="space-y-1 bg-slate-100 dark:bg-slate-700/50 p-2 rounded">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-500 dark:text-slate-400 text-xs">
                       Intento {reviews.length - i}
                       {review.created_at && ` — ${new Date(review.created_at).toLocaleDateString('es', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}`}
                     </span>
@@ -170,7 +180,7 @@ function TicketCard({
                   {review.conceptos_a_mejorar && review.conceptos_a_mejorar.length > 0 && (
                     <div className="flex flex-wrap gap-1">
                       {review.conceptos_a_mejorar.map((c, j) => (
-                        <span key={j} className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300">
+                        <span key={j} className="bg-indigo-100 dark:bg-indigo-900/30 px-1.5 py-0.5 rounded text-[10px] text-indigo-600 dark:text-indigo-300">
                           {c}
                         </span>
                       ))}
@@ -201,28 +211,14 @@ const PRIORITY_COLORS: Record<string, string> = {
 export function DashboardPage() {
   const { projectId } = useParams<{ projectId: string }>()
   const navigate = useNavigate()
-  const [tickets, setTickets] = useState<TicketResponse[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const { tickets, isLoading, loadTickets, refreshTickets, setTicketState } = useTickets()
   const [verifyingId, setVerifyingId] = useState<string | null>(null)
 
   useEffect(() => {
     if (projectId) {
-      loadTickets()
+      loadTickets(projectId)
     }
   }, [projectId])
-
-  const loadTickets = async () => {
-    if (!projectId) return
-    setIsLoading(true)
-    try {
-      const data = await getProjectTickets(projectId)
-      setTickets(data)
-    } catch {
-      toast.error('No se pudieron cargar los tickets')
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
   const handleVerify = async (ticketId: string) => {
     setVerifyingId(ticketId)
@@ -230,10 +226,10 @@ export function DashboardPage() {
       const result = await verifyTicket(ticketId)
       if (result.ticket.estado === 'in_review') {
         toast.success(result.message ?? 'Commit verificado — ticket en revisión')
+        setTicketState(ticketId, 'in_review')
       } else {
         toast(result.message ?? 'No se detectaron cambios relevantes', { icon: 'ℹ️' })
       }
-      await loadTickets()
     } catch (err) {
       const error = err as AxiosError<{ detail: string }>
       toast.error(error.response?.data?.detail ?? 'Error al verificar el commit')
@@ -261,7 +257,7 @@ export function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-full flex items-center justify-center">
+      <div className="flex justify-center items-center min-h-full">
         <Spinner size="md" label="Cargando tickets..." />
       </div>
     )
@@ -269,7 +265,7 @@ export function DashboardPage() {
 
   if (tickets.length === 0) {
     return (
-      <div className="min-h-full flex items-center justify-center p-8">
+      <div className="flex justify-center items-center p-8 min-h-full">
         <div className="text-center">
           <p className="text-slate-500 dark:text-slate-400">
             Este proyecto no tiene tickets todavía.
@@ -280,13 +276,13 @@ export function DashboardPage() {
   }
 
   return (
-    <div className="min-h-full p-6">
-      <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-6">
+    <div className="p-6 min-h-full">
+      <h1 className="mb-6 font-bold text-slate-800 dark:text-slate-100 text-xl">
         Tablero de tickets
       </h1>
 
       {/* Kanban grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="gap-4 grid grid-cols-1 md:grid-cols-3">
         {(['to_do', 'in_review', 'done'] as ColumnId[]).map((columnId) => {
           const config = COLUMN_CONFIG[columnId]
           const columnTickets = getColumnTickets(columnId)
@@ -294,11 +290,11 @@ export function DashboardPage() {
           return (
             <div key={columnId} className={`border-t-4 ${config.color} rounded-lg bg-white dark:bg-slate-800 p-4`}>
               {/* Column header */}
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="font-semibold text-slate-700 dark:text-slate-200 text-sm">
                   {config.label}
                 </h2>
-                <span className="text-xs text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-full">
+                <span className="bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-full text-slate-400 dark:text-slate-500 text-xs">
                   {columnTickets.length}
                 </span>
               </div>
@@ -313,11 +309,12 @@ export function DashboardPage() {
                     isVerifying={verifyingId === ticket.id}
                     onVerify={() => handleVerify(ticket.id)}
                     onStartInterview={() => handleStartInterview(ticket.id)}
+                    onViewDetail={() => navigate(`/ticket/${ticket.id}`)}
                   />
                 ))}
 
                 {columnTickets.length === 0 && (
-                  <p className="text-xs text-slate-400 dark:text-slate-500 text-center py-4">
+                  <p className="py-4 text-slate-400 dark:text-slate-500 text-xs text-center">
                     Sin tickets
                   </p>
                 )}

@@ -9,10 +9,8 @@ interface UseSpeechRecognitionReturn {
   resetTranscript: () => void
 }
 
-// Tipos para el browser
-type SpeechRecognitionType = typeof window extends { SpeechRecognition: infer T } ? T : never
-
-function getSpeechRecognition(): (new () => SpeechRecognition) | null {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getSpeechRecognition(): any | null {
   if (typeof window === 'undefined') return null
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
@@ -23,7 +21,8 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
   const [transcript, setTranscript] = useState('')
   const [isListening, setIsListening] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const recognitionRef = useRef<SpeechRecognition | null>(null)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const recognitionRef = useRef<any>(null)
 
   const start = useCallback(() => {
     const SpeechRecognitionClass = getSpeechRecognition()
@@ -44,7 +43,8 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
       setIsListening(true)
     }
 
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    recognition.onresult = (event: any) => {
       let finalTranscript = ''
       let interimTranscript = ''
 
@@ -60,14 +60,10 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
       setTranscript(finalTranscript + interimTranscript)
     }
 
-    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      if (event.error === 'no-speech') {
-        // Silencio — no es un error real
-        return
-      }
-      if (event.error === 'aborted') {
-        return
-      }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    recognition.onerror = (event: any) => {
+      if (event.error === 'no-speech') return
+      if (event.error === 'aborted') return
       setError(`Error de reconocimiento: ${event.error}`)
       setIsListening(false)
     }

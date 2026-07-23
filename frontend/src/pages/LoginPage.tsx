@@ -144,9 +144,9 @@ export function LoginPage() {
 
           {/* Link to register */}
           <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
-            ¿No tenés cuenta?{' '}
+            ¿No tienes cuenta?{' '}
             <Link to="/register" className="text-indigo-600 dark:text-indigo-400 font-medium hover:underline">
-              Registrate
+              Regístrate
             </Link>
           </p>
         </div>
