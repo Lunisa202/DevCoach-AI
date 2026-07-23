@@ -26,6 +26,37 @@ router = APIRouter(prefix="/api/tickets", tags=["Tickets"])
 
 
 # ============================================================
+# ENDPOINT: GET /api/tickets/{ticket_id}
+# ============================================================
+
+
+@router.get(
+    "/{ticket_id}",
+    summary="Obtener detalle de un ticket",
+    responses={
+        200: {"description": "Ticket encontrado"},
+        404: {"description": "Ticket no encontrado"},
+    },
+)
+async def get_ticket_detail(
+    ticket_id: str,
+    current_user: dict = Depends(get_current_user),
+):
+    """Devuelve el detalle de un ticket por su ID."""
+    settings = get_settings()
+    db = DBService(url=settings.SUPABASE_URL, key=settings.SUPABASE_KEY)
+
+    try:
+        ticket = await db.get_ticket(ticket_id)
+    except RecordNotFoundError:
+        raise HTTPException(status_code=404, detail="Ticket no encontrado")
+    except DBServiceError:
+        raise HTTPException(status_code=500, detail="No se pudo obtener el ticket")
+
+    return ticket
+
+
+# ============================================================
 # ENDPOINT: POST /api/tickets/{ticket_id}/verify
 # ============================================================
 

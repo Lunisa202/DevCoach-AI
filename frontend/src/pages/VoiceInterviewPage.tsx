@@ -11,6 +11,13 @@ import type { EvaluateResponse } from '../types/interview'
 
 type Phase = 'loading' | 'greeting' | 'asking' | 'listening' | 'review' | 'evaluating' | 'result'
 
+const LOADING_MESSAGES = [
+  'Tech Lead preparando entrevista...',
+  'Analizando tus commits...',
+  'Leyendo tu código...',
+  'Entrevista lista, comencemos...',
+]
+
 export function VoiceInterviewPage() {
   const { ticketId } = useParams<{ ticketId: string }>()
   const navigate = useNavigate()
@@ -18,13 +25,18 @@ export function VoiceInterviewPage() {
   const { start: startListening, stop: stopListening, transcript, isListening, error: sttError, resetTranscript } = useSpeechRecognition()
 
   const [phase, setPhase] = useState<Phase>('loading')
+  const [loadingMessage, setLoadingMessage] = useState(LOADING_MESSAGES[0])
   const [questions, setQuestions] = useState<string[]>([])
   const [answers, setAnswers] = useState<string[]>([])
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [result, setResult] = useState<EvaluateResponse | null>(null)
   const [reRecordingIndex, setReRecordingIndex] = useState<number | null>(null)
+  const [isSpeechActive, setIsSpeechActive] = useState(false)
+  const [micTimedOut, setMicTimedOut] = useState(false)
 
   const hasStartedRef = useRef(false)
+  const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const lastTranscriptRef = useRef('')
 
   // Load questions on mount
   useEffect(() => {
@@ -41,6 +53,46 @@ export function VoiceInterviewPage() {
       navigate(`/interview/${ticketId}?mode=chat`, { replace: true })
     }
   }, [sttError])
+
+  // Progressive loading messages
+  useEffect(() => {
+    if (phase !== 'loading') return
+    let i = 0
+    const interval = setInterval(() => {
+      i = (i + 1) % LOADING_MESSAGES.length
+      setLoadingMessage(LOADING_MESSAGES[i])
+    }, 2500)
+    return () => clearInterval(interval)
+  }, [phase])
+
+  // Detect active speech — barras solo se mueven cuando hay nueva transcripción
+  useEffect(() => {
+    if (transcript !== lastTranscriptRef.current) {
+      lastTranscriptRef.current = transcript
+      setIsSpeechActive(true)
+
+      // Reset silence timer
+      if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current)
+      silenceTimerRef.current = setTimeout(() => {
+        setIsSpeechActive(false)
+      }, 1500) // 1.5s sin nueva transcripción = silencio
+    }
+  }, [transcript])
+
+  // Timeout 60s sin hablar → desactiva micrófono
+  useEffect(() => {
+    if (phase !== 'listening' || !isListening) return
+
+    const timeout = setTimeout(() => {
+      if (transcript.trim().length === 0) {
+        stopListening()
+        setMicTimedOut(true)
+        toast('Micrófono deshabilitado por falta de respuesta. Usa "Reiniciar mic" para continuar.', { icon: '⏱️', duration: 6000 })
+      }
+    }, 60000)
+
+    return () => clearTimeout(timeout)
+  }, [phase, isListening, transcript])
 
   const loadAndStart = async () => {
     if (!ticketId) return
@@ -78,7 +130,7 @@ export function VoiceInterviewPage() {
     
     const currentAnswer = transcript.trim()
     if (!currentAnswer) {
-      toast.error('Respondé antes de continuar')
+      toast.error('Responde antes de continuar')
       startListening()
       return
     }
@@ -127,7 +179,7 @@ export function VoiceInterviewPage() {
     
     const emptyIndex = answers.findIndex(a => a.trim().length === 0)
     if (emptyIndex !== -1) {
-      toast.error(`Respondé la pregunta ${emptyIndex + 1} antes de enviar`)
+      toast.error(`Responde la pregunta ${emptyIndex + 1} antes de enviar`)
       return
     }
 
@@ -137,13 +189,11 @@ export function VoiceInterviewPage() {
       setResult(data)
       setPhase('result')
 
-      // Read feedback aloud
+      // No leer automáticamente — el usuario puede usar el botón de bocina
       if (data.aprobado) {
-        await speak(`¡Felicidades! Has aprobado con ${data.calificacion} puntos de 100. ${data.feedback}`)
         toast.success('¡Entrevista aprobada!')
       } else {
-        await speak(`Tu calificación fue ${data.calificacion} de 100. ${data.feedback}. Podés intentar de nuevo.`)
-        toast('Podés intentar de nuevo', { icon: 'ℹ️' })
+        toast('Puedes intentar de nuevo', { icon: 'ℹ️' })
       }
     } catch (err) {
       const error = err as AxiosError<{ detail: string }>
@@ -155,15 +205,18 @@ export function VoiceInterviewPage() {
   const getStatus = (): 'idle' | 'speaking' | 'listening' | 'processing' => {
     if (phase === 'evaluating' || phase === 'loading') return 'processing'
     if (isSpeaking) return 'speaking'
-    if (isListening) return 'listening'
+    if (phase === 'listening' && isListening && !micTimedOut) return 'listening'
     return 'idle'
   }
+
+  // Barras se activan solo con speech real, pero el status label se mantiene
+  const areBarsActive = isSpeaking || (phase === 'listening' && isSpeechActive)
 
   // Loading
   if (phase === 'loading') {
     return (
       <div className="min-h-full flex items-center justify-center">
-        <Spinner size="md" label="Preparando la entrevista..." />
+        <Spinner size="md" label={loadingMessage} />
       </div>
     )
   }
@@ -198,6 +251,63 @@ export function VoiceInterviewPage() {
             {result.feedback}
           </p>
 
+          {/* 5 Dimensiones con barras */}
+          {result.aspectos_evaluados && result.aspectos_evaluados.length > 0 && (
+            <div className="mb-6">
+              <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-3">
+                Evaluación por dimensión
+              </h3>
+              <div className="space-y-3">
+                {result.aspectos_evaluados.map((aspecto, i) => (
+                  <div key={i} className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                        {aspecto.dimension}
+                      </span>
+                      <span className="text-xs text-slate-500 dark:text-slate-400">
+                        {aspecto.puntaje}/20
+                      </span>
+                    </div>
+                    <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full">
+                      <div
+                        className={`h-full rounded-full ${aspecto.puntaje >= 14 ? 'bg-emerald-500' : aspecto.puntaje >= 10 ? 'bg-amber-500' : 'bg-red-500'}`}
+                        style={{ width: `${(aspecto.puntaje / 20) * 100}%` }}
+                      />
+                    </div>
+                    <p className="text-xs text-slate-400 dark:text-slate-500">{aspecto.comentario}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Conceptos a mejorar */}
+          {result.conceptos_a_mejorar && result.conceptos_a_mejorar.length > 0 && (
+            <div className="mb-6">
+              <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-2">
+                Conceptos a profundizar
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {result.conceptos_a_mejorar.map((concepto, i) => (
+                  <span key={i} className="text-xs px-2.5 py-1 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300">
+                    {concepto}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Botón de bocina para escuchar los resultados */}
+          <div className="mb-4">
+            <button
+              onClick={() => speak(`Tu calificación fue ${result.calificacion} de 100. ${result.feedback}`)}
+              disabled={isSpeaking}
+              className="flex items-center gap-2 text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 disabled:opacity-50"
+            >
+              🔊 {isSpeaking ? 'Leyendo...' : 'Escuchar resultados'}
+            </button>
+          </div>
+
           <div className="flex gap-3">
             <button onClick={() => navigate(-1)} className="flex-1 py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-sm">
               Volver al dashboard
@@ -221,7 +331,7 @@ export function VoiceInterviewPage() {
           Revisá tus respuestas
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
-          Podés editar el texto o volver a grabar cualquier respuesta antes de enviar
+          Puedes editar el texto o volver a grabar cualquier respuesta antes de enviar
         </p>
 
         <div className="space-y-4">
@@ -289,10 +399,17 @@ export function VoiceInterviewPage() {
   // Main interview phase (greeting, asking, listening)
   return (
     <div className="min-h-full flex flex-col items-center justify-center p-6">
-      <AvatarSpeaker isSpeaking={isSpeaking} status={getStatus()} />
+      <AvatarSpeaker isSpeaking={isSpeaking} status={getStatus()} areBarsActive={areBarsActive} />
 
-      {/* Live transcript */}
-      {(phase === 'listening' || isListening) && (
+      {/* Mic timed out message */}
+      {micTimedOut && phase === 'listening' && (
+        <p className="mt-3 text-sm text-amber-500 dark:text-amber-400 animate-pulse">
+          Micrófono deshabilitado por inactividad. Presiona "Reiniciar mic" para continuar.
+        </p>
+      )}
+
+      {/* Live transcript — only show when listening phase */}
+      {phase === 'listening' && (
         <div className="mt-6 w-full max-w-md">
           <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4 min-h-[80px]">
             <p className="text-sm text-slate-700 dark:text-slate-200">
@@ -300,29 +417,36 @@ export function VoiceInterviewPage() {
             </p>
           </div>
 
-          <div className="flex gap-2 mt-3">
-            {!isListening && transcript.trim().length === 0 && (
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mt-3">
+            {/* Reiniciar micrófono — solo si el mic se desactivó */}
+            {!isListening && (
               <button
-                onClick={() => { resetTranscript(); startListening() }}
-                className="flex-1 py-2.5 px-4 border border-indigo-300 dark:border-indigo-600 text-indigo-600 dark:text-indigo-400 font-medium rounded-lg text-sm"
+                onClick={() => { resetTranscript(); setMicTimedOut(false); startListening() }}
+                className="w-full sm:w-auto px-3 py-2 text-xs border border-indigo-300 dark:border-indigo-600 text-indigo-600 dark:text-indigo-400 rounded-md hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
               >
-                🎤 Reiniciar micrófono
+                🎤 Reiniciar mic
               </button>
             )}
+            {/* Repetir pregunta */}
             <button
-              onClick={() => { stopListening(); speak(questions[currentQuestionIndex]).then(() => { resetTranscript(); startListening() }) }}
-              className="py-2.5 px-4 border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-medium rounded-lg text-sm"
+              onClick={async () => {
+                stopListening()
+                setPhase('asking')
+                resetTranscript()
+                await speak(questions[currentQuestionIndex])
+                setPhase('listening')
+                startListening()
+              }}
+              className="w-full sm:w-auto px-3 py-2 text-xs border border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700"
             >
               🔁 Repetir pregunta
             </button>
+            {/* Terminé de responder */}
             <button
               onClick={handleFinishedAnswering}
-              className="flex-1 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg text-sm flex items-center justify-center gap-2"
+              className="w-full sm:w-auto sm:ml-auto px-4 py-2 text-xs font-medium bg-emerald-600 hover:bg-emerald-700 text-white rounded-md"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-              Terminé de responder
+              ✓ Terminé de responder
             </button>
           </div>
 
@@ -331,6 +455,20 @@ export function VoiceInterviewPage() {
           </p>
         </div>
       )}
+
+      {/* Cancel / back button — always visible */}
+      <div className="mt-8">
+        <button
+          onClick={() => {
+            stopListening()
+            stopSpeaking()
+            navigate(-1)
+          }}
+          className="text-sm text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
+        >
+          ← Cancelar entrevista
+        </button>
+      </div>
 
       {/* Evaluating spinner */}
       {phase === 'evaluating' && (

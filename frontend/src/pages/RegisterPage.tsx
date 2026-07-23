@@ -78,7 +78,7 @@ export function RegisterPage() {
             Crear cuenta
           </h2>
           <p className="text-slate-500 dark:text-slate-400 mb-8">
-            Registrate y empieza a mejorar tu código hoy
+            Regístrate y empieza a mejorar tu código hoy
           </p>
 
           <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
@@ -197,9 +197,9 @@ export function RegisterPage() {
 
           {/* Link to login */}
           <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
-            ¿Ya tenés cuenta?{' '}
+            ¿Ya tienes cuenta?{' '}
             <Link to="/login" className="text-indigo-600 dark:text-indigo-400 font-medium hover:underline">
-              Iniciá sesión
+              Inicia sesión
             </Link>
           </p>
         </div>

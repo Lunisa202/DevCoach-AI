@@ -3,16 +3,26 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { AxiosError } from 'axios'
 import toast from 'react-hot-toast'
 import { Spinner } from '../components/Spinner'
+import { useSpeechSynthesis } from '../hooks/useSpeechSynthesis'
 import { startInterview, evaluateAnswers } from '../services/interviewService'
 import type { EvaluateResponse } from '../types/interview'
+
+const LOADING_MESSAGES = [
+  'Tech Lead preparando entrevista...',
+  'Analizando tus commits...',
+  'Leyendo tu código...',
+  'Entrevista lista, comencemos...',
+]
 
 export function ChatInterviewPage() {
   const { ticketId } = useParams<{ ticketId: string }>()
   const navigate = useNavigate()
+  const { speak, isSpeaking } = useSpeechSynthesis()
 
   const [questions, setQuestions] = useState<string[]>([])
   const [answers, setAnswers] = useState<string[]>([])
   const [isLoadingQuestions, setIsLoadingQuestions] = useState(true)
+  const [loadingMessage, setLoadingMessage] = useState(LOADING_MESSAGES[0])
   const [isEvaluating, setIsEvaluating] = useState(false)
   const [result, setResult] = useState<EvaluateResponse | null>(null)
 
@@ -21,6 +31,17 @@ export function ChatInterviewPage() {
       loadQuestions()
     }
   }, [ticketId])
+
+  // Progressive loading messages
+  useEffect(() => {
+    if (!isLoadingQuestions) return
+    let i = 0
+    const interval = setInterval(() => {
+      i = (i + 1) % LOADING_MESSAGES.length
+      setLoadingMessage(LOADING_MESSAGES[i])
+    }, 2500)
+    return () => clearInterval(interval)
+  }, [isLoadingQuestions])
 
   const loadQuestions = async () => {
     if (!ticketId) return
@@ -52,7 +73,7 @@ export function ChatInterviewPage() {
     // Validar que todas las respuestas tengan contenido
     const emptyIndex = answers.findIndex((a) => a.trim().length === 0)
     if (emptyIndex !== -1) {
-      toast.error(`Respondé la pregunta ${emptyIndex + 1} antes de enviar`)
+      toast.error(`Responde la pregunta ${emptyIndex + 1} antes de enviar`)
       return
     }
 
@@ -63,7 +84,7 @@ export function ChatInterviewPage() {
       if (data.aprobado) {
         toast.success('¡Entrevista aprobada!')
       } else {
-        toast('Podés intentar de nuevo', { icon: 'ℹ️' })
+        toast('Puedes intentar de nuevo', { icon: 'ℹ️' })
       }
     } catch (err) {
       const error = err as AxiosError<{ detail: string }>
@@ -80,8 +101,14 @@ export function ChatInterviewPage() {
   // Loading state
   if (isLoadingQuestions) {
     return (
-      <div className="min-h-full flex items-center justify-center">
-        <Spinner size="md" label="Preparando la entrevista..." />
+      <div className="min-h-full flex flex-col items-center justify-center gap-4">
+        <Spinner size="md" label={loadingMessage} />
+        <button
+          onClick={() => navigate(-1)}
+          className="text-sm text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
+        >
+          ← Cancelar entrevista
+        </button>
       </div>
     )
   }
@@ -176,6 +203,17 @@ export function ChatInterviewPage() {
             </p>
           </div>
 
+          {/* Botón de bocina */}
+          <div className="mb-4">
+            <button
+              onClick={() => speak(`Tu calificación fue ${result.calificacion} de 100. ${result.feedback}`)}
+              disabled={isSpeaking}
+              className="flex items-center gap-2 text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 disabled:opacity-50"
+            >
+              🔊 {isSpeaking ? 'Leyendo...' : 'Escuchar resultados'}
+            </button>
+          </div>
+
           {/* Actions */}
           <div className="flex gap-3">
             <button
@@ -208,7 +246,7 @@ export function ChatInterviewPage() {
         Entrevista técnica
       </h1>
       <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
-        Respondé las preguntas del Tech Lead sobre tu código
+        Responde las preguntas del Tech Lead sobre tu código
       </p>
 
       <div className="space-y-6">
@@ -260,6 +298,13 @@ export function ChatInterviewPage() {
             </svg>
           )}
           {isEvaluating ? 'Evaluando...' : 'Enviar respuestas'}
+        </button>
+
+        <button
+          onClick={() => navigate(-1)}
+          className="w-full mt-3 py-2 text-sm text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
+        >
+          ← Cancelar entrevista
         </button>
       </div>
     </div>

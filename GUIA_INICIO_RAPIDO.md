@@ -17,7 +17,7 @@ Cada persona ya tiene su(s) rama(s) lista(s) para trabajar. Todas parten de `dev
 | Carolina (Frontend) | `feature/frontend/repo-input` | 9.1 | ✅ |
 | Carolina (Frontend) | `feature/frontend/sidebar` | **B.2** | ✅ |
 | Carolina (Frontend) | `feature/frontend/file-selector` | 9.2 | ✅ |
-| Carolina (Frontend) | `feature/frontend/dashboard` | 9.3, **D.1** | ✅ |
+| Carolina (Frontend) | `feature/frontend/dashboard` | 9.3, **D.1**, **E.1**, **F.1** | ✅ |
 | Carolina (Frontend) | `feature/frontend/interview` | **C.1**, **C.2**, **C.3** | ✅ |
 | Carolina (Frontend) | `feature/frontend/routing` | 11.1, 11.2 | |
 
@@ -25,6 +25,8 @@ Cada persona ya tiene su(s) rama(s) lista(s) para trabajar. Todas parten de `dev
 > 📄 Ver detalle de las tareas B.1 y B.2 (sidebar + historial) en [`TAREAS_HISTORIAL.md`](./TAREAS_HISTORIAL.md)
 > 📄 Ver detalle de las tareas C.1, C.2 y C.3 (entrevista chat + voz) en [`TAREAS_ENTREVISTA.md`](./TAREAS_ENTREVISTA.md)
 > 📄 Ver detalle de la tarea D.1 (evaluación detallada con 5 dimensiones) en [`TAREAS_EVALUACION_DETALLADA.md`](./TAREAS_EVALUACION_DETALLADA.md)
+> 📄 Tarea E.1: Página de detalle de ticket con historial expandible de entrevistas (implementada en `TicketDetailPage.tsx`, ruta `/ticket/:ticketId`)
+> 📄 Tarea F.1: Mover tickets al Redux store (ticketsSlice) — pendiente de implementar
 
 ---
 
@@ -163,6 +165,19 @@ uvicorn app.main:app --reload
 **Manejador de paquetes:** `pnpm` (no usar `npm` ni `yarn` — generaría conflictos con `pnpm-lock.yaml`)
 
 **Convención de tipos:** todas las interfaces y types se definen en `src/types/` en archivos que reflejen a dónde pertenecen (ej: `auth.ts`, `project.ts`). Nunca definir tipos inline en services o components — siempre importar desde `types/`. Nunca re-exportar tipos desde services.
+
+**Tipografía:** Plus Jakarta Sans (Google Fonts). Pesos: 400 (regular), 500 (medium), 600 (semibold), 700 (bold). Se aplica globalmente via Tailwind `font-sans`. Fallback: system-ui, sans-serif.
+
+**Arquitectura de capas (regla estricta):**
+```
+Page/Component → Hook → Service → axiosClient
+```
+- **Pages y Components** solo llaman a hooks. Nunca importan `axiosClient` ni hacen fetch directo.
+- **Hooks** (`src/hooks/`) manejan la lógica: llaman a services, despachan acciones al store, exponen datos y funciones a los componentes.
+- **Services** (`src/services/`) solo hacen las llamadas HTTP con `axiosClient`. No acceden al store ni usan hooks.
+- **Store** (`src/store/`) contiene los slices con estado global. Solo los hooks lo leen/escriben.
+
+Esta separación garantiza que los componentes sean puros (solo UI + hooks), testables, y que la lógica de negocio viva en un solo lugar.
 
 ```bash
 cd frontend

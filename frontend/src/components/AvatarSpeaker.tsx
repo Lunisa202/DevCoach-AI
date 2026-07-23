@@ -1,32 +1,36 @@
+import { User } from 'lucide-react'
+import { AudioBars } from './AudioBars'
+
 interface Props {
   isSpeaking: boolean
   status: 'idle' | 'speaking' | 'listening' | 'processing'
+  areBarsActive?: boolean
 }
 
 const STATUS_LABELS: Record<Props['status'], string> = {
   idle: '',
-  speaking: 'Tech Lead está hablando...',
-  listening: 'Tu turno — respondé',
+  speaking: 'Tech Lead hablando...',
+  listening: 'Tu turno — el micrófono está habilitado',
   processing: 'Procesando...',
 }
 
-export function AvatarSpeaker({ isSpeaking, status }: Props) {
+export function AvatarSpeaker({ isSpeaking, status, areBarsActive }: Props) {
+  const isActive = areBarsActive ?? (status === 'speaking' || status === 'listening')
+  const barColor = status === 'listening' ? 'emerald' : 'indigo'
+
   return (
     <div className="flex flex-col items-center gap-3">
       {/* Avatar circle */}
       <div className={`relative w-24 h-24 rounded-full flex items-center justify-center transition-all ${
-        isSpeaking 
-          ? 'bg-indigo-100 dark:bg-indigo-900/40 ring-4 ring-indigo-400 ring-opacity-50 animate-pulse' 
+        isSpeaking
+          ? 'bg-indigo-100 dark:bg-indigo-900/40 ring-4 ring-indigo-400 ring-opacity-50 animate-pulse'
           : status === 'listening'
             ? 'bg-emerald-100 dark:bg-emerald-900/40 ring-4 ring-emerald-400 ring-opacity-50'
             : 'bg-slate-100 dark:bg-slate-700'
       }`}>
-        {/* Tech Lead icon */}
-        <svg xmlns="http://www.w3.org/2000/svg" className={`h-12 w-12 transition-colors ${
+        <User className={`h-12 w-12 transition-colors ${
           isSpeaking ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400'
-        }`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-        </svg>
+        }`} />
 
         {/* Pulse rings when speaking */}
         {isSpeaking && (
@@ -36,6 +40,9 @@ export function AvatarSpeaker({ isSpeaking, status }: Props) {
           </>
         )}
       </div>
+
+      {/* Audio bars */}
+      {isActive && <AudioBars isActive={isActive} color={barColor} size="md" />}
 
       {/* Status label */}
       {status !== 'idle' && (
