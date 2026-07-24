@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Settings | DevCoach AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline-variant": "#464555",
+                    "primary": "#c3c0ff",
+                    "surface-container-highest": "#26364a",
+                    "inverse-surface": "#d3e4fe",
+                    "on-tertiary-fixed": "#131b2e",
+                    "on-surface": "#d3e4fe",
+                    "secondary-fixed": "#e9ddff",
+                    "on-secondary": "#3c0091",
+                    "surface-dim": "#031427",
+                    "on-tertiary-container": "#d4dbf5",
+                    "on-secondary-fixed-variant": "#5516be",
+                    "background": "#031427",
+                    "outline": "#918fa1",
+                    "primary-fixed": "#e2dfff",
+                    "on-tertiary": "#283044",
+                    "primary-container": "#4f46e5",
+                    "on-error-container": "#ffdad6",
+                    "error": "#ffb4ab",
+                    "tertiary-container": "#586076",
+                    "on-background": "#d3e4fe",
+                    "surface-bright": "#2a3a4f",
+                    "on-primary-fixed": "#0f0069",
+                    "inverse-on-surface": "#213145",
+                    "on-error": "#690005",
+                    "secondary-container": "#571bc1",
+                    "on-secondary-container": "#c4abff",
+                    "on-tertiary-fixed-variant": "#3f465c",
+                    "tertiary": "#bec6e0",
+                    "surface": "#031427",
+                    "on-primary": "#1d00a5",
+                    "surface-variant": "#26364a",
+                    "surface-tint": "#c3c0ff",
+                    "surface-container-lowest": "#000f21",
+                    "on-primary-container": "#dad7ff",
+                    "on-primary-fixed-variant": "#3323cc",
+                    "on-secondary-fixed": "#23005c",
+                    "tertiary-fixed-dim": "#bec6e0",
+                    "secondary-fixed-dim": "#d0bcff",
+                    "inverse-primary": "#4d44e3",
+                    "error-container": "#93000a",
+                    "secondary": "#d0bcff",
+                    "on-surface-variant": "#c7c4d8",
+                    "surface-container": "#102034",
+                    "surface-container-high": "#1b2b3f",
+                    "surface-container-low": "#0b1c30",
+                    "primary-fixed-dim": "#c3c0ff",
+                    "tertiary-fixed": "#dae2fd"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "3xl": "64px",
+                    "xs": "4px",
+                    "margin-desktop": "40px",
+                    "sm": "8px",
+                    "md": "16px",
+                    "base": "4px",
+                    "margin-mobile": "16px",
+                    "lg": "24px",
+                    "gutter": "24px",
+                    "2xl": "48px",
+                    "xl": "32px"
+            },
+            "fontFamily": {
+                    "label-md": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "code-snippet": ["JetBrains Mono"],
+                    "headline-lg-mobile": ["Inter"],
+                    "display": ["Inter"],
+                    "body-md": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "headline-md": ["Inter"]
+            },
+            "fontSize": {
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "code-snippet": ["14px", {"lineHeight": "22px", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "display": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #031427;
+            color: #d3e4fe;
+            -webkit-font-smoothing: antialiased;
+        }
+        .glass-card {
+            background: rgba(16, 32, 52, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(145, 143, 161, 0.2);
+            transition: border-color 0.3s ease;
+        }
+        .glass-card:hover {
+            border-color: rgba(195, 192, 255, 0.3);
+        }
+        .input-gradient-focus:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+            outline: none;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-link {
+            border-bottom: 2px solid #c3c0ff;
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md">
+<!-- Sidebar Navigation -->
+<aside class="fixed h-screen w-[280px] left-0 top-0 bg-surface-container dark:bg-surface-container border-r border-outline-variant dark:border-outline-variant flex flex-col h-full p-md z-50">
+<div class="mb-xl px-sm">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary">DevCoach AI</span>
+</div>
+<nav class="flex-1 space-y-base">
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</a>
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined">account_tree</span>
+<span class="font-label-md text-label-md">Repositories</span>
+</a>
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-md text-label-md">Analysis</span>
+</a>
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-label-md text-label-md">History</span>
+</a>
+</nav>
+<div class="mt-auto space-y-base pt-xl border-t border-outline-variant/30">
+<div class="flex items-center gap-md px-md py-sm mb-md">
+<img class="w-10 h-10 rounded-full border border-primary/20" data-alt="Close up portrait of a professional male software engineer with short dark hair, wearing a navy blue polo shirt, smiling confidently in a modern tech office environment with soft bokeh background lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuARRjv6SArvJJuVbx6cfFANPzaXJ9ZjFgWcqEb2e0O41WQWc8bDM94YjlCVAaZFTdtyogM5seEqLb8nIKowYP5bpm1AX3NJBkWv8QKv6DK9Lb0bHoiGI0y8SjJUUVD6YAcLw-r5DW-43gAUKMNS6sldSUsm4LzPeqlaCtwHVjFpbW2CdTWNy8C9_R-02b1x4y3i8uRVhdtdIXsbLri_avwnAgS7JZTkCuh6zCfftBDJHbL3IpuOMtyBjb7FJYFZbAnVsUt2CeM-6WU"/>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-bold text-on-surface">Alex Chen</span>
+<span class="text-[10px] text-on-surface-variant">alex.chen@devcoach.ai</span>
+</div>
+</div>
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md p-md rounded-lg text-primary font-bold bg-surface-container-highest transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-md text-label-md">Logout</span>
+</a>
+</div>
+</aside>
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 right-0 w-[calc(100%-280px)] h-[72px] bg-surface/80 dark:bg-surface/80 backdrop-blur-md border-b border-outline-variant dark:border-outline-variant flex justify-between items-center px-margin-desktop h-full z-40">
+<div class="flex items-center gap-xl">
+<h1 class="font-headline-md text-headline-md font-black text-primary dark:text-primary">Settings</h1>
+<nav class="hidden md:flex gap-lg">
+<a class="text-on-surface-variant hover:text-primary transition-colors font-label-md text-label-md" href="#">Dashboard</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-label-md text-label-md" href="#">Analytics</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-label-md text-label-md" href="#">Team</a>
+</nav>
+</div>
+<div class="flex items-center gap-lg">
+<button class="text-on-surface-variant opacity-80 hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant opacity-80 hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<div class="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center border border-primary/40">
+<span class="material-symbols-outlined text-primary text-sm">person</span>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-[280px] pt-[72px] min-h-screen p-margin-desktop bg-surface">
+<div class="max-w-4xl mx-auto space-y-lg">
+<!-- Section 1: Perfil -->
+<section class="glass-card rounded-xl p-xl">
+<div class="flex items-start justify-between mb-lg">
+<div class="flex items-center gap-xl">
+<div class="relative group">
+<img class="w-24 h-24 rounded-xl border-2 border-outline-variant object-cover shadow-2xl" data-alt="A focused software architect with dark hair working in a dimly lit studio. He is surrounded by large monitors displaying complex code architectures in indigo and violet tones. The lighting is moody and cinematic, highlighting his concentrated expression." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgljTgoAqX-RIe0Qg3BHi6MotCQ0Klhg3byrR0f9hmRwZeYlfNrItE6rDMK4zxDq_E0DyBO5AVtvxtySLy6z4U8YTM2V4V26M6Sd6zkIChBVPa42viYy_xM8-7-EZDbcL9hS2OEZcY3s-8_DEEdppI_K-BD4Wn8nBK_QSN1r1ipZliIwWMraSx6wbeLl-IswHzHcjkNQoyH0VTlROEMrIz25K-9-1NELs9F5GM1HIsI-iopJ4fkqkniG5A-N2wTrhwCgV5F3qbtr8"/>
+<button class="absolute -bottom-2 -right-2 bg-primary text-on-primary w-8 h-8 rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-sm">photo_camera</span>
+</button>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md text-primary mb-xs">Perfil</h2>
+<p class="text-on-surface-variant font-body-sm text-body-sm">Manage your public information and avatar.</p>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg mb-lg">
+<div class="space-y-base">
+<label class="font-label-md text-label-md text-on-surface-variant">Nombre Completo</label>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-on-surface input-gradient-focus" type="text" value="Alex Chen"/>
+</div>
+<div class="space-y-base opacity-70">
+<label class="font-label-md text-label-md text-on-surface-variant">Correo Electrónico (Solo Lectura)</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg px-md py-sm text-on-surface-variant cursor-not-allowed" readonly="" type="email" value="alex.chen@devcoach.ai"/>
+</div>
+</div>
+<div class="flex justify-end">
+<button class="bg-primary-container text-on-primary-container px-xl py-sm rounded-lg font-label-md text-label-md font-bold hover:brightness-110 active:scale-95 transition-all">Guardar</button>
+</div>
+</section>
+<!-- Section 2: Contraseña -->
+<section class="glass-card rounded-xl p-xl">
+<div class="mb-lg">
+<h2 class="font-headline-md text-headline-md text-primary mb-xs">Contraseña</h2>
+<p class="text-on-surface-variant font-body-sm text-body-sm">Update your security credentials for safety.</p>
+</div>
+<div class="space-y-md mb-lg">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<div class="space-y-base">
+<label class="font-label-md text-label-md text-on-surface-variant">Contraseña Actual</label>
+<div class="relative">
+<input class="password-field w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-on-surface input-gradient-focus" placeholder="••••••••" type="password"/>
+<button class="absolute right-md top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary" onclick="togglePassword(this)">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+</div>
+<div class="hidden md:block"></div>
+<div class="space-y-base">
+<label class="font-label-md text-label-md text-on-surface-variant">Nueva Contraseña</label>
+<div class="relative">
+<input class="password-field w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-on-surface input-gradient-focus" placeholder="••••••••" type="password"/>
+<button class="absolute right-md top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary" onclick="togglePassword(this)">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+</div>
+<div class="space-y-base">
+<label class="font-label-md text-label-md text-on-surface-variant">Confirmar Contraseña</label>
+<div class="relative">
+<input class="password-field w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-on-surface input-gradient-focus" placeholder="••••••••" type="password"/>
+<button class="absolute right-md top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary" onclick="togglePassword(this)">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class="flex justify-end">
+<button class="bg-primary-container text-on-primary-container px-xl py-sm rounded-lg font-label-md text-label-md font-bold hover:brightness-110 active:scale-95 transition-all">Guardar</button>
+</div>
+</section>
+<!-- Section 3: Gemini API Key -->
+<section class="glass-card rounded-xl p-xl">
+<div class="flex flex-col md:flex-row md:items-center justify-between mb-lg gap-md">
+<div>
+<h2 class="font-headline-md text-headline-md text-primary mb-xs">Gemini API Key</h2>
+<p class="text-on-surface-variant font-body-sm text-body-sm">Link your Google AI Studio account to power the engine.</p>
+</div>
+<div class="flex items-center gap-sm bg-emerald-900/30 border border-emerald-500/30 px-md py-xs rounded-full">
+<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+<span class="text-emerald-400 font-label-md text-[10px] tracking-widest uppercase">Connected</span>
+</div>
+</div>
+<div class="space-y-lg">
+<div class="space-y-base">
+<div class="flex justify-between items-center mb-xs">
+<label class="font-label-md text-label-md text-on-surface-variant">API Key</label>
+<a class="text-primary hover:underline font-label-md text-label-md flex items-center gap-xs" href="https://aistudio.google.com/" target="_blank">
+                                Google AI Studio
+                                <span class="material-symbols-outlined text-[14px]">open_in_new</span>
+</a>
+</div>
+<div class="flex gap-md">
+<input class="flex-1 bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-on-surface font-code-snippet text-code-snippet input-gradient-focus" type="password" value="••••••••••••••••••••••••••••••"/>
+<button class="bg-surface-container-high border border-outline-variant p-sm rounded-lg text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">refresh</span>
+</button>
+</div>
+<p class="text-on-surface-variant/60 font-body-sm text-[12px] italic">Your key is encrypted and never shared. We only use it to run analysis on your local repositories.</p>
+</div>
+<div class="p-md rounded-lg bg-surface-container-lowest border border-outline-variant/20 flex gap-md items-start">
+<span class="material-symbols-outlined text-primary">info</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                            By adding your own key, you gain access to faster inference times and higher token limits for large project analysis.
+                        </p>
+</div>
+<div class="flex justify-end">
+<button class="bg-primary-container text-on-primary-container px-xl py-sm rounded-lg font-label-md text-label-md font-bold hover:brightness-110 active:scale-95 transition-all">Guardar</button>
+</div>
+</div>
+</section>
+</div>
+</main>
+<script>
+        function togglePassword(button) {
+            const input = button.parentElement.querySelector('.password-field');
+            const icon = button.querySelector('.material-symbols-outlined');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.innerText = 'visibility_off';
+            } else {
+                input.type = 'password';
+                icon.innerText = 'visibility';
+            }
+        }
+
+        // Simple feedback for Guardar buttons
+        document.querySelectorAll('button').forEach(btn => {
+            if (btn.innerText === 'Guardar') {
+                btn.addEventListener('click', () => {
+                    const originalText = btn.innerText;
+                    btn.innerText = 'Guardado!';
+                    btn.classList.replace('bg-primary-container', 'bg-emerald-600');
+                    setTimeout(() => {
+                        btn.innerText = originalText;
+                        btn.classList.replace('bg-emerald-600', 'bg-primary-container');
+                    }, 2000);
+                });
+            }
+        });
+    </script>
+</body></html>

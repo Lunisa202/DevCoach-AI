@@ -1,0 +1,10 @@
+{
+  "description": "Analyze GitHub repos to generate improvement tickets, manage them via kanban, and enhance developer skills through AI-driven technical interviews.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

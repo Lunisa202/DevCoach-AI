@@ -7,21 +7,21 @@ Implementation of a single-page application that converts a GitHub repository fo
 ## Tasks
 
 - [ ] 1. Set up project structure and configuration
-  - [ ] 1.1 Initialize backend project with FastAPI
+  - [x] 1.1 Initialize backend project with FastAPI
     - Create `backend/` directory structure as specified in design (`app/`, `app/api/`, `app/ai/`, `app/services/`, `app/models/`, `tests/`)
     - Create `backend/requirements.txt` with dependencies: fastapi, uvicorn, pydantic, httpx, supabase, google-generativeai, groq, python-dotenv, pytest
     - Create `backend/app/main.py` with FastAPI app instantiation, CORS middleware (allow frontend origin), and startup validation for env vars (`AI_PROVIDER`, `GITHUB_TOKEN`, `SUPABASE_URL`, `SUPABASE_KEY`)
     - Create `backend/app/config.py` with Pydantic Settings class loading env vars with validation
     - _Requirements: 8.4, 8.5, 10.5, 10.6_
 
-  - [ ] 1.2 Initialize frontend project with React and Tailwind CSS
+  - [x] 1.2 Initialize frontend project with React and Tailwind CSS
     - Create React project using Vite + TypeScript in `frontend/` directory
     - Install and configure Tailwind CSS
     - Set up project structure: `src/components/`, `src/pages/`, `src/services/`, `src/types/`
     - Configure API base URL via environment variable
     - _Requirements: 4.1_
 
-  - [ ] 1.3 Set up Supabase database schema
+  - [x] 1.3 Set up Supabase database schema
     - Create SQL migration file with `projects`, `tickets`, and `reviews` tables as defined in design
     - Include all constraints: field lengths, enumerations, referential integrity (CASCADE on delete), check constraints
     - Apply migration to Supabase instance
@@ -81,7 +81,7 @@ Implementation of a single-page application that converts a GitHub repository fo
     - _Requirements: 3.3, 3.4, 3.5, 3.8, 6.8, 7.1_
 
 - [ ] 3. Implement GitHub service
-  - [ ] 3.1 Implement GitHub service class
+  - [x] 3.1 Implement GitHub service class
     - Create `backend/app/services/github_service.py` with `GitHubService` class
     - Implement `validate_repo(owner, repo)`: GET `/repos/{owner}/{repo}`, 10s timeout
     - Implement `get_tree(owner, repo, path, depth=3)`: recursive tree fetch up to 3 levels
@@ -99,7 +99,7 @@ Implementation of a single-page application that converts a GitHub repository fo
     - _Requirements: 1.2, 1.3, 1.4_
 
 - [ ] 4. Implement database service
-  - [ ] 4.1 Implement Supabase database service
+  - [x] 4.1 Implement Supabase database service
     - Create `backend/app/services/db_service.py` with CRUD operations
     - Implement `create_project(repo_url, archivos_seleccionados)` → ProjectResponse
     - Implement `create_tickets(project_id, tickets_data)` → list[TicketResponse]
@@ -110,7 +110,7 @@ Implementation of a single-page application that converts a GitHub repository fo
     - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5, 9.6_
 
 - [ ] 5. Implement Pydantic models
-  - [ ] 5.1 Create backend Pydantic models
+  - [x] 5.1 Create backend Pydantic models
     - Create `backend/app/models/project.py` with `ProjectCreate`, `ProjectResponse`
     - Create `backend/app/models/ticket.py` with enums (`Prioridad`, `Dificultad`, `EstadoTicket`), `TicketResponse`, `TicketData`
     - Create `backend/app/models/review.py` with `InterviewStartRequest`, `InterviewAnswersRequest`, `EvaluationResponse`, `ReviewResponse`, `CodeReviewResult`
@@ -121,21 +121,21 @@ Implementation of a single-page application that converts a GitHub repository fo
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 7. Implement backend API endpoints
-  - [ ] 7.1 Implement project endpoints
+  - [x] 7.1 Implement project endpoints
     - Create `backend/app/api/projects.py` with router
     - `POST /api/projects/validate-repo`: validate URL format, then call GitHub service to verify repo exists and is public
     - `POST /api/projects`: create project, fetch file contents via GitHub, run Code_Reviewer → Ticket_Generator pipeline, persist tickets, return project + tickets
     - Handle timeouts (60s for AI pipeline), return appropriate error messages
     - _Requirements: 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 2.3, 3.1, 3.2, 3.6, 3.7, 3.8_
 
-  - [ ] 7.2 Implement ticket endpoints
+  - [x] 7.2 Implement ticket endpoints
     - Create `backend/app/api/tickets.py` with router
     - `GET /api/projects/{id}/tickets`: return all tickets for a project
     - `POST /api/tickets/{id}/verify`: get default branch, get last commit, check if changed files intersect with project files, update ticket state accordingly, return diff
     - Handle no-change case (revert to to_do), GitHub errors (revert to to_do)
     - _Requirements: 4.3, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7_
 
-  - [ ] 7.3 Implement interview endpoints
+  - [x] 7.3 Implement interview endpoints
     - Create `backend/app/api/interviews.py` with router
     - `POST /api/interviews/start`: validate ticket is in_review, call Tech_Lead agent with ticket + diff, return questions (30s timeout)
     - `POST /api/interviews/evaluate`: validate answers count matches questions, call Evaluator agent, persist review, update ticket state (done if approved, keep in_review if rejected), return feedback
@@ -157,7 +157,7 @@ Implementation of a single-page application that converts a GitHub repository fo
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 9. Implement frontend pages and components
-  - [ ] 9.1 Implement Landing Page and RepoInput component
+  - [x] 9.1 Implement Landing Page and RepoInput component
     - Create `RepoInput` component with text input (maxLength 2048), validation feedback
     - Client-side format check for `https://github.com/{owner}/{repo}` pattern
     - Show error messages: empty field, invalid format, repo not found, timeout
@@ -166,7 +166,7 @@ Implementation of a single-page application that converts a GitHub repository fo
     - Navigate to file selector on success
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8_
 
-  - [ ] 9.2 Implement FileSelector component
+  - [x] 9.2 Implement FileSelector component
     - Create tree view component showing directory structure (3 levels deep)
     - Support checkbox selection of folders (select all children) and individual files
     - Display file counter showing selected count / 50 max
@@ -177,7 +177,7 @@ Implementation of a single-page application that converts a GitHub repository fo
     - Show loading indicator during analysis pipeline
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 3.1, 3.2_
 
-  - [ ] 9.3 Implement Dashboard with Kanban board
+  - [x] 9.3 Implement Dashboard with Kanban board
     - Create Dashboard page with 3 columns: "to_do", "in_review", "done"
     - Create `TicketCard` component showing: título (truncated at 80 chars), descripción (truncated at 200 chars), prioridad, dificultad, tiempo_estimado
     - Place tickets in columns based on their `estado` field
@@ -187,14 +187,14 @@ Implementation of a single-page application that converts a GitHub repository fo
     - Handle API errors with retry option, load within 3 seconds
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 5.1_
 
-  - [ ] 9.4 Implement InterviewModeSelector component
+  - [x] 9.4 Implement InterviewModeSelector component
     - Create mode selection UI with "Chat" and "Llamada" options
     - Check Web Speech API support; disable "Llamada" if unsupported with explanation
     - On mode selection, call `POST /api/interviews/start` with ticket_id and mode
     - Navigate to appropriate interface based on selection
     - _Requirements: 6.1, 6.5_
 
-  - [ ] 9.5 Implement ChatInterface component
+  - [x] 9.5 Implement ChatInterface component
     - Create bubble-style message interface with Tech_Lead avatar
     - Display questions from Tech_Lead as chat messages
     - Provide text input areas for each question (max 2000 chars per answer)
@@ -205,7 +205,7 @@ Implementation of a single-page application that converts a GitHub repository fo
     - Handle errors and timeouts with retry option
     - _Requirements: 6.2, 6.9, 6.10, 6.11, 6.12, 7.2_
 
-  - [ ] 9.6 Implement VoiceInterface component
+  - [x] 9.6 Implement VoiceInterface component
     - Create voice interface with SpeechRecognition for user input capture
     - Use SpeechSynthesis to read Tech_Lead questions and Evaluator feedback aloud
     - Show real-time transcription as subtitles
@@ -215,7 +215,7 @@ Implementation of a single-page application that converts a GitHub repository fo
     - Reuse ChatInterface's submit logic (text-only to backend)
     - _Requirements: 6.3, 6.4, 6.6, 6.7, 6.9, 6.10_
 
-  - [ ] 9.7 Implement FeedbackDisplay component
+  - [x] 9.7 Implement FeedbackDisplay component
     - Create component showing Evaluator feedback
     - Visually differentiate approval (green/success) vs rejection (red/warning)
     - On approval: update Dashboard to show ticket in "done" column
@@ -226,14 +226,14 @@ Implementation of a single-page application that converts a GitHub repository fo
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 11. Wire frontend routing and end-to-end flow
-  - [ ] 11.1 Set up React Router and page navigation
+  - [x] 11.1 Set up React Router and page navigation
     - Configure routes: `/` (Landing), `/select` (FileSelector), `/dashboard` (Dashboard), `/interview/:ticketId` (Interview)
     - Wire navigation flow: Landing → FileSelector → Dashboard → Interview → Dashboard
     - Ensure state is passed correctly between pages (project ID, ticket ID, diff)
     - Create API service layer (`src/services/api.ts`) centralizing all backend calls with error handling
     - _Requirements: 1.8, 2.3, 5.6_
 
-  - [ ] 11.2 Implement error handling and loading states
+  - [x] 11.2 Implement error handling and loading states
     - Create reusable error display component with retry button
     - Create loading spinner/skeleton components
     - Apply consistent error handling pattern across all API calls
