@@ -15,9 +15,14 @@ export default {
           '0%, 100%': { height: '20%' },
           '50%': { height: '100%' },
         },
+        'float': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-14px)' },
+        },
       },
       animation: {
         'audio-bar': 'audio-bar 0.6s ease-in-out infinite',
+        'float': 'float 6s ease-in-out infinite',
       },
     },
   },

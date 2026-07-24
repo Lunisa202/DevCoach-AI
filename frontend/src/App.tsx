@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
+import { LandingPage } from './pages/LandingPage'
 import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
 import { RepoInputPage } from './pages/RepoInputPage'
@@ -11,6 +12,9 @@ import { AppLayout } from './components/AppLayout'
 function App() {
   return (
     <Routes>
+      {/* Landing page pública */}
+      <Route path="/landing" element={<LandingPage />} />
+
       {/* Rutas públicas */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
