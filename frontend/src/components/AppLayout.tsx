@@ -3,7 +3,6 @@ import { Outlet, Navigate, Link, useLocation } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { Menu, KeyRound, X } from 'lucide-react'
 import { Sidebar } from './Sidebar'
-import { DevCoachLogo } from './DevCoachLogo'
 import axiosClient from '../services/axiosClient'
 import type { RootState } from '../store'
 
@@ -68,10 +67,8 @@ export function AppLayout() {
         )}
 
         {/* Desktop header */}
-        <header className="hidden lg:flex items-center px-6 h-14 border-b border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-800/50 backdrop-blur-sm">
-          <DevCoachLogo className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
-          <div className="ml-3 h-5 w-px bg-slate-200 dark:bg-slate-700" />
-          <h1 className="ml-3 text-sm font-semibold text-slate-700 dark:text-slate-200">{pageTitle}</h1>
+        <header className="hidden lg:flex items-center px-6 h-[65px] border-b border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-800/50 backdrop-blur-sm">
+          <h1 className="text-sm font-semibold text-slate-700 dark:text-slate-200">{pageTitle}</h1>
         </header>
 
         {/* Mobile header with hamburger */}

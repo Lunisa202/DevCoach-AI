@@ -29,10 +29,7 @@ export function SettingsPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 sm:py-12 space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Configuración</h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Administra tu perfil y preferencias</p>
-      </div>
+      <p className="text-sm text-slate-500 dark:text-slate-400">Administra tu perfil y preferencias</p>
 
       {/* Profile Section */}
       <ProfileSection user={user} token={token} dispatch={dispatch} />
