@@ -55,7 +55,7 @@ export function Sidebar({ isOpen, onClose }: Props) {
         }`}
       >
         {/* Header */}
-        <div className="flex items-center gap-3 px-4 py-4 border-b border-slate-200 dark:border-slate-700">
+        <div className="flex items-center gap-3 px-4 py-4 border-b border-slate-200 dark:border-slate-700 min-h-[64px]">
           <UserAvatar name={user?.full_name ?? 'U'} size="sm" />
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">

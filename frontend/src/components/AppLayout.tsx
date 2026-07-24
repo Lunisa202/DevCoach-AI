@@ -50,8 +50,8 @@ export function AppLayout() {
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Desktop header */}
-        <header className="hidden lg:flex items-center px-6 py-4 border-b border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-800/50 backdrop-blur-sm">
+        {/* Desktop header — height matches sidebar header exactly */}
+        <header className="hidden lg:flex items-center px-6 border-b border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-800/50 backdrop-blur-sm min-h-[64px]">
           <h1 className="text-sm font-semibold text-slate-700 dark:text-slate-200">{pageTitle}</h1>
         </header>
 
