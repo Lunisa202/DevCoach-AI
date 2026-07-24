@@ -1,3 +1,33 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Landing page audio bars animation */
+@keyframes audioWave {
+  0%, 100% {
+    height: 20%;
+  }
+  50% {
+    height: var(--bar-h, 80%);
+  }
+}
+
+.landing-audio-bar {
+  height: 20%;
+  animation-name: audioWave;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+/* Landing page dot pulse for "Escuchando..." */
+@keyframes dotPulse {
+  0%, 20% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Landing page LIVE badge pulse */
+@keyframes livePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}

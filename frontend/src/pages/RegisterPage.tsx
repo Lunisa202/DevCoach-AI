@@ -17,7 +17,7 @@ export function RegisterPage() {
 
   // Si ya está logueada, redirigir al home
   if (isAuthenticated) {
-    return <Navigate to="/" replace />
+    return <Navigate to="/app" replace />
   }
 
   const {
@@ -42,7 +42,7 @@ export function RegisterPage() {
       })
       dispatch(setCredentials({ token: response.access_token, user: response.user }))
       toast.success('Cuenta creada exitosamente')
-      navigate('/')
+      navigate('/app')
     } catch (err) {
       const error = err as AxiosError<{ detail: string }>
       const message = error.response?.data?.detail ?? 'Ocurrió un error inesperado'

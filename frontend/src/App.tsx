@@ -12,8 +12,8 @@ import { AppLayout } from './components/AppLayout'
 function App() {
   return (
     <Routes>
-      {/* Landing page pública */}
-      <Route path="/landing" element={<LandingPage />} />
+      {/* Landing page como página principal */}
+      <Route path="/" element={<LandingPage />} />
 
       {/* Rutas públicas */}
       <Route path="/login" element={<LoginPage />} />
@@ -21,7 +21,7 @@ function App() {
 
       {/* Rutas protegidas con sidebar */}
       <Route element={<AppLayout />}>
-        <Route path="/" element={<RepoInputPage />} />
+        <Route path="/app" element={<RepoInputPage />} />
         <Route path="/select" element={<FileSelectorPage />} />
         <Route path="/dashboard/:projectId" element={<DashboardPage />} />
         <Route path="/ticket/:ticketId" element={<TicketDetailPage />} />

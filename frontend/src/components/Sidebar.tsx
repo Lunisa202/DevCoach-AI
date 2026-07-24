@@ -29,7 +29,7 @@ export function Sidebar({ isOpen, onClose }: Props) {
 
   const handleNewAnalysis = () => {
     dispatch(setActiveProject(null))
-    navigate('/')
+    navigate('/app')
     onClose()
   }
 
