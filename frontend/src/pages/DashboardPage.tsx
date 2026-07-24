@@ -59,7 +59,7 @@ function TicketCard({
 
   return (
     <div
-      className="bg-slate-50 dark:bg-slate-900/50 p-3 border border-slate-200 hover:border-indigo-300 dark:border-slate-700 dark:hover:border-indigo-600 rounded-lg transition-all cursor-pointer"
+      className="bg-slate-50 dark:bg-slate-900/50 p-3 border border-slate-200 hover:border-indigo-400 hover:shadow-md dark:border-slate-700 dark:hover:border-indigo-500 rounded-lg transition-all duration-200 cursor-pointer hover:-translate-y-0.5"
       onClick={handleExpand}
     >
       {/* Header */}

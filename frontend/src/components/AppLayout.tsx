@@ -51,7 +51,7 @@ export function AppLayout() {
 
       <div className="flex-1 flex flex-col min-w-0">
         {/* Desktop header — height matches sidebar header exactly */}
-        <header className="hidden lg:flex items-center px-6 h-[72px] border-b border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-800/50 backdrop-blur-sm">
+        <header className="hidden lg:flex items-center px-6 h-[72px] border-b-2 border-indigo-500/20 dark:border-indigo-400/20 bg-white dark:bg-slate-800/50 backdrop-blur-sm">
           <h1 className="text-sm font-semibold text-slate-700 dark:text-slate-200">{pageTitle}</h1>
         </header>
 

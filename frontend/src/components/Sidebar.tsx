@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Plus, LogOut, Settings, LayoutDashboard } from 'lucide-react'
 import { UserAvatar } from './UserAvatar'
 import { Spinner } from './Spinner'
@@ -18,6 +18,7 @@ interface Props {
 export function Sidebar({ isOpen, onClose }: Props) {
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const location = useLocation()
   const user = useSelector((state: RootState) => state.auth.user)
   const { projects, activeProjectId, isLoading, deleteProject } = useProjects()
 
@@ -106,14 +107,22 @@ export function Sidebar({ isOpen, onClose }: Props) {
         <div className="px-3 py-3 border-t border-slate-200 dark:border-slate-700 space-y-1">
           <button
             onClick={() => { navigate('/home'); onClose() }}
-            className="w-full py-2 px-3 text-sm text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors flex items-center gap-2"
+            className={`w-full py-2 px-3 text-sm rounded-lg transition-colors flex items-center gap-2 ${
+              location.pathname === '/home'
+                ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-medium'
+                : 'text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-700/50'
+            }`}
           >
             <LayoutDashboard className="h-4 w-4" />
             Dashboard
           </button>
           <button
             onClick={() => { navigate('/settings'); onClose() }}
-            className="w-full py-2 px-3 text-sm text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors flex items-center gap-2"
+            className={`w-full py-2 px-3 text-sm rounded-lg transition-colors flex items-center gap-2 ${
+              location.pathname === '/settings'
+                ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-medium'
+                : 'text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-700/50'
+            }`}
           >
             <Settings className="h-4 w-4" />
             Configuración
