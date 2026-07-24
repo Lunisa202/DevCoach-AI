@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import { Plus, LogOut } from 'lucide-react'
-import { DevCoachLogo } from './DevCoachLogo'
+import { Plus, LogOut, Settings } from 'lucide-react'
+import { UserAvatar } from './UserAvatar'
 import { Spinner } from './Spinner'
 import { SidebarProjectItem } from './SidebarProjectItem'
 import { DarkModeToggle } from './DarkModeToggle'
@@ -56,7 +56,7 @@ export function Sidebar({ isOpen, onClose }: Props) {
       >
         {/* Header */}
         <div className="flex items-center gap-3 px-4 py-4 border-b border-slate-200 dark:border-slate-700">
-          <DevCoachLogo className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+          <UserAvatar name={user?.full_name ?? 'U'} size="sm" />
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">
               {user?.full_name ?? 'Usuario'}
@@ -102,8 +102,15 @@ export function Sidebar({ isOpen, onClose }: Props) {
           )}
         </div>
 
-        {/* Footer — logout */}
-        <div className="px-3 py-3 border-t border-slate-200 dark:border-slate-700">
+        {/* Footer — settings + logout */}
+        <div className="px-3 py-3 border-t border-slate-200 dark:border-slate-700 space-y-1">
+          <button
+            onClick={() => { navigate('/settings'); onClose() }}
+            className="w-full py-2 px-3 text-sm text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors flex items-center gap-2"
+          >
+            <Settings className="h-4 w-4" />
+            Configuración
+          </button>
           <button
             onClick={handleLogout}
             className="w-full py-2 px-3 text-sm text-slate-500 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors flex items-center gap-2"

@@ -580,3 +580,106 @@ class DBService:
         except Exception as e:
             logger.error(f"Error obteniendo usuario {user_id}: {e}")
             raise DBServiceError("No se pudo obtener el usuario")
+
+    # ---------------------------------------------------------------
+    # USER SETTINGS (profile, password, API key)
+    # ---------------------------------------------------------------
+
+    async def update_user_profile(self, user_id: str, full_name: str) -> dict:
+        """Update user's full_name. Returns updated user data."""
+        try:
+            result = (
+                self._client.table("users")
+                .update({"full_name": full_name})
+                .eq("id", user_id)
+                .execute()
+            )
+            if not result.data:
+                raise DBServiceError("Usuario no encontrado")
+            return result.data[0]
+        except DBServiceError:
+            raise
+        except Exception as e:
+            logger.error(f"Error updating profile for {user_id}: {e}")
+            raise DBServiceError("No se pudo actualizar el perfil")
+
+    async def update_user_password(self, user_id: str, hashed_password: str) -> None:
+        """Update user's password hash."""
+        try:
+            result = (
+                self._client.table("users")
+                .update({"password": hashed_password})
+                .eq("id", user_id)
+                .execute()
+            )
+            if not result.data:
+                raise DBServiceError("Usuario no encontrado")
+        except DBServiceError:
+            raise
+        except Exception as e:
+            logger.error(f"Error updating password for {user_id}: {e}")
+            raise DBServiceError("No se pudo actualizar la contraseña")
+
+    async def user_has_api_key(self, user_id: str) -> bool:
+        """Check if user has a personal API key stored."""
+        try:
+            result = (
+                self._client.table("users")
+                .select("gemini_api_key")
+                .eq("id", user_id)
+                .execute()
+            )
+            if not result.data:
+                return False
+            return bool(result.data[0].get("gemini_api_key"))
+        except Exception:
+            return False
+
+    async def save_user_api_key(self, user_id: str, api_key: str) -> None:
+        """Save user's personal Gemini API key."""
+        try:
+            result = (
+                self._client.table("users")
+                .update({"gemini_api_key": api_key})
+                .eq("id", user_id)
+                .execute()
+            )
+            if not result.data:
+                raise DBServiceError("Usuario no encontrado")
+        except DBServiceError:
+            raise
+        except Exception as e:
+            logger.error(f"Error saving API key for {user_id}: {e}")
+            raise DBServiceError("No se pudo guardar la API key")
+
+    async def delete_user_api_key(self, user_id: str) -> None:
+        """Remove user's personal API key."""
+        try:
+            result = (
+                self._client.table("users")
+                .update({"gemini_api_key": None})
+                .eq("id", user_id)
+                .execute()
+            )
+            if not result.data:
+                raise DBServiceError("Usuario no encontrado")
+        except DBServiceError:
+            raise
+        except Exception as e:
+            logger.error(f"Error deleting API key for {user_id}: {e}")
+            raise DBServiceError("No se pudo eliminar la API key")
+
+    async def get_user_api_key(self, user_id: str) -> str | None:
+        """Get user's personal API key, or None if not set."""
+        try:
+            result = (
+                self._client.table("users")
+                .select("gemini_api_key")
+                .eq("id", user_id)
+                .execute()
+            )
+            if not result.data:
+                return None
+            return result.data[0].get("gemini_api_key")
+        except Exception:
+            return None

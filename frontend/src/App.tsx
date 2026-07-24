@@ -7,6 +7,7 @@ import { FileSelectorPage } from './pages/FileSelectorPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { TicketDetailPage } from './pages/TicketDetailPage'
 import { InterviewPage } from './pages/InterviewPage'
+import { SettingsPage } from './pages/SettingsPage'
 import { AppLayout } from './components/AppLayout'
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
         <Route path="/dashboard/:projectId" element={<DashboardPage />} />
         <Route path="/ticket/:ticketId" element={<TicketDetailPage />} />
         <Route path="/interview/:ticketId" element={<InterviewPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
       </Route>
 
       {/* Fallback */}
