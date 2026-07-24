@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { LandingPage } from './pages/LandingPage'
 import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
+import { HomePage } from './pages/HomePage'
 import { RepoInputPage } from './pages/RepoInputPage'
 import { FileSelectorPage } from './pages/FileSelectorPage'
 import { DashboardPage } from './pages/DashboardPage'
@@ -22,6 +23,7 @@ function App() {
 
       {/* Rutas protegidas con sidebar */}
       <Route element={<AppLayout />}>
+        <Route path="/home" element={<HomePage />} />
         <Route path="/app" element={<RepoInputPage />} />
         <Route path="/select" element={<FileSelectorPage />} />
         <Route path="/dashboard/:projectId" element={<DashboardPage />} />

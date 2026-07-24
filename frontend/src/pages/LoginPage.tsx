@@ -37,7 +37,7 @@ export function LoginPage() {
       })
       dispatch(setCredentials({ token: response.access_token, user: response.user }))
       toast.success('Sesión iniciada')
-      navigate('/app')
+      navigate('/home')
     } catch (err) {
       const error = err as AxiosError<{ detail: string }>
       const message = error.response?.data?.detail ?? 'Ocurrió un error inesperado'

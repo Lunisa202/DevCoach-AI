@@ -215,6 +215,7 @@ function ApiKeySection() {
       await axiosClient.put('/api/auth/api-key', { gemini_api_key: data.gemini_api_key })
       toast.success('API Key guardada')
       setHasKey(true)
+      window.dispatchEvent(new Event('api-key-saved'))
     } catch {
       toast.error('No se pudo guardar la API Key')
     }

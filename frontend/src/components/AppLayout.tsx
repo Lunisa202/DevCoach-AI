@@ -19,6 +19,13 @@ export function AppLayout() {
       .catch(() => {})
   }, [isAuthenticated])
 
+  // Listen for api-key-saved event from SettingsPage
+  useEffect(() => {
+    const handler = () => setShowBanner(false)
+    window.addEventListener('api-key-saved', handler)
+    return () => window.removeEventListener('api-key-saved', handler)
+  }, [])
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />
   }

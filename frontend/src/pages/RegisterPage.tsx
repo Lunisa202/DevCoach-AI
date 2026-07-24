@@ -42,7 +42,7 @@ export function RegisterPage() {
       })
       dispatch(setCredentials({ token: response.access_token, user: response.user }))
       toast.success('Cuenta creada exitosamente')
-      navigate('/app')
+      navigate('/home')
     } catch (err) {
       const error = err as AxiosError<{ detail: string }>
       const message = error.response?.data?.detail ?? 'Ocurrió un error inesperado'
