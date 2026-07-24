@@ -1,13 +1,13 @@
-import { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
 import { AxiosError } from 'axios'
+import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
-import { Spinner } from '../components/Spinner'
+import { useNavigate, useParams } from 'react-router-dom'
 import { InterviewModeModal } from '../components/InterviewModeModal'
-import { verifyTicket, getTicketReviews } from '../services/ticketService'
+import { Spinner } from '../components/Spinner'
 import { useTickets } from '../hooks/useTickets'
-import type { TicketResponse } from '../types/project'
+import { getTicketReviews, verifyTicket } from '../services/ticketService'
 import type { ReviewDetailed } from '../types/interview'
+import type { TicketResponse } from '../types/project'
 
 type ColumnId = 'to_do' | 'in_review' | 'done'
 
@@ -211,7 +211,7 @@ const PRIORITY_COLORS: Record<string, string> = {
 export function DashboardPage() {
   const { projectId } = useParams<{ projectId: string }>()
   const navigate = useNavigate()
-  const { tickets, isLoading, loadTickets, refreshTickets, setTicketState } = useTickets()
+  const { tickets, isLoading, loadTickets, setTicketState } = useTickets()
   const [verifyingId, setVerifyingId] = useState<string | null>(null)
 
   useEffect(() => {

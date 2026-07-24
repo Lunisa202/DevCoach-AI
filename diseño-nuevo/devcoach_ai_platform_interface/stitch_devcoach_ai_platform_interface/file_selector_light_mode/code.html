@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>File Selector | DevCoach AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline-variant": "#e2e8f0",
+                        "primary": "#4f46e5",
+                        "surface-container-highest": "#f1f5f9",
+                        "inverse-surface": "#0f172a",
+                        "on-tertiary-fixed": "#131b2e",
+                        "on-surface": "#1e293b",
+                        "secondary-fixed": "#e9ddff",
+                        "on-secondary": "#ffffff",
+                        "surface-dim": "#f8fafc",
+                        "on-tertiary-container": "#1e293b",
+                        "on-secondary-fixed-variant": "#5516be",
+                        "background": "#f8fafc",
+                        "outline": "#94a3b8",
+                        "primary-fixed": "#e2dfff",
+                        "on-tertiary": "#ffffff",
+                        "primary-container": "#4f46e5",
+                        "on-error-container": "#450a0a",
+                        "error": "#ef4444",
+                        "tertiary-container": "#f1f5f9",
+                        "on-background": "#0f172a",
+                        "surface-bright": "#ffffff",
+                        "on-primary-fixed": "#0f0069",
+                        "inverse-on-surface": "#f8fafc",
+                        "on-error": "#ffffff",
+                        "secondary-container": "#6366f1",
+                        "on-secondary-container": "#ffffff",
+                        "on-tertiary-fixed-variant": "#3f465c",
+                        "tertiary": "#64748b",
+                        "surface": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "surface-variant": "#f1f5f9",
+                        "surface-tint": "#4f46e5",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-container": "#ffffff",
+                        "on-primary-fixed-variant": "#3323cc",
+                        "on-secondary-fixed": "#23005c",
+                        "tertiary-fixed-dim": "#94a3b8",
+                        "secondary-fixed-dim": "#d0bcff",
+                        "inverse-primary": "#c3c0ff",
+                        "error-container": "#fee2e2",
+                        "secondary": "#818cf8",
+                        "on-surface-variant": "#64748b",
+                        "surface-container": "#f8fafc",
+                        "surface-container-high": "#f1f5f9",
+                        "surface-container-low": "#ffffff",
+                        "primary-fixed-dim": "#c3c0ff",
+                        "tertiary-fixed": "#dae2fd"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "3xl": "64px",
+                        "xs": "4px",
+                        "margin-desktop": "40px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "base": "4px",
+                        "margin-mobile": "16px",
+                        "lg": "24px",
+                        "gutter": "24px",
+                        "2xl": "48px",
+                        "xl": "32px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "code-snippet": ["JetBrains Mono"],
+                        "headline-lg-mobile": ["Inter"],
+                        "display": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "code-snippet": ["14px", { "lineHeight": "22px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "display": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass-panel {
+            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .file-tree-item:hover .action-btns {
+            opacity: 1;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+    </style>
+</head>
+<body class="bg-background text-on-surface selection:bg-primary/20">
+<!-- Sidebar Navigation -->
+<aside class="fixed h-screen w-[280px] left-0 top-0 bg-surface-container border-r border-outline-variant flex flex-col p-md z-50">
+<div class="flex items-center gap-md px-sm mb-2xl">
+<div class="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center text-on-primary-container shadow-sm">
+<span class="material-symbols-outlined font-bold">terminal</span>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md font-bold text-primary leading-tight">Alex Chen</h2>
+<p class="font-label-md text-label-md text-on-surface-variant">alex.chen@devcoach.ai</p>
+</div>
+</div>
+<button class="w-full mb-xl py-md px-lg bg-primary-container text-on-primary-container rounded-xl font-bold flex items-center justify-center gap-sm hover:opacity-90 transition-all scale-95 active:scale-90 shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined">add</span>
+            New Analysis
+        </button>
+<nav class="flex-1 space-y-base">
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-body-md">Home</span>
+</a>
+<a class="flex items-center gap-md p-md rounded-lg text-primary font-bold bg-surface-container-highest transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="account_tree">account_tree</span>
+<span class="font-body-md">Repositories</span>
+</a>
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-body-md">Analysis</span>
+</a>
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-body-md">History</span>
+</a>
+</nav>
+<div class="mt-auto pt-md border-t border-outline-variant space-y-base">
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-body-md">Settings</span>
+</a>
+<a class="flex items-center gap-md p-md rounded-lg text-error font-medium hover:bg-error-container transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-body-md">Logout</span>
+</a>
+</div>
+</aside>
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 right-0 w-[calc(100%-280px)] h-[72px] bg-surface/80 backdrop-blur-md border-b border-outline-variant flex justify-between items-center px-margin-desktop z-40">
+<div class="flex items-center gap-xl">
+<h1 class="font-headline-md text-headline-md font-black text-primary">DevCoach AI</h1>
+<nav class="hidden md:flex items-center gap-lg">
+<a class="font-body-md text-primary border-b-2 border-primary pb-1" href="#">Dashboard</a>
+<a class="font-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">Analytics</a>
+<a class="font-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">Team</a>
+</nav>
+</div>
+<div class="flex items-center gap-md">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary">search</span>
+<input class="pl-10 pr-md py-sm bg-surface-container rounded-full border border-outline-variant focus:border-primary focus:ring-0 w-64 transition-all font-body-sm" placeholder="Search repository..." type="text"/>
+</div>
+<button class="p-sm text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-sm text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A clean, professional headshot of a software engineer for a tech platform, featuring a friendly expression and set against a soft, out-of-focus modern office background. The lighting is crisp and balanced, utilizing a high-key light-mode aesthetic with gentle blue and indigo undertones that match the modern corporate brand identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDcYKSGf6pAfblVq99nidx7gGwhi5mjIM10MeeeW9zEuqOmvpzX4O-FE6Q4t2QzQb_DWJs7UXkPfOh_ATLzxItlYxI_4wpYW6OLGGGgcN92hCaoKrlbN-e4uaQDNbnLs58kpd-ohacJDqL4vCf9PHsrmnShFOxPUcR7vjzUAkCNoSCRbGvrNkkC1g_fNQE_MQOPN4DVw2QpmJ78n52t_G-iN6djDaV7UVJU-B-F7BON_PHHGqlayoqazcL6ihrglfnr8kBlcoyrFDk"/>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="ml-[280px] pt-[72px] min-h-screen bg-surface-container-low">
+<div class="p-margin-desktop max-w-7xl mx-auto">
+<!-- Breadcrumbs and Header -->
+<div class="mb-xl flex items-end justify-between">
+<div>
+<div class="flex items-center gap-sm text-on-surface-variant font-label-md mb-sm">
+<span>Repositories</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-on-surface">devcoach-platform-v2</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-primary font-bold">src/components</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">File Selection</h2>
+<p class="text-on-surface-variant font-body-md max-w-2xl">Select the specific source files or modules you want DevCoach AI to analyze for code quality, performance bottlenecks, and architectural improvements.</p>
+</div>
+<div class="flex gap-md">
+<button class="px-xl py-md bg-surface border border-outline text-on-surface font-bold rounded-lg hover:bg-surface-variant transition-all scale-95 active:scale-90">
+                        Cancel
+                    </button>
+<button class="px-xl py-md bg-primary text-on-primary font-bold rounded-lg shadow-lg shadow-primary/20 hover:opacity-90 transition-all scale-95 active:scale-90">
+                        Analyze 14 Selected Files
+                    </button>
+</div>
+</div>
+<!-- Bento Layout Content -->
+<div class="grid grid-cols-12 gap-lg">
+<!-- File Tree Browser (8 cols) -->
+<div class="col-span-8 bg-surface rounded-xl border border-outline-variant overflow-hidden flex flex-col h-[700px] shadow-sm">
+<div class="p-md border-b border-outline-variant flex justify-between items-center bg-surface-dim">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">folder_open</span>
+<span class="font-bold font-body-md">devcoach-platform-v2</span>
+<span class="px-sm py-xs bg-primary/10 text-primary rounded font-label-md">main</span>
+</div>
+<div class="flex items-center gap-sm">
+<button class="p-xs hover:bg-surface-variant rounded text-on-surface-variant"><span class="material-symbols-outlined text-[20px]">unfold_less</span></button>
+<button class="p-xs hover:bg-surface-variant rounded text-on-surface-variant"><span class="material-symbols-outlined text-[20px]">refresh</span></button>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto p-md space-y-xs">
+<!-- Folder Example -->
+<div class="file-tree-item group flex items-center justify-between p-sm rounded-lg hover:bg-surface-container-high cursor-pointer transition-colors">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
+<span class="material-symbols-outlined text-amber-500" style="font-variation-settings: 'FILL' 1;">folder</span>
+<span class="font-body-md font-medium">src</span>
+</div>
+<span class="font-label-md text-on-surface-variant opacity-0 group-hover:opacity-100">42 files</span>
+</div>
+<!-- Nested Level -->
+<div class="ml-xl space-y-xs">
+<div class="file-tree-item group flex items-center justify-between p-sm rounded-lg hover:bg-surface-container-high cursor-pointer transition-colors">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
+<span class="material-symbols-outlined text-amber-500" style="font-variation-settings: 'FILL' 1;">folder</span>
+<span class="font-body-md font-medium">components</span>
+</div>
+</div>
+<div class="ml-xl space-y-xs">
+<!-- File with Checked State -->
+<div class="file-tree-item group flex items-center justify-between p-sm rounded-lg bg-primary/5 border border-primary/20 cursor-pointer">
+<div class="flex items-center gap-md">
+<div class="w-5 h-5 rounded border-2 border-primary bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px] text-white">check</span>
+</div>
+<span class="material-symbols-outlined text-blue-500">javascript</span>
+<span class="font-body-md font-bold text-primary">Button.tsx</span>
+</div>
+<span class="font-label-md text-primary font-bold">1.2 KB</span>
+</div>
+<div class="file-tree-item group flex items-center justify-between p-sm rounded-lg hover:bg-surface-container-high cursor-pointer transition-colors">
+<div class="flex items-center gap-md">
+<div class="w-5 h-5 rounded border-2 border-outline-variant"></div>
+<span class="material-symbols-outlined text-blue-500">javascript</span>
+<span class="font-body-md">Card.tsx</span>
+</div>
+<span class="font-label-md text-on-surface-variant opacity-0 group-hover:opacity-100">4.5 KB</span>
+</div>
+<div class="file-tree-item group flex items-center justify-between p-sm rounded-lg bg-primary/5 border border-primary/20 cursor-pointer">
+<div class="flex items-center gap-md">
+<div class="w-5 h-5 rounded border-2 border-primary bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px] text-white">check</span>
+</div>
+<span class="material-symbols-outlined text-blue-500">javascript</span>
+<span class="font-body-md font-bold text-primary">FileSelector.tsx</span>
+</div>
+<span class="font-label-md text-primary font-bold">12.8 KB</span>
+</div>
+</div>
+<div class="file-tree-item group flex items-center justify-between p-sm rounded-lg hover:bg-surface-container-high cursor-pointer transition-colors">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+<span class="material-symbols-outlined text-amber-500" style="font-variation-settings: 'FILL' 1;">folder</span>
+<span class="font-body-md font-medium">hooks</span>
+</div>
+</div>
+<div class="file-tree-item group flex items-center justify-between p-sm rounded-lg hover:bg-surface-container-high cursor-pointer transition-colors">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+<span class="material-symbols-outlined text-amber-500" style="font-variation-settings: 'FILL' 1;">folder</span>
+<span class="font-body-md font-medium">services</span>
+</div>
+</div>
+</div>
+<div class="file-tree-item group flex items-center justify-between p-sm rounded-lg hover:bg-surface-container-high cursor-pointer transition-colors">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+<span class="material-symbols-outlined text-amber-500" style="font-variation-settings: 'FILL' 1;">folder</span>
+<span class="font-body-md font-medium">public</span>
+</div>
+</div>
+<div class="file-tree-item group flex items-center justify-between p-sm rounded-lg hover:bg-surface-container-high cursor-pointer transition-colors">
+<div class="flex items-center gap-md">
+<span class="w-6"></span>
+<span class="material-symbols-outlined text-on-surface-variant">settings</span>
+<span class="font-body-md">package.json</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Preview and Metadata (4 cols) -->
+<div class="col-span-4 space-y-lg">
+<!-- Code Preview Card -->
+<div class="bg-surface rounded-xl border border-outline-variant shadow-sm overflow-hidden flex flex-col h-[400px]">
+<div class="px-md py-sm border-b border-outline-variant bg-surface-dim flex justify-between items-center">
+<span class="font-label-md font-bold text-on-surface">Preview: FileSelector.tsx</span>
+<span class="font-label-md text-on-surface-variant">Lines 1-45</span>
+</div>
+<div class="flex-1 bg-surface-container-lowest p-md font-code-snippet text-code-snippet overflow-hidden">
+<pre class="text-on-surface-variant space-y-1"><span class="text-primary italic">import</span> React <span class="text-primary italic">from</span> <span class="text-emerald-600">'react'</span>;
+<span class="text-primary italic">import</span> { FileTree } <span class="text-primary italic">from</span> <span class="text-emerald-600">'@ui/tree'</span>;
+
+<span class="text-primary">export const</span> FileSelector = () =&gt; {
+  <span class="text-slate-400">// Initialization logic here</span>
+  <span class="text-primary">const</span> [selected, setSelected] = useState([]);
+  
+  <span class="text-primary">return</span> (
+    &lt;<span class="text-indigo-600">div</span> className=<span class="text-emerald-600">"container"</span>&gt;
+      &lt;<span class="text-indigo-600">FileTree</span> data={repo} /&gt;
+    &lt;/<span class="text-indigo-600">div</span>&gt;
+  );
+};
+                            </pre>
+<div class="h-32 bg-gradient-to-t from-surface-container-lowest to-transparent absolute bottom-0 left-0 right-0 pointer-events-none"></div>
+</div>
+<div class="p-md bg-surface-dim text-center">
+<button class="text-primary font-bold font-label-md hover:underline">Open Full Editor</button>
+</div>
+</div>
+<!-- Statistics Card -->
+<div class="bg-primary/5 rounded-xl border border-primary/20 p-lg shadow-sm">
+<h4 class="font-bold font-body-md text-primary mb-md">Analysis Estimate</h4>
+<div class="space-y-md">
+<div class="flex justify-between items-center">
+<span class="text-on-surface-variant font-body-sm">Tokens to process</span>
+<span class="font-bold text-on-surface">~14,500</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-on-surface-variant font-body-sm">Estimated Credits</span>
+<span class="font-bold text-on-surface">1.4 credits</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-on-surface-variant font-body-sm">Avg. Analysis Time</span>
+<span class="font-bold text-on-surface">12 seconds</span>
+</div>
+<div class="w-full h-1 bg-outline-variant rounded-full mt-lg overflow-hidden">
+<div class="w-2/3 h-full bg-primary"></div>
+</div>
+<p class="font-label-md text-on-surface-variant text-center mt-sm">You are using 14% of your monthly analysis quota.</p>
+</div>
+</div>
+<!-- Tips / AI Assistant -->
+<div class="glass-panel rounded-xl p-lg flex gap-md">
+<div class="w-10 h-10 rounded-full bg-primary flex-shrink-0 flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[20px]">auto_awesome</span>
+</div>
+<div>
+<h5 class="font-bold font-label-md text-on-surface">DevCoach Pro-Tip</h5>
+<p class="text-on-surface-variant font-body-sm leading-relaxed mt-xs">Including <code class="bg-surface-variant px-xs rounded">package.json</code> or <code class="bg-surface-variant px-xs rounded">tsconfig.json</code> helps DevCoach understand your project's architecture better.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Floating Selection Toast -->
+<div class="fixed bottom-margin-desktop left-1/2 -translate-x-1/2 px-xl py-md bg-inverse-surface text-inverse-on-surface rounded-full shadow-2xl flex items-center gap-xl z-50 animate-bounce-short">
+<div class="flex items-center gap-md">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center font-bold text-white text-sm">14</div>
+<span class="font-body-md font-medium">Files selected for analysis</span>
+</div>
+<div class="flex items-center gap-md border-l border-white/20 pl-xl">
+<button class="hover:text-primary transition-colors font-bold font-label-md">Clear</button>
+<button class="bg-primary px-lg py-sm rounded-full font-bold font-label-md hover:bg-primary/90 transition-colors">Start Review</button>
+</div>
+</div>
+<script>
+        // Simple micro-interaction for file tree selection
+        document.querySelectorAll('.file-tree-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                const checkbox = this.querySelector('.rounded.border-2');
+                if (checkbox) {
+                    if (this.classList.contains('bg-primary/5')) {
+                        this.classList.remove('bg-primary/5', 'border-primary/20');
+                        checkbox.classList.remove('bg-primary', 'border-primary');
+                        checkbox.innerHTML = '';
+                        this.querySelector('.font-body-md').classList.remove('font-bold', 'text-primary');
+                    } else {
+                        this.classList.add('bg-primary/5', 'border-primary/20');
+                        checkbox.classList.add('bg-primary', 'border-primary');
+                        checkbox.innerHTML = '<span class="material-symbols-outlined text-[16px] text-white">check</span>';
+                        this.querySelector('.font-body-md').classList.add('font-bold', 'text-primary');
+                    }
+                }
+            });
+        });
+
+        // Toggle folder expansion
+        document.querySelectorAll('.material-symbols-outlined').forEach(icon => {
+            if (icon.innerText === 'expand_more' || icon.innerText === 'chevron_right') {
+                icon.parentElement.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const state = icon.innerText;
+                    icon.innerText = state === 'expand_more' ? 'chevron_right' : 'expand_more';
+                    // Logical expansion would happen here
+                });
+            }
+        });
+    </script>
+</body></html>

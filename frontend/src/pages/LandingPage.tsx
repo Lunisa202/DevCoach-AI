@@ -1,28 +1,27 @@
-import { useState, useEffect, useRef } from 'react'
-import { Link } from 'react-router-dom'
 import {
-  GitBranch,
-  FileCode2,
-  ScanSearch,
-  Ticket,
-  GitCommitHorizontal,
-  MessageSquareCode,
-  ClipboardCheck,
-  RefreshCw,
-  Code2,
-  Headphones,
-  Gauge,
-  Mic,
-  Zap,
-  Radio,
-  ArrowRight,
-  Sparkles,
-  CheckCircle2,
-  Menu,
-  X,
-  Terminal,
-  Heart,
+    ArrowRight,
+    CheckCircle2,
+    ClipboardCheck,
+    Code2,
+    FileCode2,
+    Gauge,
+    GitBranch,
+    GitCommitHorizontal,
+    Headphones,
+    Heart,
+    Menu,
+    MessageSquareCode,
+    Mic,
+    Radio,
+    RefreshCw,
+    ScanSearch,
+    Sparkles,
+    Ticket,
+    X,
+    Zap,
 } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { DevCoachLogo } from '../components/DevCoachLogo'
 
 /* ─── Reveal on scroll ─── */
