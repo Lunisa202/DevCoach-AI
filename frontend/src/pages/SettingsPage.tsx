@@ -5,7 +5,7 @@ import toast from 'react-hot-toast'
 import { User, KeyRound, Eye, EyeOff, Save } from 'lucide-react'
 import { UserAvatar } from '../components/UserAvatar'
 import { setCredentials } from '../store/slices/authSlice'
-import { axiosClient } from '../services/axiosClient'
+import axiosClient from '../services/axiosClient'
 import type { RootState } from '../store'
 
 interface ProfileFormData {
