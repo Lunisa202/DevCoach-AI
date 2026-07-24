@@ -107,7 +107,7 @@ async def start_interview(
         from app.ai.providers import get_provider
         from app.ai.agents.tech_lead import generate_questions
 
-        provider = get_provider()
+        provider = get_provider(user_id=current_user["id"])
 
         # Construir TicketData desde los datos de DB
         from app.models.ticket import TicketData, Prioridad, Dificultad
@@ -235,7 +235,7 @@ async def evaluate_answers(
         from app.ai.agents.evaluator import evaluate_answers as ai_evaluate
         from app.models.ticket import TicketData, Prioridad, Dificultad
 
-        provider = get_provider()
+        provider = get_provider(user_id=current_user["id"])
 
         ticket_data = TicketData(
             titulo=ticket["titulo"],

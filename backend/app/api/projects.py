@@ -243,7 +243,7 @@ async def create_project(
         from app.ai.agents.code_reviewer import analyze_code
         from app.ai.agents.ticket_generator import generate_tickets
 
-        provider = get_provider()
+        provider = get_provider(user_id=current_user["id"])
 
         # Ejecutar con timeout de 60 segundos
         review = await asyncio.wait_for(
