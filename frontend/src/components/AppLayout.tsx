@@ -50,29 +50,13 @@ export function AppLayout() {
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="flex-1 flex flex-col min-w-0">
-        {/* API Key banner */}
-        {showBanner && !bannerDismissed && (
-          <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 dark:bg-amber-500/10 border-b border-amber-200 dark:border-amber-500/20 text-sm text-amber-800 dark:text-amber-300">
-            <KeyRound className="size-4 shrink-0" />
-            <p className="flex-1">
-              Estás usando la API key del sistema. Para garantizar disponibilidad,{' '}
-              <Link to="/settings" className="font-medium underline hover:no-underline">
-                configura tu propia key
-              </Link>.
-            </p>
-            <button onClick={() => setBannerDismissed(true)} className="p-0.5 rounded hover:bg-amber-200/50 dark:hover:bg-amber-500/20">
-              <X className="size-4" />
-            </button>
-          </div>
-        )}
-
         {/* Desktop header */}
-        <header className="hidden lg:flex items-center px-6 h-[65px] border-b border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-800/50 backdrop-blur-sm">
+        <header className="hidden lg:flex items-center px-6 py-4 border-b border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-800/50 backdrop-blur-sm">
           <h1 className="text-sm font-semibold text-slate-700 dark:text-slate-200">{pageTitle}</h1>
         </header>
 
         {/* Mobile header with hamburger */}
-        <header className="lg:hidden flex items-center px-4 py-3 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+        <header className="lg:hidden flex items-center px-4 py-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
           <button
             onClick={() => setSidebarOpen(true)}
             className="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -86,6 +70,21 @@ export function AppLayout() {
 
         {/* Main content area */}
         <main className="flex-1 overflow-auto">
+          {/* API Key banner — inside content so it doesn't push the header */}
+          {showBanner && !bannerDismissed && (
+            <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 dark:bg-amber-500/10 border-b border-amber-200 dark:border-amber-500/20 text-sm text-amber-800 dark:text-amber-300">
+              <KeyRound className="size-4 shrink-0" />
+              <p className="flex-1">
+                Estás usando la API key del sistema. Para garantizar disponibilidad,{' '}
+                <Link to="/settings" className="font-medium underline hover:no-underline">
+                  configura tu propia key
+                </Link>.
+              </p>
+              <button onClick={() => setBannerDismissed(true)} className="p-0.5 rounded hover:bg-amber-200/50 dark:hover:bg-amber-500/20">
+                <X className="size-4" />
+              </button>
+            </div>
+          )}
           <Outlet />
         </main>
       </div>
