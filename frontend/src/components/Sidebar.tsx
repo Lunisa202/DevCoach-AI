@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import { Plus, LogOut, Settings } from 'lucide-react'
+import { Plus, LogOut, Settings, LayoutDashboard } from 'lucide-react'
 import { UserAvatar } from './UserAvatar'
 import { Spinner } from './Spinner'
 import { SidebarProjectItem } from './SidebarProjectItem'
@@ -102,8 +102,15 @@ export function Sidebar({ isOpen, onClose }: Props) {
           )}
         </div>
 
-        {/* Footer — settings + logout */}
+        {/* Footer — dashboard + settings + logout */}
         <div className="px-3 py-3 border-t border-slate-200 dark:border-slate-700 space-y-1">
+          <button
+            onClick={() => { navigate('/home'); onClose() }}
+            className="w-full py-2 px-3 text-sm text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors flex items-center gap-2"
+          >
+            <LayoutDashboard className="h-4 w-4" />
+            Dashboard
+          </button>
           <button
             onClick={() => { navigate('/settings'); onClose() }}
             className="w-full py-2 px-3 text-sm text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors flex items-center gap-2"
