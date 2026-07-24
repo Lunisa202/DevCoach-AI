@@ -1,16 +1,30 @@
 import { useState, useEffect } from 'react'
-import { Outlet, Navigate, Link } from 'react-router-dom'
+import { Outlet, Navigate, Link, useLocation } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { Menu, KeyRound, X } from 'lucide-react'
 import { Sidebar } from './Sidebar'
+import { DevCoachLogo } from './DevCoachLogo'
 import axiosClient from '../services/axiosClient'
 import type { RootState } from '../store'
+
+// Map routes to page titles
+function getPageTitle(pathname: string): string {
+  if (pathname === '/home') return 'Dashboard'
+  if (pathname === '/app') return 'Nuevo análisis'
+  if (pathname === '/select') return 'Seleccionar archivos'
+  if (pathname.startsWith('/dashboard/')) return 'Tablero de tickets'
+  if (pathname.startsWith('/ticket/')) return 'Detalle del ticket'
+  if (pathname.startsWith('/interview/')) return 'Entrevista técnica'
+  if (pathname === '/settings') return 'Configuración'
+  return 'DevCoach AI'
+}
 
 export function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [showBanner, setShowBanner] = useState(false)
   const [bannerDismissed, setBannerDismissed] = useState(false)
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated)
+  const location = useLocation()
 
   useEffect(() => {
     if (!isAuthenticated) return
@@ -30,8 +44,10 @@ export function AppLayout() {
     return <Navigate to="/login" replace />
   }
 
+  const pageTitle = getPageTitle(location.pathname)
+
   return (
-    <div className="flex h-screen bg-slate-50 dark:bg-slate-900 transition-colors">
+    <div className="flex h-screen bg-slate-100 dark:bg-slate-900 transition-colors">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="flex-1 flex flex-col min-w-0">
@@ -51,6 +67,13 @@ export function AppLayout() {
           </div>
         )}
 
+        {/* Desktop header */}
+        <header className="hidden lg:flex items-center px-6 h-14 border-b border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-800/50 backdrop-blur-sm">
+          <DevCoachLogo className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+          <div className="ml-3 h-5 w-px bg-slate-200 dark:bg-slate-700" />
+          <h1 className="ml-3 text-sm font-semibold text-slate-700 dark:text-slate-200">{pageTitle}</h1>
+        </header>
+
         {/* Mobile header with hamburger */}
         <header className="lg:hidden flex items-center px-4 py-3 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
           <button
@@ -60,7 +83,7 @@ export function AppLayout() {
             <Menu className="h-6 w-6" />
           </button>
           <span className="ml-3 text-sm font-semibold text-slate-800 dark:text-slate-100">
-            DevCoach AI
+            {pageTitle}
           </span>
         </header>
 

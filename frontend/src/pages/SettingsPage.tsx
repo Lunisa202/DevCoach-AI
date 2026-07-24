@@ -63,7 +63,7 @@ function ProfileSection({ user, token, dispatch }: { user: any; token: string | 
   }
 
   return (
-    <section className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6">
+    <section className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 shadow-sm">
       <div className="flex items-center gap-3 mb-6">
         <User className="size-5 text-indigo-600 dark:text-indigo-400" />
         <h2 className="text-lg font-semibold text-slate-800 dark:text-white">Perfil</h2>
@@ -134,7 +134,7 @@ function PasswordSection() {
   }
 
   return (
-    <section className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6">
+    <section className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 shadow-sm">
       <div className="flex items-center gap-3 mb-6">
         <KeyRound className="size-5 text-indigo-600 dark:text-indigo-400" />
         <h2 className="text-lg font-semibold text-slate-800 dark:text-white">Cambiar contraseña</h2>
@@ -232,7 +232,7 @@ function ApiKeySection() {
   }
 
   return (
-    <section className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6">
+    <section className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 shadow-sm">
       <div className="flex items-center gap-3 mb-2">
         <KeyRound className="size-5 text-amber-500" />
         <h2 className="text-lg font-semibold text-slate-800 dark:text-white">API Key de Gemini</h2>

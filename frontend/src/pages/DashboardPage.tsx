@@ -276,11 +276,7 @@ export function DashboardPage() {
   }
 
   return (
-    <div className="p-6 min-h-full">
-      <h1 className="mb-6 font-bold text-slate-800 dark:text-slate-100 text-xl">
-        Tablero de tickets
-      </h1>
-
+    <div className="p-4 sm:p-6 min-h-full">
       {/* Kanban grid */}
       <div className="gap-4 grid grid-cols-1 md:grid-cols-3">
         {(['to_do', 'in_review', 'done'] as ColumnId[]).map((columnId) => {
@@ -288,7 +284,7 @@ export function DashboardPage() {
           const columnTickets = getColumnTickets(columnId)
 
           return (
-            <div key={columnId} className={`border-t-4 ${config.color} rounded-lg bg-white dark:bg-slate-800 p-4`}>
+            <div key={columnId} className={`border-t-4 ${config.color} rounded-lg bg-white dark:bg-slate-800 p-4 shadow-sm`}>
               {/* Column header */}
               <div className="flex justify-between items-center mb-4">
                 <h2 className="font-semibold text-slate-700 dark:text-slate-200 text-sm">

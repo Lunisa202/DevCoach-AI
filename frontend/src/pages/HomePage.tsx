@@ -118,7 +118,7 @@ export function HomePage() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Tickets by state */}
-        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6">
+        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 shadow-sm">
           <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2">
             <BarChart3 className="size-4 text-indigo-500" />
             Estado de tickets
@@ -131,7 +131,7 @@ export function HomePage() {
         </div>
 
         {/* Tickets by priority */}
-        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6">
+        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 shadow-sm">
           <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2">
             <AlertTriangle className="size-4 text-amber-500" />
             Por prioridad
@@ -146,7 +146,7 @@ export function HomePage() {
 
       {/* Recent reviews */}
       {s.recent_reviews.length > 0 && (
-        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6">
+        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 shadow-sm">
           <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2">
             <Clock className="size-4 text-indigo-500" />
             Últimas evaluaciones
@@ -204,7 +204,7 @@ function StatCard({ icon, label, value, subtitle }: {
   subtitle?: string
 }) {
   return (
-    <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4">
+    <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 shadow-sm">
       <div className="flex items-center gap-2 mb-2">
         {icon}
         <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{label}</span>

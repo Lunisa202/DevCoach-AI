@@ -56,7 +56,7 @@ export function RepoInputPage() {
   }
 
   return (
-    <div className="min-h-full bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-8 transition-colors">
+    <div className="min-h-full flex items-center justify-center p-8 transition-colors">
 
       <div className="w-full max-w-lg text-center">
         <DevCoachLogo className="h-16 w-16 mx-auto mb-6 text-indigo-600 dark:text-indigo-400" />
