@@ -14,7 +14,7 @@ import {
 } from 'lucide-react'
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import toast from 'react-hot-toast'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { InterviewModeModal } from '../components/InterviewModeModal'
 import { Spinner } from '../components/Spinner'
 import { useProjects } from '../hooks/useProjects'
@@ -375,16 +375,18 @@ function KanbanColumn({
 export function DashboardPage() {
   const { projectId } = useParams<{ projectId: string }>()
   const navigate = useNavigate()
+  const location = useLocation()
   const { tickets, isLoading, loadTickets, setTicketState } = useTickets()
   const { projects } = useProjects()
   const [verifyingId, setVerifyingId] = useState<string | null>(null)
   const [interviewTicketId, setInterviewTicketId] = useState<string | null>(null)
 
+  // Reload tickets every time this page is navigated to (not just when projectId changes)
   useEffect(() => {
     if (projectId) {
       loadTickets(projectId)
     }
-  }, [projectId])
+  }, [projectId, location.key])
 
   const currentProject = useMemo(
     () => projects.find((p) => p.id === projectId) ?? null,
