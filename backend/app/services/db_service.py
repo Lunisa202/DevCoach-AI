@@ -557,7 +557,8 @@ class DBService:
         """
         Obtiene un usuario por su ID. No incluye el hash de contraseña.
 
-        Usado por get_current_user para validar el token JWT.
+        Usado por get_current_user para validar el token JWT y por el
+        frontend para hidratar el alias del usuario en la app.
 
         LANZA:
             DBServiceError si no existe o hay error de DB.
@@ -565,7 +566,7 @@ class DBService:
         try:
             result = (
                 self._client.table("users")
-                .select("id, full_name, email, created_at")
+                .select("id, full_name, email, created_at, alias")
                 .eq("id", user_id)
                 .execute()
             )
@@ -683,3 +684,207 @@ class DBService:
             return result.data[0].get("gemini_api_key")
         except Exception:
             return None
+
+    # ---------------------------------------------------------------
+    # RANKING / LEADERBOARD
+    # ---------------------------------------------------------------
+
+    # Etiqueta usada como Display_Name cuando el usuario no tiene alias ni
+    # full_name utilizables. Coherente con Requirement 5.6.
+    _ANON_DISPLAY_NAME = "Usuario anónimo"
+
+    async def update_user_alias(self, user_id: str, alias: str | None) -> dict:
+        """
+        Actualiza el alias público de un usuario.
+
+        VALIDACIÓN:
+            - alias == None       → limpia el alias (vuelve al full_name).
+            - alias no vacío tras trim y con 1..30 chars → se guarda ya trimeado.
+            - alias vacío tras trim o > 30 chars → ValueError (el endpoint lo
+              traduce a 422 y NO se persiste nada).
+
+        La misma validación existe como CHECK en la DB (migración 005) como
+        última línea de defensa.
+
+        RETORNA:
+            Diccionario con el usuario actualizado (sin password).
+        """
+        # None se acepta explícitamente para "quitar alias".
+        value: str | None
+        if alias is None:
+            value = None
+        else:
+            trimmed = alias.strip()
+            if len(trimmed) < 1 or len(trimmed) > 30:
+                raise ValueError("Alias must be 1..30 chars after trim")
+            value = trimmed
+
+        try:
+            result = (
+                self._client.table("users")
+                .update({"alias": value})
+                .eq("id", user_id)
+                .execute()
+            )
+            if not result.data:
+                raise DBServiceError("Usuario no encontrado")
+            user = result.data[0]
+            user.pop("password", None)
+            return user
+        except (DBServiceError, ValueError):
+            raise
+        except Exception as e:
+            logger.error(f"Error updating alias for {user_id}: {e}")
+            raise DBServiceError("No se pudo actualizar el alias")
+
+    def _display_name(self, user_row: dict) -> str:
+        """
+        Resuelve el Display_Name del usuario según Requirement 5:
+        alias válido > full_name > 'Usuario anónimo'.
+        """
+        alias = (user_row.get("alias") or "").strip()
+        if 1 <= len(alias) <= 30:
+            return alias
+        full_name = (user_row.get("full_name") or "").strip()
+        if full_name:
+            return full_name
+        return self._ANON_DISPLAY_NAME
+
+    async def get_leaderboard(self) -> list[dict]:
+        """
+        Calcula el leaderboard completo de todos los usuarios que tengan al
+        menos un proyecto registrado (Requirement 1.1).
+
+        LÓGICA:
+            1. Trae todos los users (id, full_name, alias, created_at).
+            2. Trae todos los projects (para saber qué users tienen actividad).
+            3. Trae tickets + reviews y agrega por user_id:
+                 - score = Σ calificacion de reviews aprobadas (NULL → 0)
+                 - approved_reviews_count
+                 - completed_tickets_count
+            4. Devuelve UNA entrada por usuario con proyectos, ordenada por:
+                 score DESC → approved_reviews DESC → user.created_at ASC → user.id ASC
+               (Requirements 2.1, 2.2, 2.3, 2.5, 4.4)
+            5. Asigna position 1-based consecutiva (Requirement 2.4).
+
+        RETORNA:
+            Lista de dicts, cada uno con:
+              - user_id, display_name, score, approved_reviews_count,
+                completed_tickets_count, position
+
+            Vacía si no hay usuarios con proyectos (Requirements 2.6, 4.5).
+
+        LANZA:
+            DBServiceError con mensaje genérico si falla la agregación
+            (Requirement 4.6).
+        """
+        try:
+            # 1) Usuarios
+            users_res = (
+                self._client.table("users")
+                .select("id, full_name, alias, created_at")
+                .execute()
+            )
+            users = users_res.data or []
+            if not users:
+                return []
+
+            # 2) Proyectos — mapa user_id → set(project_id)
+            projects_res = (
+                self._client.table("projects")
+                .select("id, user_id")
+                .execute()
+            )
+            projects = projects_res.data or []
+            user_projects: dict[str, set[str]] = {}
+            for p in projects:
+                uid = p.get("user_id")
+                pid = p.get("id")
+                if uid and pid:
+                    user_projects.setdefault(uid, set()).add(pid)
+
+            # 3) Tickets — mapa ticket_id → project_id, y proyecto → tickets
+            tickets_res = (
+                self._client.table("tickets")
+                .select("id, project_id, estado")
+                .execute()
+            )
+            tickets = tickets_res.data or []
+            ticket_project: dict[str, str] = {}
+            for t in tickets:
+                tid = t.get("id")
+                pid = t.get("project_id")
+                if tid and pid:
+                    ticket_project[tid] = pid
+
+            # project_id → user_id
+            project_user: dict[str, str] = {p["id"]: p["user_id"] for p in projects if p.get("id") and p.get("user_id")}
+
+            # 4) Reviews — agregar por user_id
+            reviews_res = (
+                self._client.table("reviews")
+                .select("ticket_id, aprobado, calificacion")
+                .execute()
+            )
+            reviews = reviews_res.data or []
+
+            scores: dict[str, int] = {}
+            approved_counts: dict[str, int] = {}
+            for r in reviews:
+                tid = r.get("ticket_id")
+                pid = ticket_project.get(tid)
+                uid = project_user.get(pid) if pid else None
+                if not uid:
+                    continue
+                if r.get("aprobado"):
+                    cal = r.get("calificacion")
+                    score_delta = int(cal) if cal is not None else 0
+                    scores[uid] = scores.get(uid, 0) + score_delta
+                    approved_counts[uid] = approved_counts.get(uid, 0) + 1
+
+            # completed tickets por user
+            completed_counts: dict[str, int] = {}
+            for t in tickets:
+                if t.get("estado") != "done":
+                    continue
+                pid = t.get("project_id")
+                uid = project_user.get(pid) if pid else None
+                if uid:
+                    completed_counts[uid] = completed_counts.get(uid, 0) + 1
+
+            # 5) Construir entries solo para users con al menos un proyecto
+            entries = []
+            for u in users:
+                uid = u["id"]
+                if uid not in user_projects:
+                    continue
+                entries.append({
+                    "user_id": uid,
+                    "display_name": self._display_name(u),
+                    "score": scores.get(uid, 0),
+                    "approved_reviews_count": approved_counts.get(uid, 0),
+                    "completed_tickets_count": completed_counts.get(uid, 0),
+                    # Campos auxiliares para desempate determinista:
+                    "_created_at": u.get("created_at") or "",
+                })
+
+            # 6) Ordenamiento determinista (Req 2.1-2.5, 4.4)
+            entries.sort(
+                key=lambda e: (
+                    -e["score"],
+                    -e["approved_reviews_count"],
+                    e["_created_at"],
+                    e["user_id"],
+                )
+            )
+
+            # 7) Asignar position 1-based y limpiar campos internos
+            for i, e in enumerate(entries, start=1):
+                e["position"] = i
+                e.pop("_created_at", None)
+
+            return entries
+
+        except Exception as e:
+            logger.error(f"Error building leaderboard: {e}")
+            raise DBServiceError("No se pudo generar el ranking")

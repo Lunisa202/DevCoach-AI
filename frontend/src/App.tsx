@@ -1,15 +1,16 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
+import { AppLayout } from './components/AppLayout'
+import { DashboardPage } from './pages/DashboardPage'
+import { FileSelectorPage } from './pages/FileSelectorPage'
+import { HomePage } from './pages/HomePage'
+import { InterviewPage } from './pages/InterviewPage'
 import { LandingPage } from './pages/LandingPage'
 import { LoginPage } from './pages/LoginPage'
+import { RankingPage } from './pages/RankingPage'
 import { RegisterPage } from './pages/RegisterPage'
-import { HomePage } from './pages/HomePage'
 import { RepoInputPage } from './pages/RepoInputPage'
-import { FileSelectorPage } from './pages/FileSelectorPage'
-import { DashboardPage } from './pages/DashboardPage'
-import { TicketDetailPage } from './pages/TicketDetailPage'
-import { InterviewPage } from './pages/InterviewPage'
 import { SettingsPage } from './pages/SettingsPage'
-import { AppLayout } from './components/AppLayout'
+import { TicketDetailPage } from './pages/TicketDetailPage'
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
         <Route path="/dashboard/:projectId" element={<DashboardPage />} />
         <Route path="/ticket/:ticketId" element={<TicketDetailPage />} />
         <Route path="/interview/:ticketId" element={<InterviewPage />} />
+        <Route path="/ranking" element={<RankingPage />} />
         <Route path="/settings" element={<SettingsPage />} />
       </Route>
 

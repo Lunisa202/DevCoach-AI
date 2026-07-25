@@ -10,6 +10,7 @@ from app.api.tickets import router as tickets_router
 from app.api.interviews import router as interviews_router
 from app.api.auth import router as auth_router
 from app.api.stats import router as stats_router
+from app.api.ranking import router as ranking_router
 
 # Validate environment on import (fail-fast)
 settings = get_settings()
@@ -46,3 +47,4 @@ app.include_router(projects_router)
 app.include_router(tickets_router)
 app.include_router(interviews_router)
 app.include_router(stats_router)
+app.include_router(ranking_router)
