@@ -5,10 +5,14 @@ import {
     ChevronUp,
     Clock,
     GitCommit,
+    Inbox,
+    Info,
     MessageSquare,
-    Trophy
+    Search,
+    Sparkles,
+    Trophy,
 } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import toast from 'react-hot-toast'
 import { useNavigate, useParams } from 'react-router-dom'
 import { InterviewModeModal } from '../components/InterviewModeModal'

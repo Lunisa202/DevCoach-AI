@@ -5,8 +5,9 @@ import {
     Code2,
     FolderGit2,
     GitBranch,
+    Hand,
     Plus,
-    Star
+    Star,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
