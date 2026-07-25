@@ -1,0 +1,17 @@
+{
+  // Evitar que el editor elimine u ordene imports "no usados" al guardar.
+  // Ya nos costó varios ReferenceError en runtime cuando el JSX referenciaba
+  // símbolos que el auto-format había borrado sin darse cuenta que se usaban.
+  //
+  // TypeScript/ESLint siguen mostrándolo como warning si algo sobra, pero el
+  // arreglo ahora es manual y explícito.
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "never",
+    "source.removeUnusedImports": "never",
+    "source.addMissingImports": "never"
+  },
+
+  // Idem para JS/TS/TSX específicamente (algunos plugins usan estas keys).
+  "typescript.preferences.organizeImportsAsCodeAction": false,
+  "javascript.preferences.organizeImportsAsCodeAction": false
+}

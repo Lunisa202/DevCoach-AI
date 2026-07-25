@@ -25,18 +25,37 @@ export function RankingPage() {
     setError(null)
     setData(null)
     const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 10_000)
+    let timedOut = false
+    const timeout = setTimeout(() => {
+      timedOut = true
+      controller.abort()
+    }, 10_000)
 
     getRanking(10, controller.signal)
       .then((res) => setData(res))
       .catch((err: AxiosError | Error) => {
-        // AbortError o timeout → mensaje amigable, reintentable
+        // Si el cleanup del effect abortó la petición (StrictMode monta dos
+        // veces el effect en dev, o el usuario navegó fuera), no es un
+        // error real: la próxima corrida montará la petición buena.
+        // Solo mostramos error si el timeout de 10s dispara el abort, o si
+        // es un error real de red/servidor.
+        const isAbort =
+          (err as AxiosError).code === 'ERR_CANCELED' ||
+          err.name === 'CanceledError' ||
+          err.name === 'AbortError'
+        if (isAbort && !timedOut) return
+
         setError('No se pudo cargar el ranking. Intenta de nuevo.')
         console.error('Ranking load error:', err)
       })
       .finally(() => {
         clearTimeout(timeout)
-        setIsLoading(false)
+        // Solo bajamos el spinner si NO abortamos desde el cleanup — de lo
+        // contrario el componente se está desmontando y setState sería un
+        // no-op ruidoso.
+        if (!controller.signal.aborted || timedOut) {
+          setIsLoading(false)
+        }
       })
 
     return () => {
