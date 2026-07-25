@@ -45,7 +45,7 @@ export function RankingPage() {
           err.name === 'AbortError'
         if (isAbort && !timedOut) return
 
-        setError('No se pudo cargar el ranking. Intenta de nuevo.')
+        setError('No se pudo cargar el ranking. Verifica tu conexión e intenta de nuevo.')
         console.error('Ranking load error:', err)
       })
       .finally(() => {

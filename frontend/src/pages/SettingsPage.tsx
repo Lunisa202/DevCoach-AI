@@ -500,9 +500,9 @@ function AvatarInput({ user, token, dispatch }: { user: any; token: string | nul
         </button>
       )}
       <p className="mt-2 text-xs text-slate-400">
-        Usa un enlace directo a una imagen (PNG, JPG). Puedes subir una a{' '}
-        <a href="https://imgur.com/upload" target="_blank" rel="noopener noreferrer" className="text-indigo-500 hover:underline">Imgur</a>{' '}
-        y copiar el enlace directo.
+        Usa un enlace directo a una imagen (PNG, JPG). Tip: sube una foto a{' '}
+        <a href="https://imgur.com/upload" target="_blank" rel="noopener noreferrer" className="text-indigo-500 hover:underline">Imgur</a>,
+        luego haz clic derecho en la imagen subida → "Copiar dirección de imagen".
       </p>
     </div>
   )

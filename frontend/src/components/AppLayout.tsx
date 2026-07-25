@@ -70,10 +70,10 @@ export function AppLayout() {
         </header>
 
         {/* Main content area */}
-        <main className="flex-1 overflow-auto">
-          {/* API Key banner — inside content so it doesn't push the header */}
+        <main className="flex-1 overflow-auto relative">
+          {/* API Key banner — floats over content without pushing anything */}
           {showBanner && !bannerDismissed && (
-            <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 dark:bg-amber-500/10 border-b border-amber-200 dark:border-amber-500/20 text-sm text-amber-800 dark:text-amber-300">
+            <div className="sticky top-0 z-10 flex items-center gap-2 px-4 py-2 bg-amber-50/95 dark:bg-amber-500/10 border-b border-amber-200 dark:border-amber-500/20 text-sm text-amber-800 dark:text-amber-300 backdrop-blur-sm">
               <KeyRound className="size-4 shrink-0" />
               <p className="flex-1">
                 Estás usando la API key del sistema. Para garantizar disponibilidad,{' '}
