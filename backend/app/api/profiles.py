@@ -45,3 +45,22 @@ async def get_public_profile(
     profile["is_own_profile"] = str(current_user["id"]) == user_id
 
     return profile
+
+
+@router.get(
+    "/{user_id}/skills",
+    summary="Get skill radar for a specific user",
+)
+async def get_user_skills(
+    user_id: str,
+    current_user: dict = Depends(get_current_user),
+):
+    """Returns skill radar data for any user (public)."""
+    settings = get_settings()
+    db = DBService(url=settings.SUPABASE_URL, key=settings.SUPABASE_KEY)
+
+    try:
+        skills = await db.get_user_skill_radar(user_id)
+        return {"skills": skills}
+    except Exception:
+        return {"skills": []}

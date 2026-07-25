@@ -15,6 +15,7 @@ import { useParams, Link } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import axiosClient from '../services/axiosClient'
 import { UserAvatar } from '../components/UserAvatar'
+import { SkillRadar } from '../components/SkillRadar'
 import type { RootState } from '../store'
 
 interface ProfileData {
@@ -152,6 +153,9 @@ export function ProfilePage() {
         </div>
       </div>
 
+      {/* Skill Radar */}
+      <ProfileSkillRadar userId={p.id} />
+
       {/* Achievements */}
       {p.achievements.length > 0 && (
         <div className="bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700/50 rounded-2xl p-6">
@@ -190,6 +194,27 @@ function StatBadge({ icon, label, value }: { icon: React.ReactNode; label: strin
       <div className="flex justify-center mb-2">{icon}</div>
       <p className="text-lg font-bold text-slate-900 dark:text-white">{value}</p>
       <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>
+    </div>
+  )
+}
+
+
+function ProfileSkillRadar({ userId }: { userId: string }) {
+  const [skills, setSkills] = useState<Array<{ dimension: string; score: number; max_score: number; count: number }>>([])
+
+  useEffect(() => {
+    axiosClient.get(`/api/profiles/${userId}/skills`)
+      .then(res => setSkills(res.data.skills || []))
+      .catch(() => {})
+  }, [userId])
+
+  if (skills.length === 0) return null
+
+  return (
+    <div className="bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700/50 rounded-2xl p-6">
+      <h3 className="font-semibold text-slate-900 dark:text-white mb-1">Perfil de competencias</h3>
+      <p className="text-slate-500 dark:text-slate-400 text-xs mb-4">Promedio por dimensión de evaluación</p>
+      <SkillRadar skills={skills} />
     </div>
   )
 }
