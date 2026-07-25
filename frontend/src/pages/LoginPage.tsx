@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, Navigate, Link } from 'react-router-dom'
 import { AxiosError } from 'axios'
+import { Eye, EyeOff } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { setCredentials } from '../store/slices/authSlice'
 import { loginService } from '../services/authService'
@@ -13,6 +15,7 @@ import type { RootState } from '../store'
 export function LoginPage() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const [showPassword, setShowPassword] = useState(false)
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated)
 
   // Si ya está logueada, redirigir al home
@@ -106,16 +109,25 @@ export function LoginPage() {
               <label htmlFor="password" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                 Contraseña
               </label>
-              <input
-                id="password"
-                type="password"
-                autoComplete="current-password"
-                {...register('password', {
-                  required: 'La contraseña es obligatoria',
-                })}
-                className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-colors"
-                placeholder="••••••••"
-              />
+              <div className="relative">
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  {...register('password', {
+                    required: 'La contraseña es obligatoria',
+                  })}
+                  className="w-full px-4 py-2.5 pr-10 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-colors"
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(v => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                >
+                  {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                </button>
+              </div>
               {errors.password && (
                 <p className="mt-1 text-sm text-red-500">{errors.password.message}</p>
               )}

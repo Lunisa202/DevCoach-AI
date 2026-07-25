@@ -1,4 +1,4 @@
-import { Award, LayoutDashboard, LogOut, Plus, Settings, Trophy } from 'lucide-react'
+import { Award, LayoutDashboard, LogOut, Plus, Settings, Trophy, UserCircle } from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useProjects } from '../hooks/useProjects'
@@ -137,6 +137,17 @@ export function Sidebar({ isOpen, onClose }: Props) {
           >
             <Award className="h-4 w-4" />
             Logros
+          </button>
+          <button
+            onClick={() => { navigate(`/profile/${user?.id}`); onClose() }}
+            className={`w-full py-2 px-3 text-sm rounded-lg transition-colors flex items-center gap-2 ${
+              location.pathname.startsWith('/profile/')
+                ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-medium'
+                : 'text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-700/50'
+            }`}
+          >
+            <UserCircle className="h-4 w-4" />
+            Mi perfil
           </button>
           <button
             onClick={() => { navigate('/settings'); onClose() }}
