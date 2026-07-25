@@ -1,10 +1,21 @@
-import { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
 import { AxiosError } from 'axios'
+import {
+    AlertTriangle,
+    ArrowLeft,
+    Bot,
+    CheckCircle,
+    Info,
+    Loader2,
+    RotateCcw,
+    Send,
+    Volume2,
+} from 'lucide-react'
+import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Spinner } from '../components/Spinner'
 import { useSpeechSynthesis } from '../hooks/useSpeechSynthesis'
-import { startInterview, evaluateAnswers } from '../services/interviewService'
+import { evaluateAnswers, startInterview } from '../services/interviewService'
 import type { EvaluateResponse } from '../types/interview'
 
 const LOADING_MESSAGES = [
@@ -32,7 +43,6 @@ export function ChatInterviewPage() {
     }
   }, [ticketId])
 
-  // Progressive loading messages
   useEffect(() => {
     if (!isLoadingQuestions) return
     let i = 0
@@ -69,8 +79,6 @@ export function ChatInterviewPage() {
 
   const handleSubmit = async () => {
     if (!ticketId) return
-
-    // Validar que todas las respuestas tengan contenido
     const emptyIndex = answers.findIndex((a) => a.trim().length === 0)
     if (emptyIndex !== -1) {
       toast.error(`Responde la pregunta ${emptyIndex + 1} antes de enviar`)
@@ -84,7 +92,7 @@ export function ChatInterviewPage() {
       if (data.aprobado) {
         toast.success('¡Entrevista aprobada!')
       } else {
-        toast('Puedes intentar de nuevo', { icon: 'ℹ️' })
+        toast('Puedes intentar de nuevo', { icon: <Info className="size-5 text-indigo-500" /> })
       }
     } catch (err) {
       const error = err as AxiosError<{ detail: string }>
@@ -94,173 +102,84 @@ export function ChatInterviewPage() {
     }
   }
 
-  const handleBack = () => {
-    navigate(-1)
-  }
+  const handleBack = () => navigate(-1)
 
-  // Loading state
+  // ─── Loading ─────────────────────────────────────────────
   if (isLoadingQuestions) {
     return (
-      <div className="min-h-full flex flex-col items-center justify-center gap-4">
+      <div className="flex flex-col justify-center items-center gap-4 min-h-full">
         <Spinner size="md" label={loadingMessage} />
         <button
-          onClick={() => navigate(-1)}
-          className="text-sm text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
+          onClick={handleBack}
+          className="flex items-center gap-1.5 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 text-sm transition-colors"
         >
-          ← Cancelar entrevista
+          <ArrowLeft size={14} />
+          Cancelar entrevista
         </button>
       </div>
     )
   }
 
-  // Result state
+  // ─── Resultado ───────────────────────────────────────────
   if (result) {
-    return (
-      <div className="min-h-full p-6 max-w-2xl mx-auto">
-        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
-          {/* Header: Badge + Calificación */}
-          <div className="flex items-center justify-between mb-6">
-            {result.aprobado ? (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="text-sm font-semibold">Aprobado</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                </svg>
-                <span className="text-sm font-semibold">No aprobado</span>
-              </div>
-            )}
-            <div className="text-right">
-              <p className={`text-3xl font-bold ${result.calificacion >= 70 ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}>
-                {result.calificacion}
-              </p>
-              <p className="text-xs text-slate-400 dark:text-slate-500">de 100</p>
-            </div>
-          </div>
-
-          {/* Barra de progreso general */}
-          <div className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full mb-6">
-            <div
-              className={`h-full rounded-full transition-all ${result.calificacion >= 70 ? 'bg-emerald-500' : 'bg-amber-500'}`}
-              style={{ width: `${result.calificacion}%` }}
-            />
-          </div>
-
-          {/* 5 Dimensiones */}
-          <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-3">
-            Evaluación por dimensión
-          </h3>
-          <div className="space-y-3 mb-6">
-            {result.aspectos_evaluados.map((aspecto, i) => (
-              <div key={i} className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                    {aspecto.dimension}
-                  </span>
-                  <span className="text-xs text-slate-500 dark:text-slate-400">
-                    {aspecto.puntaje}/20
-                  </span>
-                </div>
-                <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full">
-                  <div
-                    className={`h-full rounded-full ${aspecto.puntaje >= 14 ? 'bg-emerald-500' : aspecto.puntaje >= 10 ? 'bg-amber-500' : 'bg-red-500'}`}
-                    style={{ width: `${(aspecto.puntaje / 20) * 100}%` }}
-                  />
-                </div>
-                <p className="text-xs text-slate-400 dark:text-slate-500">{aspecto.comentario}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Conceptos a mejorar */}
-          {result.conceptos_a_mejorar.length > 0 && (
-            <div className="mb-6">
-              <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-2">
-                Conceptos a profundizar
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {result.conceptos_a_mejorar.map((concepto, i) => (
-                  <span key={i} className="text-xs px-2.5 py-1 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300">
-                    {concepto}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Feedback general */}
-          <div className="mb-6 p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg">
-            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-2">
-              Feedback del evaluador
-            </h3>
-            <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
-              {result.feedback}
-            </p>
-          </div>
-
-          {/* Botón de bocina */}
-          <div className="mb-4">
-            <button
-              onClick={() => speak(`Tu calificación fue ${result.calificacion} de 100. ${result.feedback}`)}
-              disabled={isSpeaking}
-              className="flex items-center gap-2 text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 disabled:opacity-50"
-            >
-              🔊 {isSpeaking ? 'Leyendo...' : 'Escuchar resultados'}
-            </button>
-          </div>
-
-          {/* Actions */}
-          <div className="flex gap-3">
-            <button
-              onClick={handleBack}
-              className="flex-1 py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors text-sm"
-            >
-              Volver al dashboard
-            </button>
-            {!result.aprobado && (
-              <button
-                onClick={() => {
-                  setResult(null)
-                  setAnswers(new Array(questions.length).fill(''))
-                }}
-                className="flex-1 py-2.5 px-4 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-sm"
-              >
-                Intentar de nuevo
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-    )
+    return <ResultView result={result} isSpeaking={isSpeaking} speak={speak} onBack={handleBack} onRetry={() => {
+      setResult(null)
+      setAnswers(new Array(questions.length).fill(''))
+    }} />
   }
 
-  // Interview form
-  return (
-    <div className="min-h-full p-6 max-w-2xl mx-auto">
-      <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">
-        Entrevista técnica
-      </h1>
-      <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
-        Responde las preguntas del Tech Lead sobre tu código
-      </p>
+  // ─── Formulario de entrevista ────────────────────────────
+  const answered = answers.filter((a) => a.trim().length > 0).length
+  const pct = questions.length > 0 ? Math.round((answered / questions.length) * 100) : 0
 
+  return (
+    <div className="mx-auto p-6 max-w-2xl min-h-full fade-in">
+      {/* Back */}
+      <button
+        onClick={handleBack}
+        className="flex items-center gap-1.5 mb-5 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 text-sm transition-colors"
+      >
+        <ArrowLeft size={16} />
+        Volver
+      </button>
+
+      {/* Header card */}
+      <div className="bg-white dark:bg-slate-800/40 shadow-sm mb-6 p-5 border border-slate-200 dark:border-slate-700/50 rounded-2xl">
+        <div className="flex justify-between items-start gap-4">
+          <div className="min-w-0">
+            <p className="mb-0.5 font-medium text-slate-500 dark:text-slate-400 text-xs">Entrevista técnica</p>
+            <h1 className="font-bold text-slate-900 dark:text-slate-100 text-xl">
+              Defiende tu código ante el Tech Lead
+            </h1>
+            <p className="mt-1 text-slate-500 dark:text-slate-400 text-xs">
+              Responde {questions.length} pregunta{questions.length !== 1 ? 's' : ''} para completar la revisión
+            </p>
+          </div>
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-700 px-2.5 py-1 rounded-full font-medium text-slate-600 dark:text-slate-300 text-xs shrink-0">
+            <Bot size={12} />
+            {answered}/{questions.length}
+          </div>
+        </div>
+        {/* Progress */}
+        <div className="bg-slate-200 dark:bg-slate-700 mt-4 rounded-full h-1.5 overflow-hidden">
+          <div
+            className="bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full h-full transition-all duration-500"
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Preguntas + respuestas */}
       <div className="space-y-6">
         {questions.map((question, index) => (
-          <div key={index} className="space-y-2">
+          <div key={index} className="space-y-2 slide-in">
             {/* Question bubble */}
             <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
+              <div className="flex justify-center items-center bg-gradient-to-br from-indigo-500 to-violet-600 shadow-md shadow-indigo-500/20 rounded-full size-8 shrink-0">
+                <Bot size={15} className="text-white" />
               </div>
-              <div className="bg-slate-100 dark:bg-slate-700 rounded-lg rounded-tl-none px-4 py-3 max-w-[85%]">
-                <p className="text-sm text-slate-700 dark:text-slate-200">
+              <div className="bg-slate-100 dark:bg-slate-700/80 px-4 py-3 rounded-2xl rounded-tl-sm max-w-[85%]">
+                <p className="text-slate-700 dark:text-slate-100 text-sm leading-relaxed">
                   {question}
                 </p>
               </div>
@@ -273,10 +192,10 @@ export function ChatInterviewPage() {
                 onChange={(e) => updateAnswer(index, e.target.value)}
                 maxLength={2000}
                 rows={3}
-                placeholder="Escribí tu respuesta..."
-                className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-colors resize-none text-sm"
+                placeholder="Escribe tu respuesta..."
+                className="bg-white dark:bg-slate-800 focus:border-indigo-500 px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 w-full text-slate-900 dark:text-slate-100 text-sm transition-all resize-none"
               />
-              <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 text-right">
+              <p className="mt-1 text-slate-400 dark:text-slate-500 text-xs text-right">
                 {answers[index].length}/2000
               </p>
             </div>
@@ -289,23 +208,181 @@ export function ChatInterviewPage() {
         <button
           onClick={handleSubmit}
           disabled={isEvaluating}
-          className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+          className="flex justify-center items-center gap-2 disabled:opacity-60 btn-primary px-4 py-2.5 rounded-xl w-full font-medium text-white text-sm"
         >
-          {isEvaluating && (
-            <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-            </svg>
+          {isEvaluating ? (
+            <>
+              <Loader2 className="size-4 animate-spin" />
+              Evaluando…
+            </>
+          ) : (
+            <>
+              <Send size={14} />
+              Enviar respuestas
+            </>
           )}
-          {isEvaluating ? 'Evaluando...' : 'Enviar respuestas'}
+        </button>
+        <button
+          onClick={handleBack}
+          className="flex justify-center items-center gap-1.5 mt-3 py-2 w-full text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 text-sm transition-colors"
+        >
+          <ArrowLeft size={14} />
+          Cancelar entrevista
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================
+// ResultView — compartido entre chat y voz
+// ============================================================
+export function ResultView({
+  result,
+  isSpeaking,
+  speak,
+  onBack,
+  onRetry,
+}: {
+  result: EvaluateResponse
+  isSpeaking: boolean
+  speak: (text: string) => void
+  onBack: () => void
+  onRetry: () => void
+}) {
+  return (
+    <div className="mx-auto p-6 max-w-2xl min-h-full fade-in">
+      <div className="bg-white dark:bg-slate-800/40 shadow-sm p-6 border border-slate-200 dark:border-slate-700/50 rounded-2xl">
+        {/* Header: badge + score */}
+        <div className="flex justify-between items-center mb-6">
+          {result.aprobado ? (
+            <div className="inline-flex items-center gap-2 bg-emerald-500/15 px-3 py-1.5 rounded-full text-emerald-600 dark:text-emerald-400">
+              <CheckCircle className="size-5" />
+              <span className="font-semibold text-sm">Aprobado</span>
+            </div>
+          ) : (
+            <div className="inline-flex items-center gap-2 bg-amber-500/15 px-3 py-1.5 rounded-full text-amber-600 dark:text-amber-400">
+              <AlertTriangle className="size-5" />
+              <span className="font-semibold text-sm">No aprobado</span>
+            </div>
+          )}
+          <div className="text-right">
+            <p
+              className={`text-3xl font-bold ${
+                result.calificacion >= 70 ? 'text-emerald-500' : 'text-amber-500'
+              }`}
+            >
+              {result.calificacion}
+            </p>
+            <p className="text-slate-400 dark:text-slate-500 text-xs">de 100</p>
+          </div>
+        </div>
+
+        {/* Barra general */}
+        <div className="bg-slate-200 dark:bg-slate-700 mb-6 rounded-full h-2 overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-all ${
+              result.calificacion >= 70 ? 'bg-emerald-500' : 'bg-amber-500'
+            }`}
+            style={{ width: `${result.calificacion}%` }}
+          />
+        </div>
+
+        {/* Dimensiones */}
+        {result.aspectos_evaluados && result.aspectos_evaluados.length > 0 && (
+          <>
+            <h3 className="mb-3 font-semibold text-slate-800 dark:text-slate-100 text-sm">
+              Evaluación por dimensión
+            </h3>
+            <div className="space-y-3 mb-6">
+              {result.aspectos_evaluados.map((aspecto, i) => (
+                <div key={i} className="space-y-1">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-slate-700 dark:text-slate-300 text-xs">
+                      {aspecto.dimension}
+                    </span>
+                    <span className="text-slate-500 dark:text-slate-400 text-xs">
+                      {aspecto.puntaje}/20
+                    </span>
+                  </div>
+                  <div className="bg-slate-200 dark:bg-slate-700 rounded-full w-full h-1.5">
+                    <div
+                      className={`h-full rounded-full ${
+                        aspecto.puntaje >= 14
+                          ? 'bg-emerald-500'
+                          : aspecto.puntaje >= 10
+                            ? 'bg-amber-500'
+                            : 'bg-red-500'
+                      }`}
+                      style={{ width: `${(aspecto.puntaje / 20) * 100}%` }}
+                    />
+                  </div>
+                  <p className="text-slate-400 dark:text-slate-500 text-xs">{aspecto.comentario}</p>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* Conceptos a mejorar */}
+        {result.conceptos_a_mejorar && result.conceptos_a_mejorar.length > 0 && (
+          <div className="mb-6">
+            <h3 className="mb-2 font-semibold text-slate-800 dark:text-slate-100 text-sm">
+              Conceptos a profundizar
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {result.conceptos_a_mejorar.map((concepto, i) => (
+                <span
+                  key={i}
+                  className="bg-indigo-100 dark:bg-indigo-900/30 px-2.5 py-1 rounded-full text-indigo-700 dark:text-indigo-300 text-xs"
+                >
+                  {concepto}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Feedback */}
+        <div className="bg-slate-50 dark:bg-slate-900/50 mb-6 p-4 rounded-xl">
+          <h3 className="mb-2 font-semibold text-slate-800 dark:text-slate-100 text-sm">
+            Feedback del evaluador
+          </h3>
+          <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">
+            {result.feedback}
+          </p>
+        </div>
+
+        {/* Escuchar resultados */}
+        <button
+          onClick={() =>
+            speak(`Tu calificación fue ${result.calificacion} de 100. ${result.feedback}`)
+          }
+          disabled={isSpeaking}
+          className="flex items-center gap-2 disabled:opacity-50 mb-4 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 text-sm transition-colors"
+        >
+          <Volume2 size={16} />
+          {isSpeaking ? 'Leyendo…' : 'Escuchar resultados'}
         </button>
 
-        <button
-          onClick={() => navigate(-1)}
-          className="w-full mt-3 py-2 text-sm text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
-        >
-          ← Cancelar entrevista
-        </button>
+        {/* Actions */}
+        <div className="flex gap-3">
+          <button
+            onClick={onBack}
+            className="flex-1 btn-primary px-4 py-2.5 rounded-xl font-medium text-white text-sm transition-colors"
+          >
+            Volver al dashboard
+          </button>
+          {!result.aprobado && (
+            <button
+              onClick={onRetry}
+              className="flex flex-1 justify-center items-center gap-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl font-medium text-slate-700 dark:text-slate-300 text-sm transition-colors"
+            >
+              <RotateCcw size={14} />
+              Intentar de nuevo
+            </button>
+          )}
+        </div>
       </div>
     </div>
   )
