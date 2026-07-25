@@ -83,6 +83,7 @@ async def register(request: UserCreate):
             full_name=user["full_name"],
             email=user["email"],
             created_at=user["created_at"],
+            alias=user.get("alias"),
         ),
     )
 
@@ -142,6 +143,7 @@ async def login(request: UserLogin):
             full_name=user["full_name"],
             email=user["email"],
             created_at=user["created_at"],
+            alias=user.get("alias"),
         ),
     )
 
@@ -165,6 +167,16 @@ class PasswordUpdate(BaseModel):
 class ApiKeyUpdate(BaseModel):
     """Request body for saving user's own Gemini API key."""
     gemini_api_key: str = Field(min_length=10, max_length=200)
+
+
+class AliasUpdate(BaseModel):
+    """
+    Request body for updating the public alias shown in the ranking.
+
+    Passing None (or missing field) clears the alias — the user will
+    appear with full_name again in the leaderboard.
+    """
+    alias: str | None = None
 
 
 @router.put(
@@ -192,6 +204,7 @@ async def update_profile(
             full_name=updated["full_name"],
             email=updated["email"],
             created_at=updated["created_at"],
+            alias=updated.get("alias"),
         )
     }
 
@@ -277,3 +290,53 @@ async def delete_api_key(current_user: dict = Depends(get_current_user)):
         raise HTTPException(status_code=500, detail="No se pudo eliminar la API key")
 
     return {"message": "API key eliminada"}
+
+
+@router.put(
+    "/alias",
+    summary="Configurar el alias público del usuario (usado en el ranking)",
+    responses={
+        401: {"description": "No autenticado"},
+        422: {"description": "Alias inválido (1..30 chars tras trim)"},
+    },
+)
+async def update_alias(
+    request: AliasUpdate,
+    current_user: dict = Depends(get_current_user),
+):
+    """
+    Actualiza el alias público del usuario autenticado.
+
+    CONTRATO:
+        - Enviar `{"alias": null}` (o body vacío) limpia el alias.
+        - Enviar `{"alias": "  X  "}` guarda `"X"` (trim automático) siempre
+          que tras trim tenga 1..30 caracteres. Si no, responde 422 y NO
+          modifica el alias existente (Requirement 5.5).
+    """
+    settings = get_settings()
+    db = DBService(url=settings.SUPABASE_URL, key=settings.SUPABASE_KEY)
+
+    try:
+        updated = await db.update_user_alias(current_user["id"], request.alias)
+    except ValueError:
+        # Alias vacío tras trim o excedido — 422 sin persistir cambios
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="El alias debe tener entre 1 y 30 caracteres tras recortar espacios",
+        )
+    except DBServiceError as e:
+        logger.error(f"Error updating alias: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="No se pudo actualizar el alias",
+        )
+
+    return {
+        "user": UserResponse(
+            id=updated["id"],
+            full_name=updated["full_name"],
+            email=updated["email"],
+            created_at=updated["created_at"],
+            alias=updated.get("alias"),
+        )
+    }

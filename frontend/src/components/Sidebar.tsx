@@ -1,14 +1,14 @@
+import { LayoutDashboard, LogOut, Plus, Settings } from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate, useLocation } from 'react-router-dom'
-import { Plus, LogOut, Settings, LayoutDashboard } from 'lucide-react'
-import { UserAvatar } from './UserAvatar'
-import { Spinner } from './Spinner'
-import { SidebarProjectItem } from './SidebarProjectItem'
-import { DarkModeToggle } from './DarkModeToggle'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useProjects } from '../hooks/useProjects'
-import { setActiveProject } from '../store/slices/projectsSlice'
-import { clearCredentials } from '../store/slices/authSlice'
 import type { RootState } from '../store'
+import { clearCredentials } from '../store/slices/authSlice'
+import { setActiveProject } from '../store/slices/projectsSlice'
+import { DarkModeToggle } from './DarkModeToggle'
+import { SidebarProjectItem } from './SidebarProjectItem'
+import { Spinner } from './Spinner'
+import { UserAvatar } from './UserAvatar'
 
 interface Props {
   isOpen: boolean
@@ -115,6 +115,17 @@ export function Sidebar({ isOpen, onClose }: Props) {
           >
             <LayoutDashboard className="h-4 w-4" />
             Dashboard
+          </button>
+          <button
+            onClick={() => { navigate('/ranking'); onClose() }}
+            className={`w-full py-2 px-3 text-sm rounded-lg transition-colors flex items-center gap-2 ${
+              location.pathname === '/ranking'
+                ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-medium'
+                : 'text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-700/50'
+            }`}
+          >
+            <Trophy className="h-4 w-4" />
+            Ranking
           </button>
           <button
             onClick={() => { navigate('/settings'); onClose() }}

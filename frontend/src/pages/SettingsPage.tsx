@@ -1,12 +1,12 @@
+import { Eye, EyeOff, KeyRound, Save, User } from 'lucide-react'
 import { useState } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
-import { User, KeyRound, Eye, EyeOff, Save } from 'lucide-react'
+import { useDispatch, useSelector } from 'react-redux'
 import { UserAvatar } from '../components/UserAvatar'
-import { setCredentials } from '../store/slices/authSlice'
 import axiosClient from '../services/axiosClient'
 import type { RootState } from '../store'
+import { setCredentials } from '../store/slices/authSlice'
 
 interface ProfileFormData {
   full_name: string
@@ -33,6 +33,9 @@ export function SettingsPage() {
 
       {/* Profile Section */}
       <ProfileSection user={user} token={token} dispatch={dispatch} />
+
+      {/* Alias Section (privacidad en el ranking) */}
+      <AliasSection user={user} token={token} dispatch={dispatch} />
 
       {/* Password Section */}
       <PasswordSection />
@@ -280,6 +283,146 @@ function ApiKeySection() {
           <Save className="size-4" />
           {isSubmitting ? 'Guardando...' : 'Guardar API Key'}
         </button>
+      </form>
+    </section>
+  )
+}
+
+
+/* ─── Alias Section (ranking privacy) ─── */
+interface AliasFormData {
+  alias: string
+}
+
+function AliasSection({
+  user,
+  token,
+  dispatch,
+}: {
+  user: any
+  token: string | null
+  dispatch: any
+}) {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors, isSubmitting, isDirty },
+  } = useForm<AliasFormData>({
+    defaultValues: { alias: user?.alias ?? '' },
+  })
+
+  const currentAlias = watch('alias')
+  const displayName = currentAlias.trim() || user?.full_name || 'Tu nombre'
+
+  const onSubmit = async (data: AliasFormData) => {
+    const trimmed = data.alias.trim()
+    try {
+      const updated = await updateAlias(trimmed === '' ? null : trimmed)
+      dispatch(setCredentials({ token: token!, user: updated }))
+      toast.success(trimmed === '' ? 'Alias eliminado' : 'Alias guardado')
+      reset({ alias: updated.alias ?? '' })
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.detail ??
+        'No se pudo actualizar el alias'
+      toast.error(msg)
+    }
+  }
+
+  const handleClear = async () => {
+    try {
+      const updated = await updateAlias(null)
+      dispatch(setCredentials({ token: token!, user: updated }))
+      toast.success('Alias eliminado')
+      reset({ alias: '' })
+    } catch {
+      toast.error('No se pudo eliminar el alias')
+    }
+  }
+
+  return (
+    <section className="bg-white dark:bg-slate-800 shadow-sm p-6 border border-slate-200 dark:border-slate-700 rounded-xl">
+      <div className="flex items-center gap-3 mb-2">
+        <Trophy className="size-5 text-amber-500" />
+        <h2 className="font-semibold text-slate-800 dark:text-white text-lg">
+          Alias público (ranking)
+        </h2>
+      </div>
+      <p className="mb-6 text-slate-500 dark:text-slate-400 text-sm">
+        Elige el nombre con el que aparecerás en el leaderboard. Si lo dejas vacío
+        se mostrará tu nombre completo.
+      </p>
+
+      {/* Preview de cómo se verá */}
+      <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-900/40 mb-6 px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl">
+        <div className="flex justify-center items-center bg-gradient-to-br from-indigo-500 to-violet-600 rounded-xl w-9 h-9 shrink-0">
+          <Trophy className="size-4 text-white" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-slate-500 dark:text-slate-400 text-xs">Aparecerás como</p>
+          <p className="font-semibold text-slate-800 dark:text-white text-sm truncate">
+            {displayName}
+          </p>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <div>
+          <label
+            htmlFor="alias"
+            className="block mb-1 font-medium text-slate-700 dark:text-slate-300 text-sm"
+          >
+            Alias
+          </label>
+          <input
+            id="alias"
+            type="text"
+            placeholder="Ej: dev_ninja"
+            maxLength={30}
+            {...register('alias', {
+              validate: (val) => {
+                const t = val.trim()
+                if (t.length === 0) return true // vacío = limpiar
+                if (t.length > 30) return 'Máximo 30 caracteres'
+                return true
+              },
+            })}
+            className="bg-white dark:bg-slate-700 px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-full text-slate-900 dark:text-white transition-colors"
+          />
+          <div className="flex justify-between mt-1">
+            {errors.alias ? (
+              <p className="text-red-500 text-sm">{errors.alias.message}</p>
+            ) : (
+              <p className="text-slate-400 text-xs">
+                {currentAlias.trim().length}/30 · vacío para usar tu nombre
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="submit"
+            disabled={isSubmitting || !isDirty}
+            className="inline-flex items-center gap-2 disabled:opacity-50 btn-primary px-4 py-2 rounded-lg font-medium text-white text-sm"
+          >
+            <Save className="size-4" />
+            {isSubmitting ? 'Guardando...' : 'Guardar alias'}
+          </button>
+
+          {user?.alias && (
+            <button
+              type="button"
+              onClick={handleClear}
+              className="inline-flex items-center gap-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg font-medium text-slate-600 dark:text-slate-300 text-sm transition-colors"
+            >
+              <X className="size-4" />
+              Quitar alias
+            </button>
+          )}
+        </div>
       </form>
     </section>
   )

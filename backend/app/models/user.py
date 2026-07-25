@@ -24,6 +24,7 @@ class UserResponse(BaseModel):
     full_name: str
     email: str
     created_at: datetime
+    alias: str | None = None
 
     class Config:
         from_attributes = True

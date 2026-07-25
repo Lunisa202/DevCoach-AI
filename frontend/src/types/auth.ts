@@ -3,6 +3,7 @@ export interface User {
   full_name: string
   email: string
   created_at: string
+  alias?: string | null
 }
 
 export interface TokenResponse {

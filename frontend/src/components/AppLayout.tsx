@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react'
-import { Outlet, Navigate, Link, useLocation } from 'react-router-dom'
+import { KeyRound, Menu, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { Menu, KeyRound, X } from 'lucide-react'
-import { Sidebar } from './Sidebar'
+import { Link, Navigate, Outlet, useLocation } from 'react-router-dom'
 import axiosClient from '../services/axiosClient'
 import type { RootState } from '../store'
+import { Sidebar } from './Sidebar'
 
 // Map routes to page titles
 function getPageTitle(pathname: string): string {
@@ -14,6 +14,7 @@ function getPageTitle(pathname: string): string {
   if (pathname.startsWith('/dashboard/')) return 'Tablero de tickets'
   if (pathname.startsWith('/ticket/')) return 'Detalle del ticket'
   if (pathname.startsWith('/interview/')) return 'Entrevista técnica'
+  if (pathname === '/ranking') return 'Ranking'
   if (pathname === '/settings') return 'Configuración'
   return 'DevCoach AI'
 }

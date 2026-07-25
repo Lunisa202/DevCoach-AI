@@ -34,6 +34,9 @@ migration_num = sys.argv[1] if len(sys.argv) > 1 else "002"
 migration_files = {
     "001": "supabase/001_initial_schema.sql",
     "002": "supabase/002_add_users_auth.sql",
+    "003": "supabase/003_evaluacion_detallada.sql",
+    "004": "supabase/004_user_api_key.sql",
+    "005": "supabase/005_add_user_alias.sql",
 }
 
 if migration_num not in migration_files:
