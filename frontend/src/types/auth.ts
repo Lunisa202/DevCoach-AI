@@ -4,6 +4,7 @@ export interface User {
   email: string
   created_at: string
   alias?: string | null
+  avatar_url?: string | null
 }
 
 export interface TokenResponse {

@@ -71,12 +71,15 @@ function ProfileSection({ user, token, dispatch }: { user: any; token: string | 
       </div>
 
       <div className="flex items-center gap-4 mb-6">
-        <UserAvatar name={user?.full_name ?? 'U'} size="lg" />
+        <UserAvatar name={user?.full_name ?? 'U'} imageUrl={user?.avatar_url} size="lg" />
         <div>
           <p className="font-medium text-slate-800 dark:text-white">{user?.full_name}</p>
           <p className="text-sm text-slate-500 dark:text-slate-400">{user?.email}</p>
         </div>
       </div>
+
+      {/* Avatar URL */}
+      <AvatarInput user={user} token={token} dispatch={dispatch} />
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
@@ -426,5 +429,81 @@ function AliasSection({
         </div>
       </form>
     </section>
+  )
+}
+
+
+/* ─── Avatar Input ─── */
+function AvatarInput({ user, token, dispatch }: { user: any; token: string | null; dispatch: any }) {
+  const [url, setUrl] = useState(user?.avatar_url ?? '')
+  const [saving, setSaving] = useState(false)
+
+  const handleSave = async () => {
+    if (!url.trim() || url.trim().length < 5) {
+      toast.error('URL inválida')
+      return
+    }
+    setSaving(true)
+    try {
+      const res = await axiosClient.put('/api/auth/avatar', { avatar_url: url.trim() })
+      dispatch(setCredentials({ token: token!, user: res.data.user }))
+      toast.success('Avatar actualizado')
+    } catch {
+      toast.error('No se pudo actualizar el avatar')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleRemove = async () => {
+    setSaving(true)
+    try {
+      await axiosClient.delete('/api/auth/avatar')
+      dispatch(setCredentials({ token: token!, user: { ...user, avatar_url: null } }))
+      setUrl('')
+      toast.success('Avatar eliminado')
+    } catch {
+      toast.error('No se pudo eliminar el avatar')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="mb-6 p-4 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+        URL de foto de perfil
+      </label>
+      <div className="flex gap-2">
+        <input
+          type="url"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder="https://i.imgur.com/tu-foto.jpg"
+          className="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+        />
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white text-sm font-medium rounded-lg transition-colors"
+        >
+          {saving ? '...' : 'Guardar'}
+        </button>
+      </div>
+      {user?.avatar_url && (
+        <button
+          onClick={handleRemove}
+          disabled={saving}
+          className="mt-2 text-xs text-red-500 hover:text-red-700 font-medium"
+        >
+          Eliminar foto actual
+        </button>
+      )}
+      <p className="mt-2 text-xs text-slate-400">
+        Usa un enlace directo a una imagen (PNG, JPG). Puedes subir una a{' '}
+        <a href="https://imgur.com/upload" target="_blank" rel="noopener noreferrer" className="text-indigo-500 hover:underline">Imgur</a>{' '}
+        y copiar el enlace directo.
+      </p>
+    </div>
   )
 }

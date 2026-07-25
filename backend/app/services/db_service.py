@@ -566,7 +566,7 @@ class DBService:
         try:
             result = (
                 self._client.table("users")
-                .select("id, full_name, email, created_at, alias")
+                .select("id, full_name, email, created_at, alias, avatar_url")
                 .eq("id", user_id)
                 .execute()
             )
@@ -888,3 +888,42 @@ class DBService:
         except Exception as e:
             logger.error(f"Error building leaderboard: {e}")
             raise DBServiceError("No se pudo generar el ranking")
+
+    # ---------------------------------------------------------------
+    # USER AVATAR
+    # ---------------------------------------------------------------
+
+    async def update_user_avatar(self, user_id: str, avatar_url: str) -> dict:
+        """Update user's avatar URL. Returns updated user data."""
+        try:
+            result = (
+                self._client.table("users")
+                .update({"avatar_url": avatar_url})
+                .eq("id", user_id)
+                .execute()
+            )
+            if not result.data:
+                raise DBServiceError("Usuario no encontrado")
+            return result.data[0]
+        except DBServiceError:
+            raise
+        except Exception as e:
+            logger.error(f"Error updating avatar for {user_id}: {e}")
+            raise DBServiceError("No se pudo actualizar el avatar")
+
+    async def delete_user_avatar(self, user_id: str) -> None:
+        """Remove user's avatar URL (set to NULL)."""
+        try:
+            result = (
+                self._client.table("users")
+                .update({"avatar_url": None})
+                .eq("id", user_id)
+                .execute()
+            )
+            if not result.data:
+                raise DBServiceError("Usuario no encontrado")
+        except DBServiceError:
+            raise
+        except Exception as e:
+            logger.error(f"Error deleting avatar for {user_id}: {e}")
+            raise DBServiceError("No se pudo eliminar el avatar")

@@ -25,6 +25,7 @@ class UserResponse(BaseModel):
     email: str
     created_at: datetime
     alias: str | None = None
+    avatar_url: str | None = None
 
     class Config:
         from_attributes = True

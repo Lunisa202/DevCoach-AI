@@ -1,10 +1,13 @@
 /**
- * UserAvatar — generates a colored avatar with initials based on the user's name.
- * Each unique name produces a consistent, visually distinct color.
+ * UserAvatar — shows user's photo if available, otherwise generates
+ * a colored avatar with initials based on the user's name.
  */
+
+import { useState } from 'react'
 
 interface UserAvatarProps {
   name: string
+  imageUrl?: string | null
   size?: 'sm' | 'md' | 'lg'
   className?: string
 }
@@ -47,10 +50,24 @@ const sizeClasses = {
   lg: 'size-14 text-lg',
 }
 
-export function UserAvatar({ name, size = 'md', className = '' }: UserAvatarProps) {
+export function UserAvatar({ name, imageUrl, size = 'md', className = '' }: UserAvatarProps) {
+  const [imgError, setImgError] = useState(false)
   const initials = getInitials(name || 'U')
   const color = AVATAR_COLORS[getColorIndex(name || 'User')]
 
+  // Show image if URL exists and hasn't errored
+  if (imageUrl && !imgError) {
+    return (
+      <img
+        src={imageUrl}
+        alt={`Avatar de ${name}`}
+        onError={() => setImgError(true)}
+        className={`inline-flex rounded-full object-cover ${sizeClasses[size]} ${className}`}
+      />
+    )
+  }
+
+  // Fallback: colored initials
   return (
     <span
       className={`inline-flex items-center justify-center rounded-full font-semibold text-white ${color} ${sizeClasses[size]} ${className}`}

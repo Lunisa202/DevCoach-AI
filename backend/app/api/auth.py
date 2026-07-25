@@ -84,6 +84,7 @@ async def register(request: UserCreate):
             email=user["email"],
             created_at=user["created_at"],
             alias=user.get("alias"),
+            avatar_url=user.get("avatar_url"),
         ),
     )
 
@@ -144,6 +145,7 @@ async def login(request: UserLogin):
             email=user["email"],
             created_at=user["created_at"],
             alias=user.get("alias"),
+            avatar_url=user.get("avatar_url"),
         ),
     )
 
@@ -340,3 +342,61 @@ async def update_alias(
             alias=updated.get("alias"),
         )
     }
+
+
+# ---------------------------------------------------------------
+# AVATAR
+# ---------------------------------------------------------------
+
+
+class AvatarUpdate(BaseModel):
+    """Request body for updating avatar URL."""
+    avatar_url: str = Field(min_length=5, max_length=2048)
+
+
+@router.put(
+    "/avatar",
+    summary="Actualizar avatar del usuario",
+)
+async def update_avatar(
+    request: AvatarUpdate,
+    current_user: dict = Depends(get_current_user),
+):
+    """Guarda la URL del avatar del usuario."""
+    settings = get_settings()
+    db = DBService(url=settings.SUPABASE_URL, key=settings.SUPABASE_KEY)
+
+    try:
+        updated = await db.update_user_avatar(current_user["id"], request.avatar_url)
+    except DBServiceError as e:
+        logger.error(f"Error updating avatar: {e}")
+        raise HTTPException(status_code=500, detail="No se pudo actualizar el avatar")
+
+    return {
+        "user": UserResponse(
+            id=updated["id"],
+            full_name=updated["full_name"],
+            email=updated["email"],
+            created_at=updated["created_at"],
+            alias=updated.get("alias"),
+            avatar_url=updated.get("avatar_url"),
+        )
+    }
+
+
+@router.delete(
+    "/avatar",
+    summary="Eliminar avatar del usuario",
+)
+async def delete_avatar(current_user: dict = Depends(get_current_user)):
+    """Elimina el avatar del usuario (vuelve a iniciales)."""
+    settings = get_settings()
+    db = DBService(url=settings.SUPABASE_URL, key=settings.SUPABASE_KEY)
+
+    try:
+        await db.delete_user_avatar(current_user["id"])
+    except DBServiceError as e:
+        logger.error(f"Error deleting avatar: {e}")
+        raise HTTPException(status_code=500, detail="No se pudo eliminar el avatar")
+
+    return {"message": "Avatar eliminado"}
