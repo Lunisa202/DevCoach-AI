@@ -39,3 +39,6 @@ axiosClient.interceptors.response.use(
 )
 
 export default axiosClient
+
+// Warm up the backend connection on first load (prevents Supabase cold start)
+axiosClient.get('/health').catch(() => {})

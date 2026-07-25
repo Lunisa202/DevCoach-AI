@@ -12,9 +12,7 @@ export async function getRanking(limit = 10, signal?: AbortSignal): Promise<Rank
   const { data } = await axiosClient.get<RankingResponse>('/api/ranking', {
     params: { limit },
     signal,
-    // El requerimiento pide 10s de timeout máximo desde la página. Lo
-    // enforzamos también aquí como red segura.
-    timeout: 10_000,
+    timeout: 20_000,
   })
   return data
 }

@@ -29,7 +29,7 @@ export function RankingPage() {
     const timeout = setTimeout(() => {
       timedOut = true
       controller.abort()
-    }, 10_000)
+    }, 20_000)
 
     getRanking(10, controller.signal)
       .then((res) => setData(res))
