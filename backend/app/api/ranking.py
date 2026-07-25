@@ -16,6 +16,7 @@ REGLAS:
 """
 
 import logging
+import time
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
@@ -27,6 +28,10 @@ from app.services.db_service import DBService, DBServiceError
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/ranking", tags=["Ranking"])
+
+# ─── Simple in-memory cache (TTL 30 seconds) ───
+_cache: dict = {"data": None, "timestamp": 0}
+_CACHE_TTL = 30  # seconds
 
 
 @router.get(
@@ -52,14 +57,26 @@ async def get_ranking(
     db = DBService(url=settings.SUPABASE_URL, key=settings.SUPABASE_KEY)
     current_user_id = str(current_user["id"])
 
-    try:
-        full = await db.get_leaderboard()
-    except DBServiceError as e:
-        logger.error(f"Error building ranking: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="No se pudo obtener el ranking",
-        )
+    # Use cached leaderboard if fresh (< 30s old)
+    now = time.time()
+    if _cache["data"] is not None and (now - _cache["timestamp"]) < _CACHE_TTL:
+        full = _cache["data"]
+        logger.info(f"Ranking served from cache (age: {now - _cache['timestamp']:.1f}s)")
+    else:
+        try:
+            t0 = time.time()
+            full = await db.get_leaderboard()
+            elapsed = time.time() - t0
+            logger.info(f"Ranking computed in {elapsed:.2f}s ({len(full)} entries)")
+            # Update cache
+            _cache["data"] = full
+            _cache["timestamp"] = time.time()
+        except DBServiceError as e:
+            logger.error(f"Error building ranking: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="No se pudo obtener el ranking",
+            )
 
     # Leaderboard vacío → respuesta vacía (Req 3.7)
     if not full:

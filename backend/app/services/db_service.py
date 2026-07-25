@@ -811,6 +811,8 @@ class DBService:
         """
         try:
             # 1) Usuarios
+            import time as _time
+            _t0 = _time.time()
             users_res = (
                 self._client.table("users")
                 .select("id, full_name, alias, created_at")
@@ -819,6 +821,7 @@ class DBService:
             users = users_res.data or []
             if not users:
                 return []
+            _t1 = _time.time()
 
             # 2) Proyectos — mapa user_id → set(project_id)
             projects_res = (
@@ -826,6 +829,32 @@ class DBService:
                 .select("id, user_id")
                 .execute()
             )
+            _t2 = _time.time()
+
+            # 3) Tickets
+            tickets_res = (
+                self._client.table("tickets")
+                .select("id, project_id, estado")
+                .execute()
+            )
+            _t3 = _time.time()
+
+            # 4) Reviews
+            reviews_res = (
+                self._client.table("reviews")
+                .select("ticket_id, aprobado, calificacion")
+                .execute()
+            )
+            _t4 = _time.time()
+
+            logger.info(
+                f"Leaderboard queries: users={(_t1-_t0)*1000:.0f}ms, "
+                f"projects={(_t2-_t1)*1000:.0f}ms, "
+                f"tickets={(_t3-_t2)*1000:.0f}ms, "
+                f"reviews={(_t4-_t3)*1000:.0f}ms, "
+                f"total_db={(_t4-_t0)*1000:.0f}ms"
+            )
+
             projects = projects_res.data or []
             user_projects: dict[str, set[str]] = {}
             for p in projects:
@@ -834,12 +863,6 @@ class DBService:
                 if uid and pid:
                     user_projects.setdefault(uid, set()).add(pid)
 
-            # 3) Tickets — mapa ticket_id → project_id, y proyecto → tickets
-            tickets_res = (
-                self._client.table("tickets")
-                .select("id, project_id, estado")
-                .execute()
-            )
             tickets = tickets_res.data or []
             ticket_project: dict[str, str] = {}
             for t in tickets:
@@ -851,12 +874,7 @@ class DBService:
             # project_id → user_id
             project_user: dict[str, str] = {p["id"]: p["user_id"] for p in projects if p.get("id") and p.get("user_id")}
 
-            # 4) Reviews — agregar por user_id
-            reviews_res = (
-                self._client.table("reviews")
-                .select("ticket_id, aprobado, calificacion")
-                .execute()
-            )
+            # Agregar reviews por user_id
             reviews = reviews_res.data or []
 
             scores: dict[str, int] = {}
