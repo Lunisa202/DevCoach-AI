@@ -39,6 +39,7 @@ interface Stats {
   xp_progress: number
   xp_needed: number
   current_streak: number
+  trends: Array<{ week: string; avg: number | null; count: number }>
 }
 
 interface ProjectProgress {
@@ -254,6 +255,15 @@ export function HomePage() {
         </div>
       </div>
 
+      {/* ═══ Trends Chart ═══ */}
+      {s.trends && s.trends.some(t => t.avg !== null) && (
+        <div className="bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700/50 rounded-2xl p-6 mb-8">
+          <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-1">Evolución de calificaciones</h3>
+          <p className="text-slate-500 dark:text-slate-400 text-xs mb-4">Promedio semanal de tus entrevistas</p>
+          <TrendsChart data={s.trends} />
+        </div>
+      )}
+
       {/* ═══ Proyectos recientes ═══ */}
       {projects.length > 0 ? (
         <div className="bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700/50 rounded-2xl overflow-hidden">
@@ -301,6 +311,77 @@ export function HomePage() {
 }
 
 /* ─── Sub-componentes ─── */
+
+/* ─── Trends Line Chart (SVG) ─── */
+function TrendsChart({ data }: { data: Array<{ week: string; avg: number | null; count: number }> }) {
+  const width = 600
+  const height = 200
+  const padding = { top: 20, right: 20, bottom: 30, left: 40 }
+  const chartW = width - padding.left - padding.right
+  const chartH = height - padding.top - padding.bottom
+
+  // Filter points that have data
+  const points = data.map((d, i) => ({
+    x: padding.left + (i / (data.length - 1 || 1)) * chartW,
+    y: d.avg !== null ? padding.top + chartH - (d.avg / 100) * chartH : null,
+    label: d.week,
+    avg: d.avg,
+    count: d.count,
+  }))
+
+  // Build the line path (only connecting non-null points)
+  const validPoints = points.filter(p => p.y !== null) as Array<{ x: number; y: number; label: string; avg: number; count: number }>
+  const linePath = validPoints.length > 1
+    ? `M ${validPoints.map(p => `${p.x},${p.y}`).join(' L ')}`
+    : ''
+
+  // Area path (fill under line)
+  const areaPath = validPoints.length > 1
+    ? `M ${validPoints[0].x},${padding.top + chartH} L ${validPoints.map(p => `${p.x},${p.y}`).join(' L ')} L ${validPoints[validPoints.length - 1].x},${padding.top + chartH} Z`
+    : ''
+
+  return (
+    <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto max-h-[200px]" preserveAspectRatio="xMidYMid meet">
+      {/* Y-axis grid lines */}
+      {[0, 25, 50, 75, 100].map(v => {
+        const y = padding.top + chartH - (v / 100) * chartH
+        return (
+          <g key={v}>
+            <line x1={padding.left} y1={y} x2={width - padding.right} y2={y} stroke="currentColor" className="text-slate-200 dark:text-slate-700" strokeWidth={1} strokeDasharray={v === 0 ? '' : '4 4'} />
+            <text x={padding.left - 8} y={y + 4} textAnchor="end" className="fill-slate-400 dark:fill-slate-500 text-[10px]">{v}</text>
+          </g>
+        )
+      })}
+
+      {/* Area fill */}
+      {areaPath && <path d={areaPath} fill="url(#trendGradient)" opacity={0.3} />}
+
+      {/* Line */}
+      {linePath && <path d={linePath} fill="none" stroke="rgb(99,102,241)" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />}
+
+      {/* Data points */}
+      {validPoints.map((p, i) => (
+        <circle key={i} cx={p.x} cy={p.y} r={4} fill="rgb(99,102,241)" stroke="white" strokeWidth={2} />
+      ))}
+
+      {/* X-axis labels */}
+      {points.map((p, i) => (
+        <text key={i} x={p.x} y={height - 5} textAnchor="middle" className="fill-slate-400 dark:fill-slate-500 text-[10px]">
+          {p.label}
+        </text>
+      ))}
+
+      {/* Gradient definition */}
+      <defs>
+        <linearGradient id="trendGradient" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="rgb(99,102,241)" stopOpacity={0.4} />
+          <stop offset="100%" stopColor="rgb(99,102,241)" stopOpacity={0} />
+        </linearGradient>
+      </defs>
+    </svg>
+  )
+}
+
 
 function StatCard({
   icon,

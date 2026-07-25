@@ -111,6 +111,10 @@ async def get_user_stats(current_user: dict = Depends(get_current_user)):
         current_xp = xp_data.get("xp", 0)
         progress_in_level, total_for_level = db.xp_progress_in_level(current_xp, current_level)
 
+        # Build trends: calificaciones by week (last 8 weeks)
+        from datetime import datetime, timedelta
+        trends = _build_trends(all_reviews)
+
         return {
             "total_projects": total_projects,
             "total_tickets": total_tickets,
@@ -126,6 +130,7 @@ async def get_user_stats(current_user: dict = Depends(get_current_user)):
             "xp_progress": progress_in_level,
             "xp_needed": total_for_level,
             "current_streak": xp_data.get("current_streak", 0),
+            "trends": trends,
         }
 
     except DBServiceError as e:
@@ -149,4 +154,63 @@ def _empty_stats():
         "xp_progress": 0,
         "xp_needed": 100,
         "current_streak": 0,
+        "trends": [],
     }
+
+
+def _build_trends(all_reviews: list[dict]) -> list[dict]:
+    """Build weekly average calificaciones for the last 8 weeks.
+
+    Returns a list of {week: "Jul 14", avg: 78} sorted chronologically.
+    """
+    from datetime import datetime, timedelta
+
+    now = datetime.now()
+    # Get reviews with calificacion and created_at
+    scored = [
+        r for r in all_reviews
+        if r.get("calificacion") is not None and r.get("created_at")
+    ]
+
+    if not scored:
+        return []
+
+    # Build 8 weekly buckets
+    weeks: list[dict] = []
+    for i in range(7, -1, -1):
+        week_start = now - timedelta(weeks=i, days=now.weekday())
+        week_start = week_start.replace(hour=0, minute=0, second=0, microsecond=0)
+        week_end = week_start + timedelta(days=7)
+        weeks.append({
+            "start": week_start,
+            "end": week_end,
+            "label": week_start.strftime("%b %d"),
+            "scores": [],
+        })
+
+    # Assign reviews to weeks
+    for r in scored:
+        created = r["created_at"]
+        if isinstance(created, str):
+            try:
+                dt = datetime.fromisoformat(created.replace("Z", "+00:00")).replace(tzinfo=None)
+            except ValueError:
+                continue
+        else:
+            dt = created.replace(tzinfo=None) if hasattr(created, 'replace') else created
+
+        for w in weeks:
+            if w["start"] <= dt < w["end"]:
+                w["scores"].append(r["calificacion"])
+                break
+
+    # Build output (only weeks with data)
+    result = []
+    for w in weeks:
+        if w["scores"]:
+            avg = round(sum(w["scores"]) / len(w["scores"]))
+            result.append({"week": w["label"], "avg": avg, "count": len(w["scores"])})
+        else:
+            result.append({"week": w["label"], "avg": None, "count": 0})
+
+    return result
