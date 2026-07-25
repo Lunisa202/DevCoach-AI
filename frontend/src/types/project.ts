@@ -10,6 +10,8 @@ export interface ProjectResponse {
   archivos_seleccionados: string[]
   fecha_analisis: string
   user_id: string
+  tickets_total?: number
+  tickets_done?: number
 }
 
 export interface TicketResponse {

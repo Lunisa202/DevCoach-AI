@@ -376,15 +376,15 @@ export function DashboardPage() {
   const { projectId } = useParams<{ projectId: string }>()
   const navigate = useNavigate()
   const location = useLocation()
-  const { tickets, isLoading, loadTickets, setTicketState } = useTickets()
+  const { tickets, isLoading, loadTickets, refreshTickets, setTicketState } = useTickets()
   const { projects } = useProjects()
   const [verifyingId, setVerifyingId] = useState<string | null>(null)
   const [interviewTicketId, setInterviewTicketId] = useState<string | null>(null)
 
-  // Reload tickets every time this page is navigated to (not just when projectId changes)
+  // Reload tickets every time this page is navigated to
   useEffect(() => {
     if (projectId) {
-      loadTickets(projectId)
+      refreshTickets(projectId)
     }
   }, [projectId, location.key])
 

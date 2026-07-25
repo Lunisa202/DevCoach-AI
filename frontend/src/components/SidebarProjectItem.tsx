@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { getRepoName } from '../utils/repoUrl'
-import { Trash2 } from 'lucide-react'
+import { CheckCircle2, Trash2 } from 'lucide-react'
 import { ConfirmModal } from './ConfirmModal'
 import type { ProjectResponse } from '../types/project'
 
@@ -19,6 +19,10 @@ export function SidebarProjectItem({ project, isActive, onClick, onDelete }: Pro
     day: 'numeric',
     month: 'short',
   })
+
+  const total = project.tickets_total ?? 0
+  const done = project.tickets_done ?? 0
+  const isComplete = total > 0 && done === total
 
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -41,8 +45,15 @@ export function SidebarProjectItem({ project, isActive, onClick, onDelete }: Pro
         }`}
       >
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium truncate">{repoName}</p>
-          <p className="text-xs text-slate-400 dark:text-slate-500">{dateStr}</p>
+          <div className="flex items-center gap-1.5">
+            <p className="text-sm font-medium truncate">{repoName}</p>
+            {isComplete && (
+              <CheckCircle2 className="size-3.5 shrink-0 text-emerald-500" />
+            )}
+          </div>
+          <p className="text-xs text-slate-400 dark:text-slate-500">
+            {dateStr}{total > 0 && ` · ${done}/${total}`}
+          </p>
         </div>
 
         <button

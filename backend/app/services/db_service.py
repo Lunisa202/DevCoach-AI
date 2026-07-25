@@ -421,8 +421,7 @@ class DBService:
     async def get_projects_by_user(self, user_id: str) -> list[dict]:
         """
         Lista todos los proyectos de un usuario, ordenados por fecha descendente.
-
-        Usado por el sidebar del frontend para mostrar el historial.
+        Incluye tickets_total y tickets_done para mostrar progreso en el sidebar.
         """
         try:
             result = (
@@ -433,7 +432,39 @@ class DBService:
                 .execute()
             )
 
-            return result.data or []
+            projects = result.data or []
+            if not projects:
+                return []
+
+            # Fetch ticket counts per project
+            project_ids = [p["id"] for p in projects]
+            tickets_res = (
+                self._client.table("tickets")
+                .select("project_id, estado")
+                .in_("project_id", project_ids)
+                .execute()
+            )
+            tickets = tickets_res.data or []
+
+            # Aggregate counts
+            counts: dict[str, dict[str, int]] = {}
+            for t in tickets:
+                pid = t.get("project_id")
+                if not pid:
+                    continue
+                if pid not in counts:
+                    counts[pid] = {"total": 0, "done": 0}
+                counts[pid]["total"] += 1
+                if t.get("estado") == "done":
+                    counts[pid]["done"] += 1
+
+            # Attach to projects
+            for p in projects:
+                c = counts.get(p["id"], {"total": 0, "done": 0})
+                p["tickets_total"] = c["total"]
+                p["tickets_done"] = c["done"]
+
+            return projects
 
         except Exception as e:
             logger.error(f"Error obteniendo proyectos del usuario {user_id}: {e}")
