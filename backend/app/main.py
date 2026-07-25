@@ -13,6 +13,7 @@ from app.api.stats import router as stats_router
 from app.api.ranking import router as ranking_router
 from app.api.achievements import router as achievements_router
 from app.api.profiles import router as profiles_router
+from app.api.community import router as community_router
 
 # Validate environment on import (fail-fast)
 settings = get_settings()
@@ -52,3 +53,4 @@ app.include_router(stats_router)
 app.include_router(ranking_router)
 app.include_router(achievements_router)
 app.include_router(profiles_router)
+app.include_router(community_router)

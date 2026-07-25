@@ -7,6 +7,7 @@ import {
     GitBranch,
     Plus,
     Star,
+    Users,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
@@ -303,6 +304,9 @@ export function HomePage() {
         <EmptyProjectsState />
       )}
 
+      {/* ═══ Community Feed ═══ */}
+      <CommunityFeed />
+
       {/* Mobile CTA */}
       <Link
         to="/app"
@@ -507,6 +511,82 @@ function SkillRadarSection({ skills }: { skills: Array<{ dimension: string; scor
       <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-1">Perfil de competencias</h3>
       <p className="text-slate-500 dark:text-slate-400 text-xs mb-4">Promedio de tus evaluaciones por dimensión</p>
       <SkillRadar skills={skills} />
+    </div>
+  )
+}
+
+function CommunityFeed() {
+  const [events, setEvents] = useState<Array<{
+    id: string
+    user_id: string
+    display_name: string
+    avatar_url: string | null
+    event_type: string
+    payload: any
+    created_at: string
+  }>>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    axiosClient.get('/api/community/feed?limit=10')
+      .then(res => setEvents(res.data.events || []))
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
+
+  if (loading || events.length === 0) return null
+
+  const getEventText = (e: typeof events[0]) => {
+    switch (e.event_type) {
+      case 'level_up': return `subió al nivel ${e.payload?.level ?? '?'}`
+      case 'achievement': return `desbloqueó un logro`
+      case 'rank_first': return `alcanzó el #1 del ranking`
+      case 'joined': return `se unió a la comunidad`
+      default: return 'hizo algo increíble'
+    }
+  }
+
+  const getEventIcon = (type: string) => {
+    switch (type) {
+      case 'level_up': return '⬆️'
+      case 'achievement': return '🏅'
+      case 'rank_first': return '👑'
+      case 'joined': return '👋'
+      default: return '✨'
+    }
+  }
+
+  const timeAgo = (dateStr: string) => {
+    const diff = Date.now() - new Date(dateStr).getTime()
+    const mins = Math.floor(diff / 60000)
+    if (mins < 1) return 'ahora'
+    if (mins < 60) return `hace ${mins}min`
+    const hours = Math.floor(mins / 60)
+    if (hours < 24) return `hace ${hours}h`
+    const days = Math.floor(hours / 24)
+    return `hace ${days}d`
+  }
+
+  return (
+    <div className="bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700/50 rounded-2xl overflow-hidden mt-8">
+      <div className="flex items-center gap-2 px-6 py-4 border-b border-slate-100 dark:border-slate-700/50">
+        <Users className="size-4 text-indigo-500" />
+        <h3 className="font-semibold text-slate-900 dark:text-slate-100">Actividad de la comunidad</h3>
+      </div>
+      <div className="divide-y divide-slate-100 dark:divide-slate-700/50">
+        {events.map(e => (
+          <div key={e.id} className="flex items-center gap-3 px-6 py-3">
+            <span className="text-lg">{getEventIcon(e.event_type)}</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm text-slate-700 dark:text-slate-300">
+                <span className="font-medium">{e.display_name}</span>{' '}
+                <span className="text-slate-500 dark:text-slate-400">{getEventText(e)}</span>
+              </p>
+            </div>
+            <span className="text-xs text-slate-400 shrink-0">{timeAgo(e.created_at)}</span>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

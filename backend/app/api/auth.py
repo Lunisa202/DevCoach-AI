@@ -76,6 +76,12 @@ async def register(request: UserCreate):
     # Generar JWT
     token = create_access_token(user["id"])
 
+    # Emit community event
+    try:
+        await db.create_community_event(user["id"], "joined", {})
+    except Exception:
+        pass  # Non-critical
+
     return TokenResponse(
         access_token=token,
         user=UserResponse(

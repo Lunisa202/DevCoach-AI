@@ -1491,3 +1491,82 @@ class DBService:
         except Exception as e:
             logger.error(f"Error calculating skill radar for {user_id}: {e}")
             return []
+
+    # ---------------------------------------------------------------
+    # COMMUNITY FEED
+    # ---------------------------------------------------------------
+
+    async def create_community_event(
+        self, user_id: str, event_type: str, payload: dict | None = None
+    ) -> None:
+        """Create a community event. Called when a milestone happens."""
+        try:
+            import json
+            self._client.table("community_events").insert({
+                "user_id": user_id,
+                "event_type": event_type,
+                "payload": json.dumps(payload or {}),
+            }).execute()
+        except Exception as e:
+            # Non-critical — don't break the flow if event creation fails
+            logger.error(f"Error creating community event: {e}")
+
+    async def get_community_feed(self, limit: int = 20) -> list[dict]:
+        """
+        Get recent community events with user display names.
+        Only returns milestone events (level_up, achievement, rank_first, joined).
+        """
+        try:
+            result = (
+                self._client.table("community_events")
+                .select("id, user_id, event_type, payload, created_at")
+                .order("created_at", desc=True)
+                .limit(limit)
+                .execute()
+            )
+            events = result.data or []
+            if not events:
+                return []
+
+            # Get user display names for all events
+            user_ids = list({e["user_id"] for e in events})
+            users_res = (
+                self._client.table("users")
+                .select("id, full_name, alias, avatar_url")
+                .in_("id", user_ids)
+                .execute()
+            )
+            user_map = {}
+            for u in (users_res.data or []):
+                user_map[u["id"]] = {
+                    "display_name": self._display_name(u),
+                    "avatar_url": u.get("avatar_url"),
+                }
+
+            # Enrich events
+            import json
+            enriched = []
+            for e in events:
+                user_info = user_map.get(e["user_id"], {"display_name": "Usuario", "avatar_url": None})
+                payload = e.get("payload")
+                if isinstance(payload, str):
+                    try:
+                        payload = json.loads(payload)
+                    except (json.JSONDecodeError, TypeError):
+                        payload = {}
+
+                enriched.append({
+                    "id": e["id"],
+                    "user_id": e["user_id"],
+                    "display_name": user_info["display_name"],
+                    "avatar_url": user_info["avatar_url"],
+                    "event_type": e["event_type"],
+                    "payload": payload,
+                    "created_at": e["created_at"],
+                })
+
+            return enriched
+
+        except Exception as e:
+            logger.error(f"Error fetching community feed: {e}")
+            return []

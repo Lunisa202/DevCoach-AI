@@ -331,6 +331,15 @@ async def evaluate_answers(
     except Exception as e:
         logger.error(f"Error evaluating achievements: {e}")
 
+    # --- Emit community events for milestones ---
+    try:
+        if level_up and new_level:
+            await db.create_community_event(current_user["id"], "level_up", {"level": new_level})
+        for ach_id in new_achievements:
+            await db.create_community_event(current_user["id"], "achievement", {"achievement_id": ach_id})
+    except Exception as e:
+        logger.error(f"Error emitting community events: {e}")
+
     return {
         "feedback": feedback,
         "aprobado": aprobado,
