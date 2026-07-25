@@ -73,6 +73,7 @@ function Navbar() {
 
   const links = [
     { label: 'Cómo funciona', href: '#como-funciona' },
+    { label: 'Gamificación', href: '#gamificacion' },
     { label: 'Tecnología', href: '#tech-stack' },
   ]
 
@@ -501,6 +502,76 @@ function VoiceInterview() {
 }
 
 /* ─── Evaluation Section ─── */
+/* ─── Gamification Section ─── */
+function Gamification() {
+  const badges = [
+    { icon: '🎯', title: 'Primera sangre', desc: 'Aprueba tu primera entrevista' },
+    { icon: '🔥', title: 'En racha', desc: '3 días consecutivos' },
+    { icon: '💯', title: 'Perfeccionista', desc: '100/100 en una entrevista' },
+    { icon: '🏆', title: 'Veterano', desc: '10 tickets completados' },
+    { icon: '🧠', title: 'Maestro', desc: 'Alcanza nivel 5' },
+    { icon: '👑', title: 'Leyenda', desc: 'Acumula 1000 XP' },
+  ]
+
+  return (
+    <section id="gamificacion" className="relative py-20 sm:py-28">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <Reveal className="mx-auto max-w-2xl text-center">
+          <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">Gamificación</span>
+          <h2 className="mt-3 text-balance text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
+            Aprende jugando, sube de nivel
+          </h2>
+          <p className="mt-4 text-pretty text-slate-600 dark:text-slate-400">
+            XP, niveles, rachas y logros desbloqueables. Compite en el ranking global y demuestra tu progreso.
+          </p>
+        </Reveal>
+
+        <div className="mt-14 grid gap-6 lg:grid-cols-2">
+          {/* XP/Level mockup */}
+          <Reveal>
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-700/50 bg-white/60 dark:bg-slate-800/60 p-6 backdrop-blur">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="flex size-14 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white font-bold text-xl">
+                  5
+                </div>
+                <div className="flex-1">
+                  <p className="font-semibold text-slate-800 dark:text-white">Nivel 5 — Maestro</p>
+                  <div className="mt-1.5 h-2.5 rounded-full bg-slate-100 dark:bg-slate-700 overflow-hidden">
+                    <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 w-[65%]" />
+                  </div>
+                  <p className="mt-1 text-xs text-slate-400">650 / 1000 XP para nivel 6</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-6 text-sm text-slate-600 dark:text-slate-400">
+                <span className="flex items-center gap-1.5">⭐ 850 XP total</span>
+                <span className="flex items-center gap-1.5">🔥 7 días de racha</span>
+                <span className="flex items-center gap-1.5">🏆 #3 en ranking</span>
+              </div>
+            </div>
+          </Reveal>
+
+          {/* Badges grid */}
+          <Reveal delay={100}>
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-700/50 bg-white/60 dark:bg-slate-800/60 p-6 backdrop-blur">
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">8 logros desbloqueables</p>
+              <div className="grid grid-cols-3 gap-3">
+                {badges.map((b) => (
+                  <div key={b.title} className="flex flex-col items-center text-center p-3 rounded-xl bg-indigo-50 dark:bg-indigo-500/5 border border-indigo-100 dark:border-indigo-500/10">
+                    <span className="text-2xl mb-1">{b.icon}</span>
+                    <p className="text-[11px] font-medium text-slate-700 dark:text-slate-300">{b.title}</p>
+                    <p className="text-[10px] text-slate-400">{b.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ─── Evaluation Section ─── */
 const dimensions = [
   { label: 'Comprensión del problema', value: 88 },
   { label: 'Justificación técnica', value: 76 },
@@ -695,6 +766,7 @@ export function LandingPage() {
       <HowItWorks />
       <Agents />
       <VoiceInterview />
+      <Gamification />
       <Evaluation />
       <TechStack />
       <FinalCTA />
