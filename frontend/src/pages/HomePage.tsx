@@ -5,7 +5,6 @@ import {
     Code2,
     FolderGit2,
     GitBranch,
-    Hand,
     Plus,
     Star,
 } from 'lucide-react'
@@ -144,9 +143,8 @@ export function HomePage() {
         <div className="flex justify-between items-start gap-4">
           <div>
             <p className="mb-1 text-slate-500 dark:text-slate-400 text-sm">{greeting},</p>
-            <h2 className="flex items-center gap-2 font-bold text-slate-900 dark:text-slate-100 text-3xl leading-tight">
-              {firstName}
-              <Hand className="size-7 text-amber-500" strokeWidth={2.25} />
+            <h2 className="font-bold text-slate-900 dark:text-slate-100 text-3xl leading-tight">
+              {firstName} 👋
             </h2>
             <p className="mt-2 text-slate-600 dark:text-slate-300 text-sm">
               {pendingTickets > 0 ? (
