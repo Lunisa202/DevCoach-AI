@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppLayout } from './components/AppLayout'
 import { AchievementsPage } from './pages/AchievementsPage'
 import { ProfilePage } from './pages/ProfilePage'
+import { ReportPage } from './pages/ReportPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { FileSelectorPage } from './pages/FileSelectorPage'
 import { HomePage } from './pages/HomePage'
@@ -35,6 +36,7 @@ function App() {
         <Route path="/ranking" element={<RankingPage />} />
         <Route path="/achievements" element={<AchievementsPage />} />
         <Route path="/profile/:userId" element={<ProfilePage />} />
+        <Route path="/report" element={<ReportPage />} />
         <Route path="/settings" element={<SettingsPage />} />
       </Route>
 
