@@ -103,3 +103,22 @@ pre,
 .mono {
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
 }
+
+/* Print styles for Developer Report PDF download */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .print\:hidden {
+    display: none !important;
+  }
+  /* Hide sidebar and header when printing */
+  aside, header, nav {
+    display: none !important;
+  }
+  main {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}

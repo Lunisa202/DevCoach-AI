@@ -37,6 +37,7 @@ function App() {
         <Route path="/achievements" element={<AchievementsPage />} />
         <Route path="/profile/:userId" element={<ProfilePage />} />
         <Route path="/report" element={<ReportPage />} />
+        <Route path="/report/:userId" element={<ReportPage />} />
         <Route path="/settings" element={<SettingsPage />} />
       </Route>
 

@@ -1,6 +1,8 @@
-import { CheckCircle, FileText, Star, TrendingUp, XCircle } from 'lucide-react'
+import { CheckCircle, Download, FileText, Link2, Star, TrendingUp, XCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import { useSelector } from 'react-redux'
+import toast from 'react-hot-toast'
 import { SkillRadar } from '../components/SkillRadar'
 import { UserAvatar } from '../components/UserAvatar'
 import axiosClient from '../services/axiosClient'
@@ -34,13 +36,15 @@ export function ReportPage() {
   const [report, setReport] = useState<ReportData | null>(null)
   const [loading, setLoading] = useState(true)
   const user = useSelector((state: RootState) => state.auth.user)
+  const { userId } = useParams<{ userId?: string }>()
 
   useEffect(() => {
-    axiosClient.get('/api/report')
+    const endpoint = userId ? `/api/report/${userId}` : '/api/report'
+    axiosClient.get(endpoint)
       .then(res => setReport(res.data))
       .catch(() => {})
       .finally(() => setLoading(false))
-  }, [])
+  }, [userId])
 
   if (loading) {
     return (
@@ -62,8 +66,37 @@ export function ReportPage() {
   const r = report
   const today = new Date().toLocaleDateString('es', { day: 'numeric', month: 'long', year: 'numeric' })
 
+  const handleDownload = () => {
+    window.print()
+  }
+
+  const handleShare = () => {
+    const url = `${window.location.origin}/report/${user?.id}`
+    navigator.clipboard.writeText(url)
+      .then(() => toast.success('Enlace copiado al portapapeles'))
+      .catch(() => toast.error('No se pudo copiar el enlace'))
+  }
+
   return (
     <div className="mx-auto p-6 lg:p-8 max-w-3xl fade-in">
+      {/* Action buttons */}
+      <div className="flex justify-end gap-2 mb-4 print:hidden">
+        <button
+          onClick={handleShare}
+          className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+        >
+          <Link2 className="size-4" />
+          Compartir
+        </button>
+        <button
+          onClick={handleDownload}
+          className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors"
+        >
+          <Download className="size-4" />
+          Descargar PDF
+        </button>
+      </div>
+
       {/* Report document */}
       <div className="bg-white dark:bg-slate-800 shadow-lg border border-slate-200 dark:border-slate-700/50 rounded-2xl overflow-hidden">
 
