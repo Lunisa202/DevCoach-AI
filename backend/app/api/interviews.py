@@ -300,10 +300,14 @@ async def evaluate_answers(
     # --- Actualizar estado del ticket ---
     try:
         if aprobado:
-            await db.update_ticket_state(str(request.ticket_id), EstadoTicket.DONE)
+            from uuid import UUID as _UUID
+            tid = request.ticket_id if isinstance(request.ticket_id, _UUID) else _UUID(str(request.ticket_id))
+            await db.update_ticket_state(tid, EstadoTicket.DONE)
         # Si no aprobado, se mantiene en in_review (no cambia)
     except DBServiceError as e:
         logger.error(f"Error updating ticket state: {e}")
+    except Exception as e:
+        logger.error(f"Unexpected error updating ticket state to done: {e}")
 
     return {
         "feedback": feedback,
@@ -311,4 +315,5 @@ async def evaluate_answers(
         "calificacion": calificacion,
         "aspectos_evaluados": aspectos_evaluados,
         "conceptos_a_mejorar": conceptos_a_mejorar,
+        "ticket_estado": "done" if aprobado else "in_review",
     }
