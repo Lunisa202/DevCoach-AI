@@ -1,4 +1,4 @@
-import { Eye, EyeOff, KeyRound, Save, Trophy, User, X } from 'lucide-react'
+import { Eye, EyeOff, Github, KeyRound, Save, Trophy, User, X } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
@@ -37,6 +37,9 @@ export function SettingsPage() {
 
       {/* Alias Section (privacidad en el ranking) */}
       <AliasSection user={user} token={token} dispatch={dispatch} />
+
+      {/* Bio & Social Links */}
+      <ProfileInfoSection user={user} token={token} dispatch={dispatch} />
 
       {/* Password Section */}
       <PasswordSection />
@@ -505,5 +508,90 @@ function AvatarInput({ user, token, dispatch }: { user: any; token: string | nul
         luego haz clic derecho en la imagen subida → "Copiar dirección de imagen".
       </p>
     </div>
+  )
+}
+
+
+/* ─── Profile Info Section (bio, LinkedIn, GitHub) ─── */
+function ProfileInfoSection({ user, token, dispatch }: { user: any; token: string | null; dispatch: any }) {
+  const [bio, setBio] = useState(user?.bio ?? '')
+  const [linkedin, setLinkedin] = useState(user?.linkedin_url ?? '')
+  const [github, setGithub] = useState(user?.github_username ?? '')
+  const [saving, setSaving] = useState(false)
+
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      const res = await axiosClient.put('/api/auth/profile-info', {
+        bio: bio.trim() || null,
+        linkedin_url: linkedin.trim() || null,
+        github_username: github.trim() || null,
+      })
+      dispatch(setCredentials({ token: token!, user: { ...user, bio: bio.trim() || null, linkedin_url: linkedin.trim() || null, github_username: github.trim() || null } }))
+      toast.success('Perfil actualizado')
+    } catch {
+      toast.error('No se pudo actualizar')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <section className="bg-white dark:bg-slate-800 shadow-sm p-6 border border-slate-200 dark:border-slate-700 rounded-xl">
+      <div className="flex items-center gap-3 mb-2">
+        <Github className="size-5 text-slate-600 dark:text-slate-400" />
+        <h2 className="font-semibold text-slate-800 dark:text-white text-lg">Bio & Redes sociales</h2>
+      </div>
+      <p className="mb-6 text-slate-500 dark:text-slate-400 text-sm">
+        Esta información es visible en tu perfil público
+      </p>
+
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Descripción</label>
+          <textarea
+            value={bio}
+            onChange={(e) => setBio(e.target.value)}
+            maxLength={300}
+            rows={3}
+            placeholder="Desarrollador frontend apasionado por React y TypeScript..."
+            className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none resize-none"
+          />
+          <p className="mt-1 text-xs text-slate-400 text-right">{bio.length}/300</p>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">GitHub username</label>
+          <div className="flex items-center">
+            <span className="px-3 py-2.5 bg-slate-100 dark:bg-slate-600 border border-r-0 border-slate-300 dark:border-slate-600 rounded-l-lg text-slate-500 dark:text-slate-400 text-sm">github.com/</span>
+            <input
+              value={github}
+              onChange={(e) => setGithub(e.target.value)}
+              placeholder="tu-usuario"
+              className="flex-1 px-3 py-2.5 border border-slate-300 dark:border-slate-600 rounded-r-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">LinkedIn URL</label>
+          <input
+            value={linkedin}
+            onChange={(e) => setLinkedin(e.target.value)}
+            placeholder="https://linkedin.com/in/tu-perfil"
+            className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+          />
+        </div>
+
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white text-sm font-medium rounded-lg transition-colors"
+        >
+          <Save className="size-4" />
+          {saving ? 'Guardando...' : 'Guardar'}
+        </button>
+      </div>
+    </section>
   )
 }

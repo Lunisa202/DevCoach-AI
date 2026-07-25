@@ -1262,3 +1262,140 @@ class DBService:
             logger.error(f"Error evaluating achievements for {user_id}: {e}")
 
         return newly_unlocked
+
+    # ---------------------------------------------------------------
+    # PUBLIC PROFILES
+    # ---------------------------------------------------------------
+
+    async def update_user_profile_info(
+        self, user_id: str, bio: str | None, linkedin_url: str | None, github_username: str | None
+    ) -> dict:
+        """Update user's bio and social links."""
+        try:
+            result = (
+                self._client.table("users")
+                .update({
+                    "bio": bio,
+                    "linkedin_url": linkedin_url,
+                    "github_username": github_username,
+                })
+                .eq("id", user_id)
+                .execute()
+            )
+            if not result.data:
+                raise DBServiceError("Usuario no encontrado")
+            user = result.data[0]
+            user.pop("password", None)
+            user.pop("gemini_api_key", None)
+            return user
+        except DBServiceError:
+            raise
+        except Exception as e:
+            logger.error(f"Error updating profile info for {user_id}: {e}")
+            raise DBServiceError("No se pudo actualizar el perfil")
+
+    async def get_public_profile(self, user_id: str) -> dict:
+        """
+        Get a user's public profile — never includes email, password, or API keys.
+        Includes: display name, avatar, bio, social links, level, XP, streak,
+        achievements, and basic stats.
+        """
+        try:
+            # User data
+            user_res = (
+                self._client.table("users")
+                .select("id, full_name, alias, avatar_url, bio, linkedin_url, github_username, xp, level, current_streak, created_at")
+                .eq("id", user_id)
+                .execute()
+            )
+            if not user_res.data:
+                raise DBServiceError("Usuario no encontrado")
+            user = user_res.data[0]
+
+            # Display name
+            display_name = self._display_name(user)
+
+            # Projects count
+            projects_res = (
+                self._client.table("projects")
+                .select("id")
+                .eq("user_id", user_id)
+                .execute()
+            )
+            project_count = len(projects_res.data or [])
+
+            # Completed tickets
+            project_ids = [p["id"] for p in (projects_res.data or [])]
+            completed_tickets = 0
+            total_tickets = 0
+            if project_ids:
+                tickets_res = (
+                    self._client.table("tickets")
+                    .select("id, estado")
+                    .in_("project_id", project_ids)
+                    .execute()
+                )
+                total_tickets = len(tickets_res.data or [])
+                completed_tickets = sum(1 for t in (tickets_res.data or []) if t.get("estado") == "done")
+
+            # Approved reviews + avg score
+            approved_count = 0
+            avg_score = None
+            if project_ids:
+                ticket_ids = [t["id"] for t in (tickets_res.data or [])] if project_ids else []
+                if ticket_ids:
+                    reviews_res = (
+                        self._client.table("reviews")
+                        .select("aprobado, calificacion")
+                        .in_("ticket_id", ticket_ids)
+                        .execute()
+                    )
+                    scores = []
+                    for r in (reviews_res.data or []):
+                        if r.get("aprobado"):
+                            approved_count += 1
+                            if r.get("calificacion") is not None:
+                                scores.append(r["calificacion"])
+                    if scores:
+                        avg_score = round(sum(scores) / len(scores), 1)
+
+            # Achievements
+            achievements = await self.get_user_achievements(user_id)
+            all_achievements = await self.get_all_achievements()
+            achievement_details = []
+            unlocked_ids = {a["achievement_id"] for a in achievements}
+            for ach in all_achievements:
+                if ach["id"] in unlocked_ids:
+                    achievement_details.append({
+                        "id": ach["id"],
+                        "title": ach["title"],
+                        "icon": ach["icon"],
+                    })
+
+            return {
+                "id": user["id"],
+                "display_name": display_name,
+                "avatar_url": user.get("avatar_url"),
+                "bio": user.get("bio"),
+                "linkedin_url": user.get("linkedin_url"),
+                "github_username": user.get("github_username"),
+                "level": user.get("level", 1),
+                "xp": user.get("xp", 0),
+                "current_streak": user.get("current_streak", 0),
+                "member_since": user.get("created_at"),
+                "stats": {
+                    "projects": project_count,
+                    "tickets_completed": completed_tickets,
+                    "tickets_total": total_tickets,
+                    "approved_reviews": approved_count,
+                    "avg_score": avg_score,
+                },
+                "achievements": achievement_details,
+                "is_own_profile": False,  # Overridden in the API layer
+            }
+
+        except DBServiceError:
+            raise
+        except Exception as e:
+            logger.error(f"Error getting public profile for {user_id}: {e}")
+            raise DBServiceError("No se pudo obtener el perfil")

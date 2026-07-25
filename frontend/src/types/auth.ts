@@ -5,6 +5,9 @@ export interface User {
   created_at: string
   alias?: string | null
   avatar_url?: string | null
+  bio?: string | null
+  linkedin_url?: string | null
+  github_username?: string | null
 }
 
 export interface TokenResponse {

@@ -299,7 +299,9 @@ function RankingRow({ entry }: { entry: RankingEntry }) {
                 : 'text-slate-900 dark:text-slate-100'
             }`}
           >
-            {entry.display_name}
+            <Link to={`/profile/${entry.user_id}`} className="hover:underline">
+              {entry.display_name}
+            </Link>
           </p>
           {entry.is_current_user && (
             <span className="bg-indigo-500 px-1.5 py-0.5 rounded font-medium text-white text-[10px]">

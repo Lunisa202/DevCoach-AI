@@ -16,6 +16,7 @@ function getPageTitle(pathname: string): string {
   if (pathname.startsWith('/interview/')) return 'Entrevista técnica'
   if (pathname === '/ranking') return 'Ranking'
   if (pathname === '/achievements') return 'Logros'
+  if (pathname.startsWith('/profile/')) return 'Perfil'
   if (pathname === '/settings') return 'Configuración'
   return 'DevCoach AI'
 }

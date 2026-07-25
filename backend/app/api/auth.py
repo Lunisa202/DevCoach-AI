@@ -400,3 +400,41 @@ async def delete_avatar(current_user: dict = Depends(get_current_user)):
         raise HTTPException(status_code=500, detail="No se pudo eliminar el avatar")
 
     return {"message": "Avatar eliminado"}
+
+
+# ---------------------------------------------------------------
+# PROFILE INFO (bio, social links)
+# ---------------------------------------------------------------
+
+
+class ProfileInfoUpdate(BaseModel):
+    """Request body for updating profile info (bio, social links)."""
+    bio: str | None = Field(default=None, max_length=300)
+    linkedin_url: str | None = Field(default=None, max_length=500)
+    github_username: str | None = Field(default=None, max_length=100)
+
+
+@router.put(
+    "/profile-info",
+    summary="Actualizar bio y redes sociales",
+)
+async def update_profile_info(
+    request: ProfileInfoUpdate,
+    current_user: dict = Depends(get_current_user),
+):
+    """Actualiza la bio, LinkedIn y GitHub del usuario."""
+    settings = get_settings()
+    db = DBService(url=settings.SUPABASE_URL, key=settings.SUPABASE_KEY)
+
+    try:
+        updated = await db.update_user_profile_info(
+            current_user["id"],
+            bio=request.bio,
+            linkedin_url=request.linkedin_url,
+            github_username=request.github_username,
+        )
+    except DBServiceError as e:
+        logger.error(f"Error updating profile info: {e}")
+        raise HTTPException(status_code=500, detail="No se pudo actualizar el perfil")
+
+    return {"message": "Perfil actualizado", "user": updated}
