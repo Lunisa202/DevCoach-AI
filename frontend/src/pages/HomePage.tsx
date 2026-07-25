@@ -534,7 +534,7 @@ function CommunityFeed() {
       .finally(() => setLoading(false))
   }, [])
 
-  if (loading || events.length === 0) return null
+  if (loading) return null
 
   const getEventText = (e: typeof events[0]) => {
     switch (e.event_type) {
@@ -574,7 +574,14 @@ function CommunityFeed() {
         <h3 className="font-semibold text-slate-900 dark:text-slate-100">Actividad de la comunidad</h3>
       </div>
       <div className="divide-y divide-slate-100 dark:divide-slate-700/50">
-        {events.map(e => (
+        {events.length === 0 ? (
+          <div className="px-6 py-8 text-center">
+            <Users className="mx-auto size-8 text-slate-300 dark:text-slate-600 mb-2" />
+            <p className="text-sm text-slate-500 dark:text-slate-400">Aún no hay actividad en la comunidad</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Cuando los usuarios completen entrevistas y desbloqueen logros, aparecerán aquí</p>
+          </div>
+        ) : (
+        events.map(e => (
           <div key={e.id} className="flex items-center gap-3 px-6 py-3">
             <span className="text-lg">{getEventIcon(e.event_type)}</span>
             <div className="flex-1 min-w-0">
@@ -585,7 +592,8 @@ function CommunityFeed() {
             </div>
             <span className="text-xs text-slate-400 shrink-0">{timeAgo(e.created_at)}</span>
           </div>
-        ))}
+        ))
+        )}
       </div>
     </div>
   )
