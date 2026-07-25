@@ -359,9 +359,20 @@ function TrendsChart({ data }: { data: Array<{ week: string; avg: number | null;
       {/* Line */}
       {linePath && <path d={linePath} fill="none" stroke="rgb(99,102,241)" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />}
 
-      {/* Data points */}
+      {/* Data points with tooltip */}
       {validPoints.map((p, i) => (
-        <circle key={i} cx={p.x} cy={p.y} r={4} fill="rgb(99,102,241)" stroke="white" strokeWidth={2} />
+        <g key={i} className="group cursor-pointer">
+          {/* Hover area (larger for easier hovering) */}
+          <circle cx={p.x} cy={p.y} r={12} fill="transparent" />
+          {/* Visible dot */}
+          <circle cx={p.x} cy={p.y} r={4} fill="rgb(99,102,241)" stroke="white" strokeWidth={2} className="group-hover:r-[6]" />
+          {/* Tooltip */}
+          <g className="opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+            <rect x={p.x - 32} y={p.y - 38} width={64} height={26} rx={6} fill="rgb(30,41,59)" />
+            <text x={p.x} y={p.y - 21} textAnchor="middle" className="fill-white text-[11px] font-semibold">{p.avg}/100</text>
+            <polygon points={`${p.x - 4},${p.y - 12} ${p.x + 4},${p.y - 12} ${p.x},${p.y - 7}`} fill="rgb(30,41,59)" />
+          </g>
+        </g>
       ))}
 
       {/* X-axis labels */}
