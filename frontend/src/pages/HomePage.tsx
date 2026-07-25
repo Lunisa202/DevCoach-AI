@@ -144,7 +144,7 @@ export function HomePage() {
           <div>
             <p className="mb-1 text-slate-500 dark:text-slate-400 text-sm">{greeting},</p>
             <h2 className="font-bold text-slate-900 dark:text-slate-100 text-3xl leading-tight">
-              {firstName} <span className="gradient-text">👋</span>
+              {firstName} 👋
             </h2>
             <p className="mt-2 text-slate-600 dark:text-slate-300 text-sm">
               {pendingTickets > 0 ? (
