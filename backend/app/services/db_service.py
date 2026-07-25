@@ -1399,3 +1399,95 @@ class DBService:
         except Exception as e:
             logger.error(f"Error getting public profile for {user_id}: {e}")
             raise DBServiceError("No se pudo obtener el perfil")
+
+    # ---------------------------------------------------------------
+    # SKILL RADAR
+    # ---------------------------------------------------------------
+
+    async def get_user_skill_radar(self, user_id: str) -> list[dict]:
+        """
+        Calculate averaged skill scores from all approved reviews for a user.
+        Returns a list of {dimension, score, max_score} for radar chart rendering.
+
+        The 5 evaluation dimensions are:
+        - Comprensión del problema
+        - Justificación técnica
+        - Conocimiento de alternativas
+        - Conciencia de limitaciones
+        - Claridad de comunicación
+        """
+        import json
+
+        try:
+            # Get all projects for this user
+            projects_res = (
+                self._client.table("projects")
+                .select("id")
+                .eq("user_id", user_id)
+                .execute()
+            )
+            project_ids = [p["id"] for p in (projects_res.data or [])]
+            if not project_ids:
+                return []
+
+            # Get all tickets
+            tickets_res = (
+                self._client.table("tickets")
+                .select("id")
+                .in_("project_id", project_ids)
+                .execute()
+            )
+            ticket_ids = [t["id"] for t in (tickets_res.data or [])]
+            if not ticket_ids:
+                return []
+
+            # Get all approved reviews with aspectos_evaluados
+            reviews_res = (
+                self._client.table("reviews")
+                .select("aspectos_evaluados, aprobado")
+                .in_("ticket_id", ticket_ids)
+                .execute()
+            )
+
+            # Aggregate scores by dimension
+            dimension_scores: dict[str, list[int]] = {}
+            for r in (reviews_res.data or []):
+                aspectos = r.get("aspectos_evaluados")
+                if not aspectos:
+                    continue
+                # aspectos can be a JSON string or already parsed
+                if isinstance(aspectos, str):
+                    try:
+                        aspectos = json.loads(aspectos)
+                    except (json.JSONDecodeError, TypeError):
+                        continue
+                if not isinstance(aspectos, list):
+                    continue
+
+                for aspecto in aspectos:
+                    dim = aspecto.get("dimension", "").strip()
+                    puntaje = aspecto.get("puntaje")
+                    if dim and puntaje is not None:
+                        if dim not in dimension_scores:
+                            dimension_scores[dim] = []
+                        dimension_scores[dim].append(int(puntaje))
+
+            if not dimension_scores:
+                return []
+
+            # Calculate averages
+            result = []
+            for dim, scores in dimension_scores.items():
+                avg = round(sum(scores) / len(scores), 1)
+                result.append({
+                    "dimension": dim,
+                    "score": avg,
+                    "max_score": 20,
+                    "count": len(scores),
+                })
+
+            return result
+
+        except Exception as e:
+            logger.error(f"Error calculating skill radar for {user_id}: {e}")
+            return []

@@ -11,6 +11,7 @@ import {
 import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
+import { SkillRadar } from '../components/SkillRadar'
 import { useProjects } from '../hooks/useProjects'
 import axiosClient from '../services/axiosClient'
 import { getProjectTickets } from '../services/projectService'
@@ -57,6 +58,7 @@ export function HomePage() {
   const [loadingProgress, setLoadingProgress] = useState(true)
 
   const user = useSelector((state: RootState) => state.auth.user)
+  const currentUserId = user?.id ?? ''
   const { projects, isLoading: loadingProjects } = useProjects()
   const navigate = useNavigate()
 
@@ -255,14 +257,17 @@ export function HomePage() {
         </div>
       </div>
 
-      {/* ═══ Trends Chart ═══ */}
-      {s.trends && s.trends.some(t => t.avg !== null) && (
-        <div className="bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700/50 rounded-2xl p-6 mb-8">
-          <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-1">Evolución de calificaciones</h3>
-          <p className="text-slate-500 dark:text-slate-400 text-xs mb-4">Promedio semanal de tus entrevistas</p>
-          <TrendsChart data={s.trends} />
-        </div>
-      )}
+      {/* ═══ Trends Chart + Skill Radar ═══ */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
+        {s.trends && s.trends.some(t => t.avg !== null) && (
+          <div className="bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700/50 rounded-2xl p-6">
+            <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-1">Evolución de calificaciones</h3>
+            <p className="text-slate-500 dark:text-slate-400 text-xs mb-4">Promedio semanal de tus entrevistas</p>
+            <TrendsChart data={s.trends} />
+          </div>
+        )}
+        <SkillRadarSection userId={currentUserId} />
+      </div>
 
       {/* ═══ Proyectos recientes ═══ */}
       {projects.length > 0 ? (
@@ -491,6 +496,27 @@ function ProjectRow({
         <ArrowRight size={16} className="text-slate-400" />
       </div>
     </button>
+  )
+}
+
+function SkillRadarSection({ userId }: { userId: string }) {
+  const [skills, setSkills] = useState<Array<{ dimension: string; score: number; max_score: number; count: number }>>([])
+
+  useEffect(() => {
+    if (!userId) return
+    axiosClient.get('/api/stats/skills')
+      .then(res => setSkills(res.data.skills || []))
+      .catch(() => {})
+  }, [userId])
+
+  if (skills.length === 0) return null
+
+  return (
+    <div className="bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700/50 rounded-2xl p-6">
+      <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-1">Perfil de competencias</h3>
+      <p className="text-slate-500 dark:text-slate-400 text-xs mb-4">Promedio de tus evaluaciones por dimensión</p>
+      <SkillRadar skills={skills} />
+    </div>
   )
 }
 

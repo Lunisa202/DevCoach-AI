@@ -214,3 +214,24 @@ def _build_trends(all_reviews: list[dict]) -> list[dict]:
             result.append({"week": w["label"], "avg": None, "count": 0})
 
     return result
+
+
+@router.get(
+    "/skills",
+    summary="Get user's skill radar data (averaged from all reviews)",
+)
+async def get_skill_radar(current_user: dict = Depends(get_current_user)):
+    """
+    Returns the user's skill profile as averaged scores across the 5 evaluation
+    dimensions from all their approved reviews. Used to render a radar/spider chart.
+    """
+    settings = get_settings()
+    db = DBService(url=settings.SUPABASE_URL, key=settings.SUPABASE_KEY)
+    user_id = current_user["id"]
+
+    try:
+        skills = await db.get_user_skill_radar(user_id)
+        return {"skills": skills}
+    except Exception as e:
+        logger.error(f"Error getting skill radar: {e}")
+        return {"skills": []}

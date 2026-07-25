@@ -151,21 +151,22 @@ function Hero() {
             <Reveal>
               <span className="inline-flex items-center gap-2 rounded-full border border-indigo-200 dark:border-indigo-500/20 bg-indigo-50 dark:bg-indigo-500/10 px-3 py-1 text-xs font-medium text-indigo-700 dark:text-indigo-300">
                 <Sparkles className="size-3.5" />
-                Coaching técnico impulsado por IA
+                Demuestra que entiendes tu código
               </span>
             </Reveal>
 
             <Reveal delay={80}>
               <h1 className="mt-6 text-balance text-4xl font-extrabold leading-[1.05] tracking-tight text-slate-900 dark:text-white sm:text-5xl lg:text-6xl">
-                Tu coach técnico con IA que trabaja con{' '}
-                <span className="text-indigo-600 dark:text-indigo-400">tu código real</span>
+                Tu IA escribe el código.{' '}
+                <span className="text-indigo-600 dark:text-indigo-400">¿Puedes defenderlo?</span>
               </h1>
             </Reveal>
 
             <Reveal delay={160}>
               <p className="mt-6 max-w-lg text-pretty text-lg leading-relaxed text-slate-600 dark:text-slate-400">
-                Conecta tu repo, recibe feedback personalizado, y demuestra que entiendes
-                lo que hiciste. No es un curso — es un coach que revisa, mejora y evalúa tu trabajo.
+                DevCoach AI no mide si programaste — mide si <strong>entiendes</strong> lo que hiciste.
+                Conecta tu repo, recibe feedback personalizado, y demuestra tu comprensión técnica
+                en una entrevista con IA.
               </p>
             </Reveal>
 
@@ -714,8 +715,8 @@ function FinalCTA() {
             <div className="pointer-events-none absolute left-1/2 top-0 h-80 w-80 -translate-x-1/2 rounded-full bg-indigo-500/15 blur-[120px]" />
             <div className="relative">
               <h2 className="text-balance text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-5xl">
-                ¿Listo para que tu código{' '}
-                <span className="text-indigo-600 dark:text-indigo-400">hable por ti?</span>
+                ¿Listo para demostrar que{' '}
+                <span className="text-indigo-600 dark:text-indigo-400">entiendes tu código?</span>
               </h2>
               <Link
                 to="/register"
