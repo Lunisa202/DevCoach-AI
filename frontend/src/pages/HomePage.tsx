@@ -41,6 +41,7 @@ interface Stats {
   xp_needed: number
   current_streak: number
   trends: Array<{ week: string; avg: number | null; count: number }>
+  skills: Array<{ dimension: string; score: number; max_score: number; count: number }>
 }
 
 interface ProjectProgress {
@@ -58,7 +59,6 @@ export function HomePage() {
   const [loadingProgress, setLoadingProgress] = useState(true)
 
   const user = useSelector((state: RootState) => state.auth.user)
-  const currentUserId = user?.id ?? ''
   const { projects, isLoading: loadingProjects } = useProjects()
   const navigate = useNavigate()
 
@@ -266,7 +266,7 @@ export function HomePage() {
             <TrendsChart data={s.trends} />
           </div>
         )}
-        <SkillRadarSection userId={currentUserId} />
+        <SkillRadarSection skills={s.skills} />
       </div>
 
       {/* ═══ Proyectos recientes ═══ */}
@@ -499,16 +499,7 @@ function ProjectRow({
   )
 }
 
-function SkillRadarSection({ userId }: { userId: string }) {
-  const [skills, setSkills] = useState<Array<{ dimension: string; score: number; max_score: number; count: number }>>([])
-
-  useEffect(() => {
-    if (!userId) return
-    axiosClient.get('/api/stats/skills')
-      .then(res => setSkills(res.data.skills || []))
-      .catch(() => {})
-  }, [userId])
-
+function SkillRadarSection({ skills }: { skills: Array<{ dimension: string; score: number; max_score: number; count: number }> }) {
   if (skills.length === 0) return null
 
   return (

@@ -115,6 +115,9 @@ async def get_user_stats(current_user: dict = Depends(get_current_user)):
         from datetime import datetime, timedelta
         trends = _build_trends(all_reviews)
 
+        # Build skill radar from reviews
+        skills = await db.get_user_skill_radar(user_id)
+
         return {
             "total_projects": total_projects,
             "total_tickets": total_tickets,
@@ -131,6 +134,7 @@ async def get_user_stats(current_user: dict = Depends(get_current_user)):
             "xp_needed": total_for_level,
             "current_streak": xp_data.get("current_streak", 0),
             "trends": trends,
+            "skills": skills,
         }
 
     except DBServiceError as e:
@@ -155,6 +159,7 @@ def _empty_stats():
         "xp_needed": 100,
         "current_streak": 0,
         "trends": [],
+        "skills": [],
     }
 
 
