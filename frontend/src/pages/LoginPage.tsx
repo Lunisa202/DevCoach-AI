@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, Navigate, Link } from 'react-router-dom'
 import { AxiosError } from 'axios'
-import { Eye, EyeOff } from 'lucide-react'
+import { ArrowLeft, Eye, EyeOff } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { setCredentials } from '../store/slices/authSlice'
 import { loginService } from '../services/authService'
@@ -51,6 +51,12 @@ export function LoginPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex transition-colors">
       <DarkModeToggle />
+
+      {/* Back to landing */}
+      <Link to="/" className="absolute top-4 left-4 z-10 flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+        <ArrowLeft className="size-4" />
+        Volver al inicio
+      </Link>
 
       {/* Left panel — branding (hidden on mobile) */}
       <div className="hidden lg:flex lg:w-1/2 items-center justify-center bg-indigo-600 dark:bg-indigo-900 p-12">
