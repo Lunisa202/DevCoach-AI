@@ -1,4 +1,4 @@
-import { Eye, EyeOff, Github, KeyRound, Save, Trophy, User, X } from 'lucide-react'
+import { Eye, EyeOff, GitBranch, KeyRound, Save, Trophy, User, X } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
@@ -539,7 +539,7 @@ function ProfileInfoSection({ user, token, dispatch }: { user: any; token: strin
   return (
     <section className="bg-white dark:bg-slate-800 shadow-sm p-6 border border-slate-200 dark:border-slate-700 rounded-xl">
       <div className="flex items-center gap-3 mb-2">
-        <Github className="size-5 text-slate-600 dark:text-slate-400" />
+        <GitBranch className="size-5 text-slate-600 dark:text-slate-400" />
         <h2 className="font-semibold text-slate-800 dark:text-white text-lg">Bio & Redes sociales</h2>
       </div>
       <p className="mb-6 text-slate-500 dark:text-slate-400 text-sm">

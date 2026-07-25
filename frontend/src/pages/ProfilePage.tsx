@@ -4,8 +4,8 @@ import {
   ExternalLink,
   Flame,
   FolderGit2,
-  Github,
-  Linkedin,
+  GitBranch,
+  Link2,
   Star,
   CheckCircle,
   Trophy,
@@ -94,13 +94,13 @@ export function ProfilePage() {
               <div className="flex items-center gap-3 mt-3">
                 {p.github_username && (
                   <a href={`https://github.com/${p.github_username}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-indigo-500 text-sm transition-colors">
-                    <Github className="size-4" />
+                    <GitBranch className="size-4" />
                     {p.github_username}
                   </a>
                 )}
                 {p.linkedin_url && (
                   <a href={p.linkedin_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-indigo-500 text-sm transition-colors">
-                    <Linkedin className="size-4" />
+                    <Link2 className="size-4" />
                     LinkedIn
                     <ExternalLink className="size-3" />
                   </a>
