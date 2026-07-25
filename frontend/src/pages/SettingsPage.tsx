@@ -1,10 +1,11 @@
-import { Eye, EyeOff, KeyRound, Save, User } from 'lucide-react'
+import { Eye, EyeOff, KeyRound, Save, Trophy, User, X } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import { useDispatch, useSelector } from 'react-redux'
 import { UserAvatar } from '../components/UserAvatar'
 import axiosClient from '../services/axiosClient'
+import { updateAlias } from '../services/rankingService'
 import type { RootState } from '../store'
 import { setCredentials } from '../store/slices/authSlice'
 

@@ -1,4 +1,4 @@
-import { LayoutDashboard, LogOut, Plus, Settings } from 'lucide-react'
+import { LayoutDashboard, LogOut, Plus, Settings, Trophy } from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useProjects } from '../hooks/useProjects'
