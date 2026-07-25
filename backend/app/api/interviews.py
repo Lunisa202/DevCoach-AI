@@ -312,6 +312,7 @@ async def evaluate_answers(
     # --- Award XP and update streak if approved ---
     level_up = False
     new_level = None
+    new_achievements: list[str] = []
     if aprobado:
         try:
             xp_earned = calificacion if calificacion else 50
@@ -324,6 +325,12 @@ async def evaluate_answers(
         except Exception as e:
             logger.error(f"Error awarding XP: {e}")
 
+    # --- Evaluate achievements (runs even if not approved — streak/projects count) ---
+    try:
+        new_achievements = await db.evaluate_achievements(current_user["id"])
+    except Exception as e:
+        logger.error(f"Error evaluating achievements: {e}")
+
     return {
         "feedback": feedback,
         "aprobado": aprobado,
@@ -334,4 +341,5 @@ async def evaluate_answers(
         "xp_earned": calificacion if aprobado else 0,
         "level_up": level_up,
         "new_level": new_level,
+        "new_achievements": new_achievements,
     }

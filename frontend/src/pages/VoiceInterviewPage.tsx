@@ -198,6 +198,11 @@ export function VoiceInterviewPage() {
         if (data.level_up) {
           setTimeout(() => toast.success(`🎉 ¡Subiste al nivel ${data.new_level}!`, { duration: 5000 }), 800)
         }
+        if (data.new_achievements && data.new_achievements.length > 0) {
+          data.new_achievements.forEach((id: string, i: number) => {
+            setTimeout(() => toast.success(`🏅 ¡Nuevo logro desbloqueado!`, { duration: 5000 }), 1200 + i * 600)
+          })
+        }
       } else {
         toast('Puedes intentar de nuevo', { icon: <Info className="size-5 text-indigo-500" /> })
       }

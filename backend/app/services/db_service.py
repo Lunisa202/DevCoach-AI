@@ -1087,3 +1087,178 @@ class DBService:
             return result.data[0]
         except Exception:
             return {"xp": 0, "level": 1, "current_streak": 0, "last_active_date": None}
+
+    # ---------------------------------------------------------------
+    # ACHIEVEMENTS / BADGES
+    # ---------------------------------------------------------------
+
+    async def get_all_achievements(self) -> list[dict]:
+        """Get the full achievement catalog ordered by sort_order."""
+        try:
+            result = (
+                self._client.table("achievements")
+                .select("*")
+                .order("sort_order")
+                .execute()
+            )
+            return result.data or []
+        except Exception as e:
+            logger.error(f"Error fetching achievements catalog: {e}")
+            return []
+
+    async def get_user_achievements(self, user_id: str) -> list[dict]:
+        """Get achievements unlocked by a specific user."""
+        try:
+            result = (
+                self._client.table("user_achievements")
+                .select("achievement_id, unlocked_at")
+                .eq("user_id", user_id)
+                .order("unlocked_at", desc=True)
+                .execute()
+            )
+            return result.data or []
+        except Exception as e:
+            logger.error(f"Error fetching user achievements for {user_id}: {e}")
+            return []
+
+    async def unlock_achievement(self, user_id: str, achievement_id: str) -> bool:
+        """Unlock an achievement for a user. Returns True if newly unlocked, False if already had it."""
+        try:
+            # Check if already unlocked
+            check = (
+                self._client.table("user_achievements")
+                .select("id")
+                .eq("user_id", user_id)
+                .eq("achievement_id", achievement_id)
+                .execute()
+            )
+            if check.data:
+                return False  # Already unlocked
+
+            # Unlock it
+            self._client.table("user_achievements").insert({
+                "user_id": user_id,
+                "achievement_id": achievement_id,
+            }).execute()
+            return True
+        except Exception as e:
+            logger.error(f"Error unlocking achievement {achievement_id} for {user_id}: {e}")
+            return False
+
+    async def evaluate_achievements(self, user_id: str) -> list[str]:
+        """
+        Evaluate all achievement conditions for a user and unlock any newly earned ones.
+        Returns a list of achievement_ids that were NEWLY unlocked in this call.
+        
+        Called after approving a review / awarding XP.
+        """
+        newly_unlocked: list[str] = []
+
+        try:
+            # Get user data
+            user_res = (
+                self._client.table("users")
+                .select("xp, level, current_streak")
+                .eq("id", user_id)
+                .execute()
+            )
+            if not user_res.data:
+                return []
+            user = user_res.data[0]
+
+            # Get already unlocked
+            existing = await self.get_user_achievements(user_id)
+            unlocked_ids = {a["achievement_id"] for a in existing}
+
+            # Get user's project count
+            projects_res = (
+                self._client.table("projects")
+                .select("id")
+                .eq("user_id", user_id)
+                .execute()
+            )
+            project_count = len(projects_res.data or [])
+
+            # Get completed tickets count
+            project_ids = [p["id"] for p in (projects_res.data or [])]
+            completed_tickets = 0
+            if project_ids:
+                tickets_res = (
+                    self._client.table("tickets")
+                    .select("id, estado")
+                    .in_("project_id", project_ids)
+                    .execute()
+                )
+                completed_tickets = sum(1 for t in (tickets_res.data or []) if t.get("estado") == "done")
+
+            # Get approved reviews count and max calificacion
+            approved_count = 0
+            max_score = 0
+            if project_ids:
+                tickets_res_full = (
+                    self._client.table("tickets")
+                    .select("id")
+                    .in_("project_id", project_ids)
+                    .execute()
+                )
+                ticket_ids = [t["id"] for t in (tickets_res_full.data or [])]
+                if ticket_ids:
+                    reviews_res = (
+                        self._client.table("reviews")
+                        .select("aprobado, calificacion")
+                        .in_("ticket_id", ticket_ids)
+                        .execute()
+                    )
+                    for r in (reviews_res.data or []):
+                        if r.get("aprobado"):
+                            approved_count += 1
+                            cal = r.get("calificacion") or 0
+                            if cal > max_score:
+                                max_score = cal
+
+            # --- Evaluate each achievement ---
+
+            # first_blood: at least 1 approved review
+            if "first_blood" not in unlocked_ids and approved_count >= 1:
+                if await self.unlock_achievement(user_id, "first_blood"):
+                    newly_unlocked.append("first_blood")
+
+            # streak_3: current_streak >= 3
+            if "streak_3" not in unlocked_ids and (user.get("current_streak") or 0) >= 3:
+                if await self.unlock_achievement(user_id, "streak_3"):
+                    newly_unlocked.append("streak_3")
+
+            # streak_7: current_streak >= 7
+            if "streak_7" not in unlocked_ids and (user.get("current_streak") or 0) >= 7:
+                if await self.unlock_achievement(user_id, "streak_7"):
+                    newly_unlocked.append("streak_7")
+
+            # perfect_score: max calificacion == 100
+            if "perfect_score" not in unlocked_ids and max_score >= 100:
+                if await self.unlock_achievement(user_id, "perfect_score"):
+                    newly_unlocked.append("perfect_score")
+
+            # veteran: 10+ completed tickets
+            if "veteran" not in unlocked_ids and completed_tickets >= 10:
+                if await self.unlock_achievement(user_id, "veteran"):
+                    newly_unlocked.append("veteran")
+
+            # explorer: 5+ projects
+            if "explorer" not in unlocked_ids and project_count >= 5:
+                if await self.unlock_achievement(user_id, "explorer"):
+                    newly_unlocked.append("explorer")
+
+            # master: level >= 5
+            if "master" not in unlocked_ids and (user.get("level") or 1) >= 5:
+                if await self.unlock_achievement(user_id, "master"):
+                    newly_unlocked.append("master")
+
+            # legend: xp >= 1000
+            if "legend" not in unlocked_ids and (user.get("xp") or 0) >= 1000:
+                if await self.unlock_achievement(user_id, "legend"):
+                    newly_unlocked.append("legend")
+
+        except Exception as e:
+            logger.error(f"Error evaluating achievements for {user_id}: {e}")
+
+        return newly_unlocked
