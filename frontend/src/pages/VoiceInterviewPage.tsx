@@ -192,6 +192,12 @@ export function VoiceInterviewPage() {
       setPhase('result')
       if (data.aprobado) {
         toast.success('¡Entrevista aprobada!')
+        if (data.xp_earned) {
+          toast.success(`+${data.xp_earned} XP ganados`, { icon: '⭐' })
+        }
+        if (data.level_up) {
+          setTimeout(() => toast.success(`🎉 ¡Subiste al nivel ${data.new_level}!`, { duration: 5000 }), 800)
+        }
       } else {
         toast('Puedes intentar de nuevo', { icon: <Info className="size-5 text-indigo-500" /> })
       }
