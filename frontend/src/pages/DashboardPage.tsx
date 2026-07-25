@@ -6,7 +6,7 @@ import {
     Clock,
     GitCommit,
     MessageSquare,
-    Trophy,
+    Trophy
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
@@ -31,7 +31,7 @@ const COLUMNS: Array<{
   label: string
   color: string
   countBg: string
-  emptyIcon: string
+  emptyIcon: ReactNode
   emptyMsg: string
 }> = [
   {
@@ -39,7 +39,7 @@ const COLUMNS: Array<{
     label: 'Por hacer',
     color: 'bg-slate-400',
     countBg: 'bg-slate-500/20 text-slate-500 dark:text-slate-400',
-    emptyIcon: '✨',
+    emptyIcon: <Sparkles className="size-8 text-slate-400 dark:text-slate-500" />,
     emptyMsg: 'No hay tickets pendientes. ¡Buen trabajo!',
   },
   {
@@ -47,7 +47,7 @@ const COLUMNS: Array<{
     label: 'En revisión',
     color: 'bg-amber-400',
     countBg: 'bg-amber-500/20 text-amber-600 dark:text-amber-400',
-    emptyIcon: '🔍',
+    emptyIcon: <Search className="size-8 text-amber-500/70" />,
     emptyMsg: 'Ningún ticket en revisión. Verifica un commit para mover uno aquí.',
   },
   {
@@ -55,7 +55,7 @@ const COLUMNS: Array<{
     label: 'Completado',
     color: 'bg-emerald-500',
     countBg: 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400',
-    emptyIcon: '🏆',
+    emptyIcon: <Trophy className="size-8 text-emerald-500/70" />,
     emptyMsg: 'Completa una entrevista técnica para mover tickets aquí.',
   },
 ]
@@ -341,7 +341,7 @@ function KanbanColumn({
       <div className="flex-1 space-y-3 px-3 pb-3 overflow-y-auto">
         {tickets.length === 0 ? (
           <div className="flex flex-col justify-center items-center px-4 h-48 text-center">
-            <span className="mb-3 text-3xl">{config.emptyIcon}</span>
+            <div className="mb-3">{config.emptyIcon}</div>
             <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">
               {config.emptyMsg}
             </p>
@@ -395,7 +395,9 @@ export function DashboardPage() {
         toast.success(result.message ?? 'Commit verificado — ticket en revisión')
         setTicketState(ticketId, 'in_review')
       } else {
-        toast(result.message ?? 'No se detectaron cambios relevantes', { icon: 'ℹ️' })
+        toast(result.message ?? 'No se detectaron cambios relevantes', {
+          icon: <Info className="size-5 text-indigo-500" />,
+        })
       }
     } catch (err) {
       const error = err as AxiosError<{ detail: string }>
@@ -442,7 +444,7 @@ export function DashboardPage() {
     return (
       <div className="flex justify-center items-center p-8 min-h-full">
         <div className="text-center">
-          <span className="block mb-4 text-4xl">📭</span>
+          <Inbox className="mx-auto mb-4 size-12 text-slate-300 dark:text-slate-600" />
           <p className="mb-1 font-semibold text-slate-700 dark:text-slate-200">
             Este proyecto no tiene tickets todavía.
           </p>
