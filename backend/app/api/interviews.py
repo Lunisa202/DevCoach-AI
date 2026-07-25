@@ -309,6 +309,21 @@ async def evaluate_answers(
     except Exception as e:
         logger.error(f"Unexpected error updating ticket state to done: {e}")
 
+    # --- Award XP and update streak if approved ---
+    level_up = False
+    new_level = None
+    if aprobado:
+        try:
+            xp_earned = calificacion if calificacion else 50
+            old_level = (await db.get_user_xp_data(current_user["id"])).get("level", 1)
+            await db.award_xp_and_update_streak(current_user["id"], xp_earned)
+            updated_data = await db.get_user_xp_data(current_user["id"])
+            new_level = updated_data.get("level", 1)
+            if new_level > old_level:
+                level_up = True
+        except Exception as e:
+            logger.error(f"Error awarding XP: {e}")
+
     return {
         "feedback": feedback,
         "aprobado": aprobado,
@@ -316,4 +331,7 @@ async def evaluate_answers(
         "aspectos_evaluados": aspectos_evaluados,
         "conceptos_a_mejorar": conceptos_a_mejorar,
         "ticket_estado": "done" if aprobado else "in_review",
+        "xp_earned": calificacion if aprobado else 0,
+        "level_up": level_up,
+        "new_level": new_level,
     }

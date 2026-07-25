@@ -958,3 +958,132 @@ class DBService:
         except Exception as e:
             logger.error(f"Error deleting avatar for {user_id}: {e}")
             raise DBServiceError("No se pudo eliminar el avatar")
+
+    # ---------------------------------------------------------------
+    # XP, LEVEL & STREAK
+    # ---------------------------------------------------------------
+
+    # Level thresholds: level N requires XP_THRESHOLDS[N-1] total XP
+    _XP_THRESHOLDS = [0, 100, 250, 500, 850, 1300, 1900, 2600, 3500, 4500, 5700]
+
+    @staticmethod
+    def calculate_level(xp: int) -> int:
+        """Calculate level from total XP using the threshold curve."""
+        level = 1
+        for i, threshold in enumerate(DBService._XP_THRESHOLDS):
+            if xp >= threshold:
+                level = i + 1
+            else:
+                break
+        return level
+
+    @staticmethod
+    def xp_for_next_level(xp: int, current_level: int) -> int:
+        """Return XP needed to reach next level. 0 if max level."""
+        if current_level >= len(DBService._XP_THRESHOLDS):
+            return 0
+        return DBService._XP_THRESHOLDS[current_level] - xp
+
+    @staticmethod
+    def xp_progress_in_level(xp: int, current_level: int) -> tuple[int, int]:
+        """Return (current_xp_in_level, total_xp_needed_for_level)."""
+        if current_level <= 1:
+            start = 0
+        else:
+            start = DBService._XP_THRESHOLDS[current_level - 1]
+
+        if current_level >= len(DBService._XP_THRESHOLDS):
+            return (0, 1)  # max level
+
+        end = DBService._XP_THRESHOLDS[current_level]
+        return (xp - start, end - start)
+
+    async def award_xp_and_update_streak(self, user_id: str, xp_earned: int) -> dict:
+        """
+        Awards XP to a user, recalculates level, and updates streak.
+        Called when a review is approved.
+
+        Returns updated user data with xp, level, current_streak.
+        """
+        from datetime import date, timedelta
+
+        try:
+            # Get current user data
+            user_res = (
+                self._client.table("users")
+                .select("xp, level, current_streak, last_active_date")
+                .eq("id", user_id)
+                .execute()
+            )
+            if not user_res.data:
+                raise DBServiceError("Usuario no encontrado")
+
+            user = user_res.data[0]
+            current_xp = user.get("xp") or 0
+            current_streak = user.get("current_streak") or 0
+            last_active = user.get("last_active_date")
+
+            # Calculate new XP and level
+            new_xp = current_xp + xp_earned
+            new_level = self.calculate_level(new_xp)
+
+            # Calculate streak
+            today = date.today()
+            if last_active:
+                # Parse date string from DB
+                if isinstance(last_active, str):
+                    last_active_date = date.fromisoformat(last_active)
+                else:
+                    last_active_date = last_active
+
+                if last_active_date == today:
+                    # Already active today, don't change streak
+                    new_streak = current_streak
+                elif last_active_date == today - timedelta(days=1):
+                    # Yesterday — increment streak
+                    new_streak = current_streak + 1
+                else:
+                    # More than 1 day gap — reset to 1
+                    new_streak = 1
+            else:
+                # First activity ever
+                new_streak = 1
+
+            # Update in DB
+            result = (
+                self._client.table("users")
+                .update({
+                    "xp": new_xp,
+                    "level": new_level,
+                    "current_streak": new_streak,
+                    "last_active_date": today.isoformat(),
+                })
+                .eq("id", user_id)
+                .execute()
+            )
+
+            if not result.data:
+                raise DBServiceError("No se pudo actualizar XP/streak")
+
+            return result.data[0]
+
+        except DBServiceError:
+            raise
+        except Exception as e:
+            logger.error(f"Error awarding XP for {user_id}: {e}")
+            raise DBServiceError("No se pudo actualizar XP/streak")
+
+    async def get_user_xp_data(self, user_id: str) -> dict:
+        """Get user's XP, level, and streak data."""
+        try:
+            result = (
+                self._client.table("users")
+                .select("xp, level, current_streak, last_active_date")
+                .eq("id", user_id)
+                .execute()
+            )
+            if not result.data:
+                return {"xp": 0, "level": 1, "current_streak": 0, "last_active_date": None}
+            return result.data[0]
+        except Exception:
+            return {"xp": 0, "level": 1, "current_streak": 0, "last_active_date": None}

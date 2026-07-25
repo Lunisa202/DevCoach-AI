@@ -34,6 +34,11 @@ interface Stats {
     aprobado: boolean
     created_at: string
   }>
+  xp: number
+  level: number
+  xp_progress: number
+  xp_needed: number
+  current_streak: number
 }
 
 interface ProjectProgress {
@@ -202,6 +207,51 @@ export function HomePage() {
           sub={s.avg_score !== null ? 'calificación entrevistas' : 'sin reviews aún'}
           gradient="bg-gradient-to-br from-rose-500 to-pink-500"
         />
+      </div>
+
+      {/* ═══ XP / Level / Streak ═══ */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        {/* Level badge */}
+        <div className="bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700/50 rounded-2xl p-5 flex items-center gap-4">
+          <div className="flex size-12 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white font-bold text-lg">
+            {s.level}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs text-slate-500 dark:text-slate-400">Nivel</p>
+            <p className="font-semibold text-slate-800 dark:text-white">Nivel {s.level}</p>
+            <div className="mt-1.5 h-2 rounded-full bg-slate-100 dark:bg-slate-700 overflow-hidden">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 transition-all duration-500"
+                style={{ width: s.xp_needed > 0 ? `${Math.min((s.xp_progress / s.xp_needed) * 100, 100)}%` : '100%' }}
+              />
+            </div>
+            <p className="mt-1 text-[11px] text-slate-400">{s.xp_progress} / {s.xp_needed} XP</p>
+          </div>
+        </div>
+
+        {/* Total XP */}
+        <div className="bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700/50 rounded-2xl p-5 flex items-center gap-4">
+          <div className="flex size-12 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-white">
+            <Star size={24} />
+          </div>
+          <div>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Experiencia total</p>
+            <p className="text-2xl font-bold text-slate-800 dark:text-white">{s.xp} <span className="text-sm font-normal text-slate-400">XP</span></p>
+          </div>
+        </div>
+
+        {/* Streak */}
+        <div className="bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700/50 rounded-2xl p-5 flex items-center gap-4">
+          <div className={`flex size-12 items-center justify-center rounded-xl text-white ${s.current_streak >= 7 ? 'bg-gradient-to-br from-orange-500 to-red-500' : 'bg-gradient-to-br from-slate-400 to-slate-500'}`}>
+            🔥
+          </div>
+          <div>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Racha de actividad</p>
+            <p className="text-2xl font-bold text-slate-800 dark:text-white">
+              {s.current_streak} <span className="text-sm font-normal text-slate-400">{s.current_streak === 1 ? 'día' : 'días'}</span>
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* ═══ Proyectos recientes ═══ */}

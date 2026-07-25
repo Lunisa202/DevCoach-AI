@@ -105,6 +105,12 @@ async def get_user_stats(current_user: dict = Depends(get_current_user)):
             for r in sorted_reviews
         ]
 
+        # Get XP/Level/Streak data
+        xp_data = await db.get_user_xp_data(user_id)
+        current_level = xp_data.get("level", 1)
+        current_xp = xp_data.get("xp", 0)
+        progress_in_level, total_for_level = db.xp_progress_in_level(current_xp, current_level)
+
         return {
             "total_projects": total_projects,
             "total_tickets": total_tickets,
@@ -115,6 +121,11 @@ async def get_user_stats(current_user: dict = Depends(get_current_user)):
             "approved_reviews": approved_reviews,
             "avg_score": avg_score,
             "recent_reviews": recent_reviews,
+            "xp": current_xp,
+            "level": current_level,
+            "xp_progress": progress_in_level,
+            "xp_needed": total_for_level,
+            "current_streak": xp_data.get("current_streak", 0),
         }
 
     except DBServiceError as e:
@@ -133,4 +144,9 @@ def _empty_stats():
         "approved_reviews": 0,
         "avg_score": None,
         "recent_reviews": [],
+        "xp": 0,
+        "level": 1,
+        "xp_progress": 0,
+        "xp_needed": 100,
+        "current_streak": 0,
     }
