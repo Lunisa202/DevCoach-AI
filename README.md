@@ -22,16 +22,14 @@ DevCoach AI es una plataforma de coaching técnico impulsada por inteligencia ar
 
 ## 🚀 El Ciclo de Aprendizaje
 
-```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│  Conecta tu │ ──► │ Code Review │ ──► │  3 Tickets  │ ──► │   Commit    │
-│  repositorio│     │  con IA     │     │  de mejora  │     │   real      │
-└─────────────┘     └─────────────┘     └─────────────┘     └──────┬──────┘
-                                                                    │
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐            │
-│  Feedback   │ ◄── │  Evaluación │ ◄── │ Entrevista  │ ◄──────────┘
-│  + XP + 🏆  │     │ 5 dimensiones│    │ Chat o Voz  │
-└─────────────┘     └─────────────┘     └─────────────┘
+```mermaid
+flowchart LR
+    A[🔗 Conecta tu\nrepositorio] --> B[🔍 Code Review\ncon IA]
+    B --> C[📋 3 Tickets\nde mejora]
+    C --> D[💻 Commit\nreal]
+    D --> E[🎤 Entrevista\nChat o Voz]
+    E --> F[📊 Evaluación\n5 dimensiones]
+    F --> G[🏆 Feedback\n+ XP]
 ```
 
 ## ✨ Features Principales
@@ -68,28 +66,167 @@ La primera plataforma que te entrevista **por voz** sobre tu propio código. Spe
 
 ## 🏗️ Arquitectura
 
+```mermaid
+graph TB
+    subgraph Frontend["🖥️ Frontend (React 19 + TypeScript + Tailwind)"]
+        Pages[Pages] --> Hooks[Custom Hooks]
+        Hooks --> Services[Services]
+        Services --> Axios[axiosClient]
+        Hooks --> Store[Redux Store]
+    end
+
+    subgraph Backend["⚙️ Backend (FastAPI + Python)"]
+        API[API Routes] --> BServices[Services]
+        BServices --> Agents[AI Agents]
+        Agents --> Gemini[Gemini 2.5 Flash]
+        BServices --> GitHub[GitHub API]
+    end
+
+    subgraph Database["🗄️ Supabase (PostgreSQL)"]
+        Users[(users)]
+        Projects[(projects)]
+        Tickets[(tickets)]
+        Reviews[(reviews)]
+        Achievements[(achievements)]
+    end
+
+    Axios -->|REST + JWT| API
+    BServices --> Database
 ```
-┌────────────────────────────────────────────────────────┐
-│                    FRONTEND                              │
-│  React 19 + TypeScript + Tailwind + Redux Toolkit       │
-│  Vite · React Router v7 · lucide-react                  │
-└──────────────────────────┬─────────────────────────────┘
-                           │ REST API (JWT)
-┌──────────────────────────▼─────────────────────────────┐
-│                    BACKEND                               │
-│  FastAPI + Python 3.11                                  │
-│  ┌──────────┐  ┌──────────┐  ┌──────────────────┐      │
-│  │ API Layer│  │ Services │  │   AI Agents      │      │
-│  │ (routes) │──│ (GitHub, │──│ (Gemini/Groq)    │      │
-│  │          │  │  DB, Auth)│  │                  │      │
-│  └──────────┘  └──────────┘  └──────────────────┘      │
-└──────────────────────────┬─────────────────────────────┘
-                           │
-┌──────────────────────────▼─────────────────────────────┐
-│               SUPABASE (PostgreSQL)                      │
-│  users · projects · tickets · reviews                   │
-│  achievements · user_achievements                       │
-└────────────────────────────────────────────────────────┘
+
+## 🤖 Pipeline de IA
+
+```mermaid
+sequenceDiagram
+    participant U as Usuario
+    participant F as Frontend
+    participant B as Backend
+    participant AI as Gemini AI
+
+    U->>F: Selecciona archivos del repo
+    F->>B: POST /api/projects
+    B->>AI: Code Reviewer (archivos)
+    AI-->>B: { fortalezas, debilidades }
+    B->>AI: Ticket Generator (review)
+    AI-->>B: 3 tickets de mejora
+    B-->>F: Proyecto + tickets creados
+
+    Note over U,AI: El usuario hace commit con mejoras...
+
+    U->>F: Verificar commit
+    F->>B: POST /api/tickets/{id}/verify
+    B-->>F: Ticket pasa a "En revisión"
+
+    U->>F: Iniciar entrevista
+    F->>B: POST /api/interviews/start
+    B->>AI: Tech Lead (ticket + diff)
+    AI-->>B: 2-3 preguntas técnicas
+    B-->>F: Preguntas al usuario
+
+    U->>F: Responde (chat o voz)
+    F->>B: POST /api/interviews/evaluate
+    B->>AI: Evaluator (ticket + diff + Q&A)
+    AI-->>B: Calificación 5D + feedback
+    B-->>F: Resultado + XP
+```
+
+## 🗄️ Modelo de Datos
+
+```mermaid
+erDiagram
+    USERS ||--o{ PROJECTS : "crea"
+    PROJECTS ||--o{ TICKETS : "genera"
+    TICKETS ||--o{ REVIEWS : "tiene"
+    USERS ||--o{ USER_ACHIEVEMENTS : "desbloquea"
+    ACHIEVEMENTS ||--o{ USER_ACHIEVEMENTS : "otorga"
+
+    USERS {
+        uuid id PK
+        text full_name
+        text email UK
+        text password
+        int xp
+        int level
+        int streak
+        text alias
+        text avatar_url
+        timestamp created_at
+    }
+
+    PROJECTS {
+        uuid id PK
+        uuid user_id FK
+        text repo_url
+        text[] archivos_seleccionados
+        timestamp fecha_analisis
+    }
+
+    TICKETS {
+        uuid id PK
+        uuid project_id FK
+        text titulo
+        text descripcion
+        text prioridad
+        text dificultad
+        text tiempo_estimado
+        text estado
+    }
+
+    REVIEWS {
+        uuid id PK
+        uuid ticket_id FK
+        text[] preguntas_generadas
+        text respuesta_usuario
+        text feedback_evaluator
+        boolean aprobado
+        int calificacion
+        jsonb aspectos_evaluados
+        text[] conceptos_a_mejorar
+        timestamp created_at
+    }
+
+    ACHIEVEMENTS {
+        uuid id PK
+        text code UK
+        text name
+        text description
+        text icon
+        text condition_type
+        int condition_value
+    }
+```
+
+## 🎤 Flujo de Entrevista
+
+```mermaid
+stateDiagram-v2
+    [*] --> SeleccionarModo: Click "Iniciar entrevista"
+
+    SeleccionarModo --> Chat: Elige Chat
+    SeleccionarModo --> Voz: Elige Llamada
+
+    state Chat {
+        [*] --> CargarPreguntas
+        CargarPreguntas --> MostrarFormulario
+        MostrarFormulario --> Enviar: Responde y envía
+        Enviar --> Resultado
+    }
+
+    state Voz {
+        [*] --> Saludo: Avatar habla
+        Saludo --> Pregunta1: TTS lee pregunta
+        Pregunta1 --> Escuchar1: Mic activado
+        Escuchar1 --> Pregunta2: "Terminé"
+        Pregunta2 --> Escuchar2: Mic activado
+        Escuchar2 --> Pregunta3: "Terminé"
+        Pregunta3 --> Escuchar3: Mic activado
+        Escuchar3 --> Revision: "Terminé"
+        Revision --> EnviarVoz: Confirma respuestas
+        EnviarVoz --> ResultadoVoz
+    }
+
+    Resultado --> [*]: Volver al dashboard
+    ResultadoVoz --> [*]: Volver al dashboard
 ```
 
 ## 🛠️ Setup Local
@@ -188,10 +325,56 @@ DevCoach-AI/
 
 ## 🏆 Hackathon Kiro 2026
 
-Proyecto desarrollado para el Hackathon Kiro 2026. Evaluado en:
-- **Innovación** — Entrevista técnica por voz con IA sobre tu propio código
-- **Impacto** — Resuelve el gap entre "funciona" y "entiendes por qué funciona"
-- **Funcionalidad** — Flujo completo end-to-end con gamificación
+Proyecto desarrollado para el Hackathon Kiro 2026.
+
+### a) Impacto Tecnológico (30%)
+
+**Problema real que resolvemos:** En la industria del software, el 68% de los desarrolladores no reciben feedback técnico personalizado sobre su código. Los code reviews en equipos son superficiales por falta de tiempo, y los juniors no entienden el "por qué" detrás de las decisiones técnicas.
+
+**Valor que aportamos:**
+- **En educación** — Reemplaza la evaluación genérica por coaching personalizado basado en el código real del estudiante
+- **En empresas** — Reduce el tiempo de onboarding de desarrolladores nuevos al darles un Tech Lead virtual disponible 24/7
+- **En desarrollo individual** — Cierra el gap entre "mi código funciona" y "entiendo por qué funciona así"
+
+La plataforma no evalúa sintaxis — evalúa **comprensión técnica** en 5 dimensiones concretas, lo que ninguna herramienta de linting o CI/CD puede hacer.
+
+### b) Innovación (30%)
+
+**¿Qué existe hoy?**
+| Herramienta | Qué hace | Limitación |
+|-------------|----------|------------|
+| GitHub Copilot | Genera código | No evalúa comprensión |
+| SonarQube | Detecta bugs | No enseña por qué |
+| LeetCode | Ejercicios genéricos | No usa tu código real |
+| Code reviews manuales | Feedback real | No escalan, dependen de personas |
+
+**Ventaja técnica de DevCoach AI:**
+- **Entrevista por voz** — Primera plataforma que te entrevista verbalmente sobre tu propio PR, usando Web Speech API nativa (sin costos de APIs externas de voz)
+- **Evaluación en 5 dimensiones** — No es un "aprobado/rechazado" binario; califica comprensión, justificación, alternativas, limitaciones y comunicación
+- **Pipeline de 4 agentes especializados** — Cada agente tiene un rol definido (análisis, generación, entrevista, evaluación) en vez de un prompt genérico
+- **Zero-config para el usuario** — Solo pega la URL de GitHub, el sistema hace todo lo demás
+- **Gamificación con XP y logros** — Convierte el aprendizaje en un ciclo adictivo de mejora continua
+
+### c) Software Funcional y Entregables (30%)
+
+| Entregable | Estado |
+|------------|--------|
+| ✅ Repositorio público en GitHub | [github.com/Lunisa202/DevCoach-AI](https://github.com/Lunisa202/DevCoach-AI) |
+| ✅ README completo | Con diagramas Mermaid, setup, arquitectura |
+| ✅ Demo en línea | [Enlace de producción] |
+| ✅ Video de presentación | [Enlace al video — máx 5 min] |
+| ✅ Diagramas de arquitectura | 5 diagramas Mermaid (ciclo, arquitectura, pipeline IA, ER, flujo entrevista) |
+| ✅ Código funcional end-to-end | Login → Análisis → Tickets → Entrevista → Evaluación |
+
+### d) Uso de Servicios AWS y Kiro (10%)
+
+| Servicio | Uso en el proyecto |
+|----------|-------------------|
+| **Kiro** | IDE principal de desarrollo — spec-driven development, steering files, hooks de automatización |
+| **Amazon Bedrock** (alternativa a Gemini) | Arquitectura preparada para swap de provider via factory pattern (`AI_PROVIDER` env var) |
+| **AWS Amplify** | Despliegue del frontend (alternativa a Vercel) |
+
+La arquitectura del backend usa el **patrón Factory** para proveedores de IA, lo que permite cambiar entre Gemini, Groq, o Amazon Bedrock con solo modificar una variable de entorno — sin tocar código.
 
 ---
 
