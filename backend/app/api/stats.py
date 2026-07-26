@@ -43,18 +43,27 @@ async def get_user_stats(current_user: dict = Depends(get_current_user)):
         if not project_ids:
             return _empty_stats()
 
-        # Get all tickets across all user projects
+        # Batch: get ALL tickets for all user projects in ONE query
         all_tickets = []
-        for pid in project_ids:
-            from uuid import UUID
-            tickets = await db.get_tickets_by_project(UUID(pid))
-            all_tickets.extend(tickets)
+        tickets_res = (
+            db._client.table("tickets")
+            .select("id, project_id, estado, prioridad, dificultad")
+            .in_("project_id", project_ids)
+            .execute()
+        )
+        all_tickets = tickets_res.data or []
 
-        # Get all reviews across all tickets
+        # Batch: get ALL reviews for all tickets in ONE query
+        ticket_ids = [t["id"] for t in all_tickets]
         all_reviews = []
-        for ticket in all_tickets:
-            reviews = await db.get_reviews_by_ticket(ticket["id"])
-            all_reviews.extend(reviews)
+        if ticket_ids:
+            reviews_res = (
+                db._client.table("reviews")
+                .select("id, ticket_id, aprobado, calificacion, created_at, aspectos_evaluados")
+                .in_("ticket_id", ticket_ids)
+                .execute()
+            )
+            all_reviews = reviews_res.data or []
 
         # Build stats
         total_projects = len(projects)
@@ -115,8 +124,34 @@ async def get_user_stats(current_user: dict = Depends(get_current_user)):
         from datetime import datetime, timedelta
         trends = _build_trends(all_reviews)
 
-        # Build skill radar from reviews
-        skills = await db.get_user_skill_radar(user_id)
+        # Build skill radar from reviews already fetched (no extra queries)
+        import json as _json
+        dimension_scores: dict[str, list[int]] = {}
+        for r in all_reviews:
+            aspectos = r.get("aspectos_evaluados")
+            if not aspectos:
+                continue
+            if isinstance(aspectos, str):
+                try:
+                    aspectos = _json.loads(aspectos)
+                except (ValueError, TypeError):
+                    continue
+            if not isinstance(aspectos, list):
+                continue
+            for asp in aspectos:
+                dim = asp.get("dimension", "").strip()
+                puntaje = asp.get("puntaje")
+                if dim and puntaje is not None:
+                    dimension_scores.setdefault(dim, []).append(int(puntaje))
+
+        skills = []
+        for dim, scores_list in dimension_scores.items():
+            skills.append({
+                "dimension": dim,
+                "score": round(sum(scores_list) / len(scores_list), 1),
+                "max_score": 20,
+                "count": len(scores_list),
+            })
 
         return {
             "total_projects": total_projects,

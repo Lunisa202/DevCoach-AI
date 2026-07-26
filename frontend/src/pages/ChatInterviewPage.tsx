@@ -17,6 +17,7 @@ import { Spinner } from '../components/Spinner'
 import { useSpeechSynthesis } from '../hooks/useSpeechSynthesis'
 import { evaluateAnswers, startInterview } from '../services/interviewService'
 import type { EvaluateResponse } from '../types/interview'
+import { clearCache } from '../utils/apiCache'
 
 const LOADING_MESSAGES = [
   'Tech Lead preparando entrevista...',
@@ -91,6 +92,7 @@ export function ChatInterviewPage() {
       setResult(data)
       if (data.aprobado) {
         toast.success('¡Entrevista aprobada!')
+        clearCache() // Invalidate stats/community cache so dashboard shows fresh data
         if (data.xp_earned) {
           toast.success(`+${data.xp_earned} XP ganados`, { icon: '⭐' })
         }

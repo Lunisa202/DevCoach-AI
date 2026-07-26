@@ -17,6 +17,7 @@ import { useSpeechRecognition } from '../hooks/useSpeechRecognition'
 import { useSpeechSynthesis } from '../hooks/useSpeechSynthesis'
 import { evaluateAnswers, startInterview } from '../services/interviewService'
 import type { EvaluateResponse } from '../types/interview'
+import { clearCache } from '../utils/apiCache'
 import { ResultView } from './ChatInterviewPage'
 
 type Phase = 'loading' | 'greeting' | 'asking' | 'listening' | 'review' | 'evaluating' | 'result'
@@ -192,6 +193,7 @@ export function VoiceInterviewPage() {
       setPhase('result')
       if (data.aprobado) {
         toast.success('¡Entrevista aprobada!')
+        clearCache()
         if (data.xp_earned) {
           toast.success(`+${data.xp_earned} XP ganados`, { icon: '⭐' })
         }

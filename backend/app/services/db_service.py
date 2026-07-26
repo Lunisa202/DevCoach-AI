@@ -1200,6 +1200,9 @@ class DBService:
             # Get completed tickets count
             project_ids = [p["id"] for p in (projects_res.data or [])]
             completed_tickets = 0
+            approved_count = 0
+            max_score = 0
+            ticket_ids: list[str] = []
             if project_ids:
                 tickets_res = (
                     self._client.table("tickets")
@@ -1208,31 +1211,22 @@ class DBService:
                     .execute()
                 )
                 completed_tickets = sum(1 for t in (tickets_res.data or []) if t.get("estado") == "done")
+                ticket_ids = [t["id"] for t in (tickets_res.data or [])]
 
             # Get approved reviews count and max calificacion
-            approved_count = 0
-            max_score = 0
-            if project_ids:
-                tickets_res_full = (
-                    self._client.table("tickets")
-                    .select("id")
-                    .in_("project_id", project_ids)
+            if ticket_ids:
+                reviews_res = (
+                    self._client.table("reviews")
+                    .select("aprobado, calificacion")
+                    .in_("ticket_id", ticket_ids)
                     .execute()
                 )
-                ticket_ids = [t["id"] for t in (tickets_res_full.data or [])]
-                if ticket_ids:
-                    reviews_res = (
-                        self._client.table("reviews")
-                        .select("aprobado, calificacion")
-                        .in_("ticket_id", ticket_ids)
-                        .execute()
-                    )
-                    for r in (reviews_res.data or []):
-                        if r.get("aprobado"):
-                            approved_count += 1
-                            cal = r.get("calificacion") or 0
-                            if cal > max_score:
-                                max_score = cal
+                for r in (reviews_res.data or []):
+                    if r.get("aprobado"):
+                        approved_count += 1
+                        cal = r.get("calificacion") or 0
+                        if cal > max_score:
+                            max_score = cal
 
             # --- Evaluate each achievement ---
 
