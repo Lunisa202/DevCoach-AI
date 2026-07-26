@@ -299,11 +299,22 @@ async def evaluate_answers(
         )
 
     # --- Guardar review en DB ---
+    review_saved = False
     try:
         respuestas_texto = " | ".join(request.answers)
+        # Truncar campos para respetar constraints de la BD
+        if len(respuestas_texto) > 5000:
+            respuestas_texto = respuestas_texto[:4997] + "..."
+        if len(feedback) > 3000:
+            feedback = feedback[:2997] + "..."
+        # Asegurar que preguntas tenga entre 2 y 3 elementos
+        preguntas = request.questions[:3] if len(request.questions) > 3 else request.questions
+        if len(preguntas) < 2:
+            preguntas = preguntas + ["(pregunta no disponible)"] * (2 - len(preguntas))
+
         await db.create_review(
             ticket_id=request.ticket_id,
-            preguntas=request.questions,
+            preguntas=preguntas,
             respuestas=respuestas_texto,
             feedback=feedback,
             aprobado=aprobado,
@@ -311,16 +322,19 @@ async def evaluate_answers(
             aspectos_evaluados=aspectos_evaluados,
             conceptos_a_mejorar=conceptos_a_mejorar,
         )
+        review_saved = True
     except DBServiceError as e:
         logger.error(f"Error saving review: {e}")
+    except Exception as e:
+        logger.error(f"Unexpected error saving review: {e}")
 
-    # --- Actualizar estado del ticket ---
+    # --- Actualizar estado del ticket (solo si la review se guardó) ---
     try:
-        if aprobado:
+        if aprobado and review_saved:
             from uuid import UUID as _UUID
             tid = request.ticket_id if isinstance(request.ticket_id, _UUID) else _UUID(str(request.ticket_id))
             await db.update_ticket_state(tid, EstadoTicket.DONE)
-        # Si no aprobado, se mantiene en in_review (no cambia)
+        # Si no aprobado o review no se guardó, se mantiene en in_review
     except DBServiceError as e:
         logger.error(f"Error updating ticket state: {e}")
     except Exception as e:
@@ -330,7 +344,7 @@ async def evaluate_answers(
     level_up = False
     new_level = None
     new_achievements: list[str] = []
-    if aprobado:
+    if aprobado and review_saved:
         try:
             xp_earned = calificacion if calificacion else 50
             old_level = (await db.get_user_xp_data(current_user["id"])).get("level", 1)
