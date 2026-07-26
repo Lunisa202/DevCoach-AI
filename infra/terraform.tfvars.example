@@ -1,0 +1,22 @@
+# Copy this file to terraform.tfvars and fill in real values
+# terraform.tfvars is in .gitignore — never commit real secrets
+
+aws_region        = "us-east-1"
+app_name          = "devcoach-ai"
+environment       = "production"
+ec2_instance_type = "t2.micro"
+
+# AI Provider — "gemini" or "groq"
+ai_provider    = "gemini"
+gemini_api_key = "AIza..."
+groq_api_key   = ""
+
+# GitHub Personal Access Token
+github_token = "ghp_..."
+
+# Supabase
+supabase_url = "https://xxxxx.supabase.co"
+supabase_key = "eyJ..."
+
+# JWT — generate with: python3 -c "import secrets; print(secrets.token_hex(32))"
+jwt_secret_key = "your-32-char-minimum-secret-key-here"
