@@ -484,7 +484,10 @@ graph TB
 
 **Costo total en AWS Free Tier: $0/mes** (S3, CloudFront, Elastic Beanstalk t2.micro y Secrets Manager dentro de los límites gratuitos).
 
+**Infraestructura como Código:** toda la infraestructura AWS está definida con **Terraform** en la carpeta [`infra/`](./infra), permitiendo despliegues reproducibles y versionados.
+
 > 📄 Documentación detallada de la arquitectura AWS: [`docs/AWS_ARCHITECTURE.md`](./docs/AWS_ARCHITECTURE.md)
+> 📂 Código Terraform de infraestructura: [`infra/`](./infra)
 
 ---
 
