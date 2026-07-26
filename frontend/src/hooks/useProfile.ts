@@ -12,6 +12,9 @@ import {
   removeApiKey,
   updateProfileInfo,
   updateUserAlias,
+  getGitHubTokenStatus,
+  saveGitHubToken,
+  removeGitHubToken,
 } from '../services/profileService'
 import type { RootState } from '../store'
 import type { User } from '../types/auth'
@@ -148,6 +151,39 @@ export function useProfile() {
     }
   }
 
+  const handleGetGitHubTokenStatus = async (): Promise<boolean> => {
+    try {
+      const { has_token } = await getGitHubTokenStatus()
+      return has_token
+    } catch {
+      return false
+    }
+  }
+
+  const handleSaveGitHubToken = async (token: string) => {
+    setIsLoading(true)
+    try {
+      await saveGitHubToken(token)
+      toast.success('GitHub Token guardado')
+    } catch {
+      toast.error('No se pudo guardar el GitHub Token')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleRemoveGitHubToken = async () => {
+    setIsLoading(true)
+    try {
+      await removeGitHubToken()
+      toast.success('GitHub Token eliminado — se usará el del sistema')
+    } catch {
+      toast.error('No se pudo eliminar el GitHub Token')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return {
     user,
     token,
@@ -161,5 +197,8 @@ export function useProfile() {
     removeApiKey: handleRemoveApiKey,
     updateProfileInfo: handleUpdateProfileInfo,
     updateAlias: handleUpdateAlias,
+    getGitHubTokenStatus: handleGetGitHubTokenStatus,
+    saveGitHubToken: handleSaveGitHubToken,
+    removeGitHubToken: handleRemoveGitHubToken,
   }
 }

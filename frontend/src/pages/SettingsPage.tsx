@@ -1,4 +1,4 @@
-import { Eye, EyeOff, GitBranch, KeyRound, Save, Trophy, User, X } from 'lucide-react'
+import { Eye, EyeOff, GitBranch, GitFork, KeyRound, Save, Trophy, User, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { UserAvatar } from '../components/UserAvatar'
@@ -18,6 +18,10 @@ interface ApiKeyFormData {
   gemini_api_key: string
 }
 
+interface GitHubTokenFormData {
+  github_token: string
+}
+
 interface AliasFormData {
   alias: string
 }
@@ -33,6 +37,7 @@ export function SettingsPage() {
       <ProfileInfoSection profile={profile} />
       <PasswordSection profile={profile} />
       <ApiKeySection profile={profile} />
+      <GitHubTokenSection profile={profile} />
     </div>
   )
 }
@@ -322,6 +327,62 @@ function ProfileInfoSection({ profile }: { profile: ReturnType<typeof useProfile
           <Save className="size-4" />{profile.isLoading ? 'Guardando...' : 'Guardar'}
         </button>
       </div>
+    </section>
+  )
+}
+
+
+/* ─── GitHub Token Section ─── */
+function GitHubTokenSection({ profile }: { profile: ReturnType<typeof useProfile> }) {
+  const [showToken, setShowToken] = useState(false)
+  const { register, handleSubmit, formState: { isSubmitting } } = useForm<GitHubTokenFormData>()
+  const [hasToken, setHasToken] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    profile.getGitHubTokenStatus().then(setHasToken)
+  }, [])
+
+  const onSubmit = async (data: GitHubTokenFormData) => {
+    await profile.saveGitHubToken(data.github_token)
+    setHasToken(true)
+  }
+
+  const handleRemove = async () => {
+    await profile.removeGitHubToken()
+    setHasToken(false)
+  }
+
+  return (
+    <section className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 shadow-sm">
+      <div className="flex items-center gap-3 mb-2">
+        <GitFork className="size-5 text-slate-700 dark:text-slate-300" />
+        <h2 className="text-lg font-semibold text-slate-800 dark:text-white">GitHub Token</h2>
+      </div>
+      <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+        Configura tu Personal Access Token de GitHub para evitar límites de velocidad y analizar repos privados.
+      </p>
+
+      {hasToken && (
+        <div className="mb-4 flex items-center gap-2 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 px-3 py-2">
+          <span className="size-2 rounded-full bg-emerald-500" />
+          <span className="text-sm text-emerald-700 dark:text-emerald-400">Tienes un GitHub Token configurado</span>
+          <button onClick={handleRemove} className="ml-auto text-xs text-red-500 hover:text-red-700 font-medium">Eliminar</button>
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{hasToken ? 'Reemplazar Token' : 'GitHub Personal Access Token'}</label>
+          <div className="relative">
+            <input type={showToken ? 'text' : 'password'} placeholder="ghp_xxxxxxxxxxxx..." {...register('github_token', { required: true, minLength: 5 })} className="w-full px-4 py-2.5 pr-10 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none font-mono" />
+            <button type="button" onClick={() => setShowToken(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">{showToken ? <EyeOff className="size-4" /> : <Eye className="size-4" />}</button>
+          </div>
+          <p className="mt-1 text-xs text-slate-400">Genera uno en GitHub → Settings → Developer settings → Personal access tokens (classic). Scope recomendado: <code className="bg-slate-100 dark:bg-slate-700 px-1 rounded">repo</code></p>
+        </div>
+        <button type="submit" disabled={isSubmitting} className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white text-sm font-medium rounded-lg transition-colors">
+          <Save className="size-4" />{isSubmitting ? 'Guardando...' : 'Guardar Token'}
+        </button>
+      </form>
     </section>
   )
 }

@@ -44,3 +44,18 @@ export async function updateUserAlias(alias: string | null): Promise<User> {
   const { data } = await axiosClient.put<User>('/api/auth/alias', { alias })
   return data
 }
+
+// --- GitHub Token ---
+
+export async function getGitHubTokenStatus(): Promise<{ has_token: boolean }> {
+  const { data } = await axiosClient.get<{ has_token: boolean }>('/api/auth/github-token-status')
+  return data
+}
+
+export async function saveGitHubToken(githubToken: string): Promise<void> {
+  await axiosClient.put('/api/auth/github-token', { github_token: githubToken })
+}
+
+export async function removeGitHubToken(): Promise<void> {
+  await axiosClient.delete('/api/auth/github-token')
+}
