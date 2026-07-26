@@ -84,14 +84,31 @@ async def start_interview(
 
     owner, repo = match.group(1), match.group(2)
 
-    from app.services.github_service import GitHubService, GitHubServiceError
+    from app.services.github_service import (
+        GitHubService,
+        GitHubServiceError,
+        GitHubTimeoutError,
+        RateLimitExceededError,
+    )
     github = GitHubService(token=settings.GITHUB_TOKEN)
 
     try:
         commit = await github.get_last_commit(owner, repo)
+    except RateLimitExceededError as e:
+        logger.error(f"GitHub rate limit for interview: {e}")
+        raise HTTPException(
+            status_code=429,
+            detail="Se excedió el límite de peticiones a GitHub. Espera unos minutos e intenta de nuevo."
+        )
+    except GitHubTimeoutError as e:
+        logger.error(f"GitHub timeout for interview: {e}")
+        raise HTTPException(
+            status_code=503,
+            detail="GitHub tardó demasiado en responder. Intenta de nuevo en unos segundos."
+        )
     except GitHubServiceError as e:
         logger.error(f"GitHub error getting commit for interview: {e}")
-        raise HTTPException(status_code=503, detail="No se pudo obtener el diff del commit")
+        raise HTTPException(status_code=503, detail=f"No se pudo obtener el diff del commit: {e}")
 
     # Construir diff relevante
     project_files = set(project["archivos_seleccionados"])

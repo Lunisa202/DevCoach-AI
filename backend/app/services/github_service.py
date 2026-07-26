@@ -25,8 +25,13 @@ USO DESDE OTROS ARCHIVOS:
     content = await github.get_file_content("owner", "repo", "src/main.py")
 """
 
+import asyncio
 import base64
+import logging
+
 import httpx
+
+logger = logging.getLogger(__name__)
 
 # ============================================================
 # EXCEPCIONES PERSONALIZADAS
@@ -74,9 +79,12 @@ class GitHubService:
     # URL base de la API REST v3 de GitHub
     BASE_URL = "https://api.github.com"
 
-    # Timeout global: si GitHub no responde en 10 segundos, abortamos.
-    # Esto evita que el backend se quede "colgado" esperando indefinidamente.
-    TIMEOUT = 10.0
+    # Timeout global: 25 segundos para dar margen a diffs grandes.
+    TIMEOUT = 25.0
+
+    # Reintentos automáticos ante errores transitorios (timeout, 5xx).
+    MAX_RETRIES = 3
+    RETRY_BACKOFF = 1.5  # segundos base entre reintentos (exponencial)
 
     def __init__(self, token: str = ""):
         """
@@ -109,58 +117,88 @@ class GitHubService:
 
     async def _request(self, method: str, path: str) -> dict | list:
         """
-        Hace una petición HTTP a la API de GitHub y devuelve el JSON parseado.
+        Hace una petición HTTP a la API de GitHub con reintentos automáticos.
         
         LÓGICA:
         1. Construye la URL completa (BASE_URL + path).
         2. Envía la petición con headers de autenticación.
-        3. Si hay timeout → lanza GitHubTimeoutError.
-        4. Si GitHub responde 404 → lanza RepoNotFoundError.
-        5. Si responde 403/429 (rate limit) → lanza RateLimitExceededError.
+        3. Si hay timeout o error 5xx → reintenta hasta MAX_RETRIES veces
+           con backoff exponencial.
+        4. Si GitHub responde 404 → lanza RepoNotFoundError (sin reintentar).
+        5. Si responde 403/429 (rate limit) → lanza RateLimitExceededError (sin reintentar).
         6. Cualquier otro error HTTP → lanza GitHubServiceError genérico.
         7. Si todo bien → devuelve el JSON como diccionario o lista.
         """
         url = f"{self.BASE_URL}{path}"
+        last_error: Exception | None = None
 
-        try:
-            # httpx.AsyncClient se crea por petición para no mantener
-            # conexiones abiertas entre llamadas (más simple, menos bugs).
-            async with httpx.AsyncClient(timeout=self.TIMEOUT) as client:
-                response = await client.request(
-                    method=method,
-                    url=url,
-                    headers=self._headers,
+        for attempt in range(1, self.MAX_RETRIES + 1):
+            try:
+                async with httpx.AsyncClient(timeout=self.TIMEOUT) as client:
+                    response = await client.request(
+                        method=method,
+                        url=url,
+                        headers=self._headers,
+                    )
+
+            except httpx.TimeoutException:
+                last_error = GitHubTimeoutError(
+                    f"GitHub no respondió en {self.TIMEOUT}s para: {path}"
+                )
+                logger.warning(
+                    f"[GitHub] Timeout en intento {attempt}/{self.MAX_RETRIES} para {path}"
+                )
+                if attempt < self.MAX_RETRIES:
+                    await asyncio.sleep(self.RETRY_BACKOFF * attempt)
+                    continue
+                raise last_error
+
+            except httpx.RequestError as e:
+                last_error = GitHubServiceError(f"Error de conexión con GitHub: {e}")
+                logger.warning(
+                    f"[GitHub] Error de red en intento {attempt}/{self.MAX_RETRIES} para {path}: {e}"
+                )
+                if attempt < self.MAX_RETRIES:
+                    await asyncio.sleep(self.RETRY_BACKOFF * attempt)
+                    continue
+                raise last_error
+
+            # --- Manejo de códigos HTTP de error ---
+
+            if response.status_code == 404:
+                raise RepoNotFoundError(f"No se encontró: {path}")
+
+            if response.status_code in (403, 429):
+                remaining = response.headers.get("X-RateLimit-Remaining", "?")
+                raise RateLimitExceededError(
+                    f"Rate limit excedido (remaining: {remaining}). "
+                    f"Espera unos minutos o verifica tu GITHUB_TOKEN."
                 )
 
-        except httpx.TimeoutException:
-            # GitHub no respondió en 10 segundos
-            raise GitHubTimeoutError(
-                f"GitHub no respondió en {self.TIMEOUT}s para: {path}"
-            )
-        except httpx.RequestError as e:
-            # Error de red (DNS, conexión rechazada, etc.)
-            raise GitHubServiceError(f"Error de conexión con GitHub: {e}")
+            # Errores 5xx de GitHub → reintentar
+            if response.status_code >= 500:
+                last_error = GitHubServiceError(
+                    f"GitHub respondió con error {response.status_code} para: {path}"
+                )
+                logger.warning(
+                    f"[GitHub] Error {response.status_code} en intento {attempt}/{self.MAX_RETRIES} para {path}"
+                )
+                if attempt < self.MAX_RETRIES:
+                    await asyncio.sleep(self.RETRY_BACKOFF * attempt)
+                    continue
+                raise last_error
 
-        # --- Manejo de códigos HTTP de error ---
+            if response.status_code >= 400:
+                raise GitHubServiceError(
+                    f"GitHub respondió con error {response.status_code} para: {path}"
+                )
 
-        if response.status_code == 404:
-            raise RepoNotFoundError(f"No se encontró: {path}")
+            # Éxito
+            logger.debug(f"[GitHub] OK {method} {path} (intento {attempt})")
+            return response.json()
 
-        if response.status_code in (403, 429):
-            # 403 con X-RateLimit-Remaining: 0 significa rate limit
-            # 429 es "Too Many Requests" (más explícito)
-            remaining = response.headers.get("X-RateLimit-Remaining", "?")
-            raise RateLimitExceededError(
-                f"Rate limit excedido (remaining: {remaining}). "
-                f"Espera unos minutos o verifica tu GITHUB_TOKEN."
-            )
-
-        if response.status_code >= 400:
-            raise GitHubServiceError(
-                f"GitHub respondió con error {response.status_code} para: {path}"
-            )
-
-        return response.json()
+        # No debería llegar aquí, pero por seguridad:
+        raise last_error or GitHubServiceError(f"Fallo inesperado para: {path}")
 
     # ---------------------------------------------------------------
     # MÉTODO PÚBLICO: validate_repo
