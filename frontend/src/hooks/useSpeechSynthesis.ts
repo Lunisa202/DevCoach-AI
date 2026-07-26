@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 
 interface UseSpeechSynthesisReturn {
   speak: (text: string) => Promise<void>
@@ -9,6 +9,13 @@ interface UseSpeechSynthesisReturn {
 export function useSpeechSynthesis(): UseSpeechSynthesisReturn {
   const [isSpeaking, setIsSpeaking] = useState(false)
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null)
+
+  // Cleanup on unmount — stop any ongoing speech
+  useEffect(() => {
+    return () => {
+      window.speechSynthesis.cancel()
+    }
+  }, [])
 
   const speak = useCallback((text: string): Promise<void> => {
     return new Promise((resolve, reject) => {
