@@ -325,6 +325,13 @@ DevCoach-AI/
 └── docs/                    ← Documentación del proyecto
 ```
 
+### 📚 Documentación adicional
+
+| Documento | Contenido |
+|-----------|-----------|
+| [`docs/AWS_ARCHITECTURE.md`](./docs/AWS_ARCHITECTURE.md) | Arquitectura AWS detallada (S3, CloudFront, Elastic Beanstalk, Secrets Manager, costos) |
+| [`docs/TAREAS_COMPLETADAS.md`](./docs/TAREAS_COMPLETADAS.md) | Registro de las 43 tareas implementadas + reglas de diseño del frontend |
+
 ## 👥 Equipo
 
 <table>
