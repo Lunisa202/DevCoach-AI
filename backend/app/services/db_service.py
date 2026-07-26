@@ -717,6 +717,59 @@ class DBService:
             return None
 
     # ---------------------------------------------------------------
+    # GITHUB TOKEN PER USER
+    # ---------------------------------------------------------------
+
+    async def save_user_github_token(self, user_id: str, token: str) -> None:
+        """Save user's personal GitHub token."""
+        try:
+            result = (
+                self._client.table("users")
+                .update({"github_token": token})
+                .eq("id", user_id)
+                .execute()
+            )
+            if not result.data:
+                raise DBServiceError("Usuario no encontrado")
+        except DBServiceError:
+            raise
+        except Exception as e:
+            logger.error(f"Error saving GitHub token for {user_id}: {e}")
+            raise DBServiceError("No se pudo guardar el GitHub token")
+
+    async def delete_user_github_token(self, user_id: str) -> None:
+        """Remove user's personal GitHub token."""
+        try:
+            result = (
+                self._client.table("users")
+                .update({"github_token": None})
+                .eq("id", user_id)
+                .execute()
+            )
+            if not result.data:
+                raise DBServiceError("Usuario no encontrado")
+        except DBServiceError:
+            raise
+        except Exception as e:
+            logger.error(f"Error deleting GitHub token for {user_id}: {e}")
+            raise DBServiceError("No se pudo eliminar el GitHub token")
+
+    async def get_user_github_token(self, user_id: str) -> str | None:
+        """Get user's personal GitHub token, or None if not set."""
+        try:
+            result = (
+                self._client.table("users")
+                .select("github_token")
+                .eq("id", user_id)
+                .execute()
+            )
+            if not result.data:
+                return None
+            return result.data[0].get("github_token")
+        except Exception:
+            return None
+
+    # ---------------------------------------------------------------
     # RANKING / LEADERBOARD
     # ---------------------------------------------------------------
 

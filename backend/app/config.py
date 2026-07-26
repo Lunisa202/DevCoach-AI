@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     AI_PROVIDER: str
     GEMINI_API_KEY: str = ""
     GROQ_API_KEY: str = ""
-    GITHUB_TOKEN: str
+    GITHUB_TOKEN: str = ""
     SUPABASE_URL: str
     SUPABASE_KEY: str
 

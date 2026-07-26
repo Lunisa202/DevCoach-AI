@@ -90,7 +90,9 @@ async def start_interview(
         GitHubTimeoutError,
         RateLimitExceededError,
     )
-    github = GitHubService(token=settings.GITHUB_TOKEN)
+    # Resolve GitHub token: user's personal token or server fallback
+    user_github_token = await db.get_user_github_token(current_user["id"])
+    github = GitHubService(token=user_github_token or settings.GITHUB_TOKEN)
 
     try:
         commit = await github.get_last_commit(owner, repo)
@@ -233,7 +235,8 @@ async def evaluate_answers(
     if match:
         owner, repo = match.group(1), match.group(2)
         from app.services.github_service import GitHubService, GitHubServiceError
-        github = GitHubService(token=settings.GITHUB_TOKEN)
+        user_gh_token = await db.get_user_github_token(current_user["id"])
+        github = GitHubService(token=user_gh_token or settings.GITHUB_TOKEN)
         try:
             commit = await github.get_last_commit(owner, repo)
             project_files = set(project["archivos_seleccionados"])

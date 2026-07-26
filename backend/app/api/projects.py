@@ -42,6 +42,13 @@ logger = logging.getLogger(__name__)
 # Router agrupa estos endpoints — se registra en main.py con prefijo /api/projects
 router = APIRouter(prefix="/api/projects", tags=["Projects"])
 
+
+async def _resolve_github_token(user_id: str, settings) -> str:
+    """Resolve GitHub token: user's personal token first, then server fallback."""
+    db = DBService(url=settings.SUPABASE_URL, key=settings.SUPABASE_KEY)
+    user_token = await db.get_user_github_token(user_id)
+    return user_token or settings.GITHUB_TOKEN
+
 # ============================================================
 # REGEX para validar formato de URL de GitHub
 # ============================================================
@@ -132,7 +139,8 @@ async def validate_repo(
 
     # --- Paso 2: Verificar contra GitHub API ---
     settings = get_settings()
-    github = GitHubService(token=settings.GITHUB_TOKEN)
+    token = await _resolve_github_token(current_user["id"], settings)
+    github = GitHubService(token=token)
 
     try:
         await github.validate_repo(owner, repo)
@@ -206,7 +214,8 @@ async def create_project(
     owner, repo = parsed
 
     settings = get_settings()
-    github = GitHubService(token=settings.GITHUB_TOKEN)
+    token = await _resolve_github_token(current_user["id"], settings)
+    github = GitHubService(token=token)
     db = DBService(url=settings.SUPABASE_URL, key=settings.SUPABASE_KEY)
 
     # --- Paso 2: Crear proyecto en DB ---
@@ -424,7 +433,8 @@ async def get_repo_tree(
     El frontend (FileSelector) usa esto para mostrar el árbol con checkboxes.
     """
     settings = get_settings()
-    github = GitHubService(token=settings.GITHUB_TOKEN)
+    token = await _resolve_github_token(current_user["id"], settings)
+    github = GitHubService(token=token)
 
     try:
         tree = await github.get_tree(owner, repo)

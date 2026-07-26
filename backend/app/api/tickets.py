@@ -90,7 +90,10 @@ async def verify_ticket(
     """
     settings = get_settings()
     db = DBService(url=settings.SUPABASE_URL, key=settings.SUPABASE_KEY)
-    github = GitHubService(token=settings.GITHUB_TOKEN)
+
+    # Resolve GitHub token: user's personal token or server fallback
+    user_token = await db.get_user_github_token(current_user["id"])
+    github = GitHubService(token=user_token or settings.GITHUB_TOKEN)
 
     # --- Paso 1: Obtener ticket ---
     try:

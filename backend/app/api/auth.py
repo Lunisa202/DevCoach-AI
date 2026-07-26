@@ -300,6 +300,68 @@ async def delete_api_key(current_user: dict = Depends(get_current_user)):
     return {"message": "API key eliminada"}
 
 
+# ---------------------------------------------------------------
+# GITHUB TOKEN — Token personal de GitHub por usuario
+# ---------------------------------------------------------------
+
+
+class GitHubTokenUpdate(BaseModel):
+    """Request body for saving user's personal GitHub token."""
+    github_token: str = Field(min_length=5, max_length=300)
+
+
+@router.get(
+    "/github-token-status",
+    summary="Verificar si el usuario tiene GitHub token configurado",
+)
+async def github_token_status(current_user: dict = Depends(get_current_user)):
+    """Devuelve si el usuario tiene un GitHub token propio configurado."""
+    settings = get_settings()
+    db = DBService(url=settings.SUPABASE_URL, key=settings.SUPABASE_KEY)
+
+    token = await db.get_user_github_token(current_user["id"])
+    return {"has_token": token is not None and len(token) > 0}
+
+
+@router.put(
+    "/github-token",
+    summary="Guardar GitHub token personal del usuario",
+)
+async def update_github_token(
+    request: GitHubTokenUpdate,
+    current_user: dict = Depends(get_current_user),
+):
+    """Guarda el GitHub Personal Access Token del usuario. Se usa para evitar rate limits y acceder a repos privados."""
+    settings = get_settings()
+    db = DBService(url=settings.SUPABASE_URL, key=settings.SUPABASE_KEY)
+
+    try:
+        await db.save_user_github_token(current_user["id"], request.github_token)
+    except DBServiceError as e:
+        logger.error(f"Error saving GitHub token: {e}")
+        raise HTTPException(status_code=500, detail="No se pudo guardar el GitHub token")
+
+    return {"message": "GitHub token guardado"}
+
+
+@router.delete(
+    "/github-token",
+    summary="Eliminar GitHub token personal del usuario",
+)
+async def delete_github_token(current_user: dict = Depends(get_current_user)):
+    """Elimina el GitHub token personal, volviendo a usar el del sistema."""
+    settings = get_settings()
+    db = DBService(url=settings.SUPABASE_URL, key=settings.SUPABASE_KEY)
+
+    try:
+        await db.delete_user_github_token(current_user["id"])
+    except DBServiceError as e:
+        logger.error(f"Error deleting GitHub token: {e}")
+        raise HTTPException(status_code=500, detail="No se pudo eliminar el GitHub token")
+
+    return {"message": "GitHub token eliminado"}
+
+
 @router.put(
     "/alias",
     summary="Configurar el alias público del usuario (usado en el ranking)",
