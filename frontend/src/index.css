@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Prevent horizontal scroll from absolutely-positioned decorative blobs */
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
 /* Landing page audio bars animation */
 @keyframes audioWave {
   0%, 100% {
