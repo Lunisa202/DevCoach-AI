@@ -15,6 +15,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { SkillRadar } from '../components/SkillRadar'
 import { useProjects } from '../hooks/useProjects'
 import axiosClient from '../services/axiosClient'
+import { getCached, setCache } from '../utils/apiCache'
 import { getProjectTickets } from '../services/projectService'
 import type { RootState } from '../store'
 import type { ProjectResponse, TicketResponse } from '../types/project'
@@ -63,11 +64,20 @@ export function HomePage() {
   const { projects, isLoading: loadingProjects } = useProjects()
   const navigate = useNavigate()
 
-  // Fetch stats globales
+  // Fetch stats globales (cached 30s)
   useEffect(() => {
+    const cached = getCached<Stats>('user-stats')
+    if (cached) {
+      setStats(cached)
+      setLoadingStats(false)
+      return
+    }
     axiosClient
       .get('/api/stats')
-      .then((res) => setStats(res.data))
+      .then((res) => {
+        setStats(res.data)
+        setCache('user-stats', res.data)
+      })
       .catch(() => {})
       .finally(() => setLoadingStats(false))
   }, [])
@@ -528,8 +538,18 @@ function CommunityFeed() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    const cached = getCached<typeof events>('community-feed', 60_000)
+    if (cached) {
+      setEvents(cached)
+      setLoading(false)
+      return
+    }
     axiosClient.get('/api/community/feed?limit=10')
-      .then(res => setEvents(res.data.events || []))
+      .then(res => {
+        const data = res.data.events || []
+        setEvents(data)
+        setCache('community-feed', data)
+      })
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [])

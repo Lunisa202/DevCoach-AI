@@ -1,7 +1,12 @@
 """DevCoach AI — FastAPI application entry point."""
 
+import logging
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+# Configure logging so logger.info() is visible
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(name)s — %(message)s")
 
 from app.api.ai_debug import router as ai_debug_router
 from app.config import get_settings

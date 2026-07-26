@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Link, Navigate, Outlet, useLocation } from 'react-router-dom'
 import axiosClient from '../services/axiosClient'
+import { getCached, setCache } from '../utils/apiCache'
 import type { RootState } from '../store'
 import { Sidebar } from './Sidebar'
 
@@ -31,8 +32,17 @@ export function AppLayout() {
 
   useEffect(() => {
     if (!isAuthenticated) return
+    // Check cache first (60s TTL for api-key-status)
+    const cached = getCached<{ has_key: boolean }>('api-key-status', 60_000)
+    if (cached !== null) {
+      if (!cached.has_key) setShowBanner(true)
+      return
+    }
     axiosClient.get('/api/auth/api-key-status')
-      .then(res => { if (!res.data.has_key) setShowBanner(true) })
+      .then(res => {
+        setCache('api-key-status', res.data)
+        if (!res.data.has_key) setShowBanner(true)
+      })
       .catch(() => {})
   }, [isAuthenticated])
 

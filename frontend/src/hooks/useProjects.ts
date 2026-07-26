@@ -33,7 +33,10 @@ export function useProjects() {
   }
 
   useEffect(() => {
-    loadProjects()
+    // Only fetch if we don't already have projects in the store
+    if (projects.length === 0) {
+      loadProjects()
+    }
   }, [])
 
   return {
