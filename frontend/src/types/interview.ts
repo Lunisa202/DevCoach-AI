@@ -15,6 +15,10 @@ export interface EvaluateResponse {
   calificacion: number  // 0-100
   aspectos_evaluados: DimensionScore[]
   conceptos_a_mejorar: string[]
+  xp_earned?: number
+  level_up?: boolean
+  new_level?: number
+  new_achievements?: string[]
 }
 
 export interface ReviewDetailed {

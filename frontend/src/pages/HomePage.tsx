@@ -116,7 +116,7 @@ export function HomePage() {
 
   const firstName = (user?.full_name ?? 'Dev').split(' ')[0]
 
-  const s = stats ?? {
+  const s: Stats = stats ?? {
     total_projects: 0,
     total_tickets: 0,
     tickets_by_state: { to_do: 0, in_review: 0, done: 0 },
@@ -126,6 +126,13 @@ export function HomePage() {
     approved_reviews: 0,
     avg_score: null,
     recent_reviews: [],
+    xp: 0,
+    level: 1,
+    xp_progress: 0,
+    xp_needed: 0,
+    current_streak: 0,
+    trends: [],
+    skills: [],
   }
 
   const pendingTickets = s.tickets_by_state.to_do + s.tickets_by_state.in_review
