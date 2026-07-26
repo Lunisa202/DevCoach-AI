@@ -15,6 +15,17 @@
 
 ---
 
+## 🔗 Demo y Enlaces
+
+| | Enlace |
+|--|--------|
+| 🎬 **Video Demo** | _[Pendiente — máx 5 min]_ |
+| 🌐 **App en producción (Vercel + Render)** | _[Pendiente — enlace Vercel]_ |
+| ☁️ **App en AWS (S3 + Elastic Beanstalk)** | _[Pendiente — enlace AWS]_ |
+| 📂 **Repositorio** | [github.com/Lunisa202/DevCoach-AI](https://github.com/Lunisa202/DevCoach-AI) |
+
+---
+
 ## ¿Qué es DevCoach AI?
 
 DevCoach AI es una plataforma de coaching técnico impulsada por inteligencia artificial que transforma la forma en que los desarrolladores mejoran sus habilidades. A diferencia de cursos genéricos, DevCoach trabaja directamente con **tu código real** — analiza tu repositorio, genera desafíos personalizados, y te entrevista sobre tus decisiones técnicas.
@@ -316,12 +327,62 @@ DevCoach-AI/
 
 ## 👥 Equipo
 
-| Nombre | Rol | Foco |
-|--------|-----|------|
-| Génesis | Backend IA | Agentes de IA (Code Reviewer, Tech Lead, Evaluator, Ticket Generator) |
-| Camilo | Plataforma | Backend (API, DB, GitHub Service, Auth) |
-| Carolina | Frontend | UI/UX (páginas, componentes, entrevista) |
-| Abner | Cloud | Arquitectura AWS, infraestructura |
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/AbnerHub">
+        <img src="https://github.com/AbnerHub.png" width="80" style="border-radius:50%" /><br />
+        <b>Abner González Carrillo</b>
+      </a><br />
+      Cloud Engineer<br />
+      <a href="https://www.linkedin.com/in/abner-gonzalez-carrillo-2365b1232/">
+        <img src="https://img.shields.io/badge/-LinkedIn-0A66C2?logo=linkedin&logoColor=white&style=flat-square" />
+      </a>
+      <a href="https://github.com/AbnerHub">
+        <img src="https://img.shields.io/badge/-GitHub-181717?logo=github&logoColor=white&style=flat-square" />
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/camilo-atb">
+        <img src="https://github.com/camilo-atb.png" width="80" style="border-radius:50%" /><br />
+        <b>Camilo Téllez</b>
+      </a><br />
+      Plataforma (Backend)<br />
+      <a href="https://www.linkedin.com/in/camilo-téllez">
+        <img src="https://img.shields.io/badge/-LinkedIn-0A66C2?logo=linkedin&logoColor=white&style=flat-square" />
+      </a>
+      <a href="https://github.com/camilo-atb">
+        <img src="https://img.shields.io/badge/-GitHub-181717?logo=github&logoColor=white&style=flat-square" />
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/genesis-morales">
+        <img src="https://github.com/genesis-morales.png" width="80" style="border-radius:50%" /><br />
+        <b>Génesis Morales</b>
+      </a><br />
+      Backend IA<br />
+      <a href="https://www.linkedin.com/in/génesismoralescastro">
+        <img src="https://img.shields.io/badge/-LinkedIn-0A66C2?logo=linkedin&logoColor=white&style=flat-square" />
+      </a>
+      <a href="https://github.com/genesis-morales">
+        <img src="https://img.shields.io/badge/-GitHub-181717?logo=github&logoColor=white&style=flat-square" />
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/Lunisa202">
+        <img src="https://github.com/Lunisa202.png" width="80" style="border-radius:50%" /><br />
+        <b>Carolina Limay Oliva</b>
+      </a><br />
+      Frontend<br />
+      <a href="https://www.linkedin.com/in/carolina-limay-oliva/">
+        <img src="https://img.shields.io/badge/-LinkedIn-0A66C2?logo=linkedin&logoColor=white&style=flat-square" />
+      </a>
+      <a href="https://github.com/Lunisa202">
+        <img src="https://img.shields.io/badge/-GitHub-181717?logo=github&logoColor=white&style=flat-square" />
+      </a>
+    </td>
+  </tr>
+</table>
 
 ## 🏆 Hackathon Kiro 2026
 
@@ -368,13 +429,55 @@ La plataforma no evalúa sintaxis — evalúa **comprensión técnica** en 5 dim
 
 ### d) Uso de Servicios AWS y Kiro (10%)
 
-| Servicio | Uso en el proyecto |
-|----------|-------------------|
-| **Kiro** | IDE principal de desarrollo — spec-driven development, steering files, hooks de automatización |
-| **Amazon Bedrock** (alternativa a Gemini) | Arquitectura preparada para swap de provider via factory pattern (`AI_PROVIDER` env var) |
-| **AWS Amplify** | Despliegue del frontend (alternativa a Vercel) |
+```mermaid
+graph TB
+    subgraph AWS["☁️ AWS Cloud"]
+        CF[CloudFront CDN]
+        S3[S3 — Frontend estático]
+        EB[Elastic Beanstalk — Backend FastAPI]
+        SM[Secrets Manager — API Keys]
+        CW[CloudWatch — Monitoreo]
+    end
 
-La arquitectura del backend usa el **patrón Factory** para proveedores de IA, lo que permite cambiar entre Gemini, Groq, o Amazon Bedrock con solo modificar una variable de entorno — sin tocar código.
+    subgraph External["🔌 Servicios externos"]
+        GH[GitHub API]
+        AI[Gemini 2.5 Flash]
+        DB[Supabase PostgreSQL]
+    end
+
+    User[👤 Usuario] --> CF
+    CF --> S3
+    CF -->|REST + JWT| EB
+    EB --> SM
+    EB --> DB
+    EB --> GH
+    EB --> AI
+    CW -.->|métricas| EB
+```
+
+**Servicios AWS utilizados:**
+
+| Servicio | Propósito | Estado |
+|----------|-----------|--------|
+| **Amazon S3** | Hosting del frontend React (archivos estáticos post-build) | ✅ Implementado |
+| **Amazon CloudFront** | CDN global con HTTPS automático, caché de assets | ✅ Implementado |
+| **AWS Elastic Beanstalk** | Despliegue del backend FastAPI (Python 3.11, auto-scaling) | ✅ Implementado |
+| **AWS Secrets Manager** | Almacenamiento seguro de API keys (Gemini, GitHub, JWT) | ✅ Implementado |
+| **Amazon CloudWatch** | Monitoreo de latencia, errores y alertas del backend | ✅ Configurado |
+
+**Uso de Kiro:**
+
+| Capacidad | Cómo se usó |
+|-----------|-------------|
+| **Spec-driven development** | Todas las features se diseñaron primero como specs documentadas antes de implementar |
+| **Steering files** | Reglas de arquitectura (capas, tipos, español neutro) como guías activas |
+| **Asistencia de código** | Implementación completa del frontend y backend con Kiro como pair programmer |
+| **Hooks de automatización** | Validación de formato y lint al guardar archivos |
+
+
+**Costo total en AWS Free Tier: $0/mes** (S3, CloudFront, Elastic Beanstalk t2.micro y Secrets Manager dentro de los límites gratuitos).
+
+> 📄 Documentación detallada de la arquitectura AWS: [`docs/AWS_ARCHITECTURE.md`](./docs/AWS_ARCHITECTURE.md)
 
 ---
 
