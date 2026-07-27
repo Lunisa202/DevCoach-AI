@@ -9,7 +9,12 @@ output "frontend_url" {
 }
 
 output "backend_url" {
-  description = "Public URL of the FastAPI backend via Elastic Beanstalk"
+  description = "Public URL of the FastAPI backend via CloudFront HTTPS proxy"
+  value       = "https://${aws_cloudfront_distribution.backend.domain_name}"
+}
+
+output "backend_url_direct" {
+  description = "Direct HTTP URL of the backend (Elastic Beanstalk, no HTTPS)"
   value       = "http://${aws_elastic_beanstalk_environment.backend.cname}"
 }
 
