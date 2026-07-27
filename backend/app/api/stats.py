@@ -203,9 +203,9 @@ def _build_trends(all_reviews: list[dict]) -> list[dict]:
 
     Returns a list of {week: "Jul 14", avg: 78} sorted chronologically.
     """
-    from datetime import datetime, timedelta
+    from datetime import datetime, timedelta, timezone
 
-    now = datetime.now()
+    now = datetime.now(timezone.utc).replace(tzinfo=None)  # UTC naive for comparison
     # Get reviews with calificacion and created_at
     scored = [
         r for r in all_reviews
