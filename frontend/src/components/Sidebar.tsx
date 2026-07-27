@@ -141,7 +141,7 @@ export function Sidebar({ isOpen, onClose }: Props) {
           <button
             onClick={() => { navigate(`/profile/${user?.id}`); onClose() }}
             className={`w-full py-2 px-3 text-sm rounded-lg transition-colors flex items-center gap-2 ${
-              location.pathname.startsWith('/profile/')
+              location.pathname === `/profile/${user?.id}`
                 ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-medium'
                 : 'text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-700/50'
             }`}
