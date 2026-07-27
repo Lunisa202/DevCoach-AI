@@ -270,13 +270,18 @@ export function HomePage() {
 
       {/* ═══ Trends Chart + Skill Radar ═══ */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
-        {s.trends && s.trends.some(t => t.avg !== null) && (
-          <div className="bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700/50 rounded-2xl p-6">
-            <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-1">Evolución de calificaciones</h3>
-            <p className="text-slate-500 dark:text-slate-400 text-xs mb-4">Promedio semanal de tus entrevistas</p>
+        <div className="bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700/50 rounded-2xl p-6">
+          <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-1">Evolución de calificaciones</h3>
+          <p className="text-slate-500 dark:text-slate-400 text-xs mb-4">Promedio semanal de tus entrevistas</p>
+          {s.trends && s.trends.some(t => t.avg !== null) ? (
             <TrendsChart data={s.trends} />
-          </div>
-        )}
+          ) : (
+            <div className="flex flex-col items-center justify-center h-[200px] text-center">
+              <p className="text-slate-400 dark:text-slate-500 text-sm">Sin datos aún</p>
+              <p className="text-slate-400 dark:text-slate-500 text-xs mt-1">Aprueba entrevistas para ver tu progreso semanal</p>
+            </div>
+          )}
+        </div>
         <SkillRadarSection skills={s.skills} />
       </div>
 
