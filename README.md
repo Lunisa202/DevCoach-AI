@@ -19,8 +19,8 @@
 
 | | Enlace |
 |--|--------|
-| 🎬 **Video Demo** | _[Pendiente — máx 5 min]_ |
-| 🌐 **App en producción (Vercel + Render)** | _[Pendiente — enlace Vercel]_ |
+| 🎬 **Video Demo** | [Video demo](https://drive.google.com/file/d/1QwcC1rgUkxyxGk3NzQoSx1nSbP_9rMhF/view) |
+| 🌐 **App en producción (Vercel + Render)** | [Deploy in vercel](https://devcoach-ai-frontend.vercel.app/)_ |
 | ☁️ **App en AWS (S3 + Elastic Beanstalk)** | _[Pendiente — enlace AWS]_ |
 | 📂 **Repositorio** | [github.com/Lunisa202/DevCoach-AI](https://github.com/Lunisa202/DevCoach-AI) |
 
