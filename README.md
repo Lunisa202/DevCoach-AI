@@ -429,8 +429,8 @@ La plataforma no evalúa sintaxis — evalúa **comprensión técnica** en 5 dim
 |------------|--------|
 | ✅ Repositorio público en GitHub | [github.com/Lunisa202/DevCoach-AI](https://github.com/Lunisa202/DevCoach-AI) |
 | ✅ README completo | Con diagramas Mermaid, setup, arquitectura |
-| ✅ Demo en línea | [Enlace de producción] |
-| ✅ Video de presentación | [Enlace al video — máx 5 min] |
+| ✅ Demo en línea | [Demo con AWS](https://d20a7qc0shf987.cloudfront.net/) |
+| ✅ Video de presentación | [Video presentación](https://drive.google.com/file/d/1QwcC1rgUkxyxGk3NzQoSx1nSbP_9rMhF/view) |
 | ✅ Diagramas de arquitectura | 5 diagramas Mermaid (ciclo, arquitectura, pipeline IA, ER, flujo entrevista) |
 | ✅ Código funcional end-to-end | Login → Análisis → Tickets → Entrevista → Evaluación |
 
