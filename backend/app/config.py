@@ -10,6 +10,9 @@ class Settings(BaseSettings):
 
     AI_PROVIDER: str
     GEMINI_API_KEY: str = ""
+    # Optional comma-separated fallback chain for Gemini models. If empty,
+    # GeminiProvider uses its built-in default chain.
+    GEMINI_MODEL_CHAIN: str = ""
     GROQ_API_KEY: str = ""
     GITHUB_TOKEN: str = ""
     SUPABASE_URL: str

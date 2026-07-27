@@ -380,7 +380,7 @@ const agents = [
 
 function Agents() {
   return (
-    <section className="relative py-20 sm:py-28">
+    <section className="relative overflow-hidden py-20 sm:py-28">
       <div className="pointer-events-none absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-500/5 blur-[140px]" />
       <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
         <Reveal className="mx-auto max-w-2xl text-center">
@@ -417,7 +417,7 @@ const bars = [0.4, 0.75, 0.5, 0.95, 0.6, 0.85, 0.45, 0.7, 0.55, 0.9, 0.5, 0.8, 0
 
 function VoiceInterview() {
   return (
-    <section className="relative py-20 sm:py-28">
+    <section className="relative overflow-hidden py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="relative overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-700/50 bg-white/60 dark:bg-slate-800/60 p-8 backdrop-blur-xl sm:p-12">
           <div className="pointer-events-none absolute -left-20 top-0 h-72 w-72 rounded-full bg-purple-500/10 blur-[120px]" />
@@ -515,7 +515,7 @@ function Gamification() {
   ]
 
   return (
-    <section id="gamificacion" className="relative py-20 sm:py-28">
+    <section id="gamificacion" className="relative overflow-hidden py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <Reveal className="mx-auto max-w-2xl text-center">
           <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">Gamificación</span>
@@ -583,7 +583,7 @@ const dimensions = [
 
 function Evaluation() {
   return (
-    <section className="relative py-20 sm:py-28">
+    <section className="relative overflow-hidden py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <Reveal className="mx-auto max-w-2xl text-center">
           <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">Evaluación</span>
@@ -707,7 +707,7 @@ function TechStack() {
 /* ─── Final CTA ─── */
 function FinalCTA() {
   return (
-    <section className="relative py-20 sm:py-28">
+    <section className="relative overflow-hidden py-20 sm:py-28">
       <div className="mx-auto max-w-4xl px-4 sm:px-6">
         <Reveal>
           <div className="relative overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-700/50 bg-white/60 dark:bg-slate-800/60 px-6 py-14 text-center backdrop-blur-xl sm:px-12 sm:py-20">
@@ -761,7 +761,7 @@ function Footer() {
 /* ─── Main Landing Page Export ─── */
 export function LandingPage() {
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white transition-colors">
+    <div className="min-h-screen w-full overflow-x-hidden bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white transition-colors">
       <Navbar />
       <Hero />
       <HowItWorks />

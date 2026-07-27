@@ -12,11 +12,9 @@ import {
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { useSelector } from 'react-redux'
 import axiosClient from '../services/axiosClient'
 import { UserAvatar } from '../components/UserAvatar'
 import { SkillRadar } from '../components/SkillRadar'
-import type { RootState } from '../store'
 
 interface ProfileData {
   id: string
@@ -45,7 +43,6 @@ export function ProfilePage() {
   const [profile, setProfile] = useState<ProfileData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
-  const currentUser = useSelector((state: RootState) => state.auth.user)
 
   useEffect(() => {
     if (!userId) return

@@ -57,7 +57,8 @@ def get_provider(user_id: str | None = None) -> AIProvider:
     if provider_name == "gemini":
         from app.ai.providers.gemini_provider import GeminiProvider
 
-        return GeminiProvider(api_key=api_key)
+        models = _parse_model_chain(getattr(settings, "GEMINI_MODEL_CHAIN", ""))
+        return GeminiProvider(api_key=api_key, models=models)
 
     elif provider_name == "groq":
         from app.ai.providers.groq_provider import GroqProvider
@@ -68,6 +69,18 @@ def get_provider(user_id: str | None = None) -> AIProvider:
         raise ValueError(
             f"AI_PROVIDER must be 'gemini' or 'groq', got '{provider_name}'"
         )
+
+
+def _parse_model_chain(raw: str) -> list[str] | None:
+    """Parse the GEMINI_MODEL_CHAIN env value into a list of model names.
+
+    Returns None when the setting is empty/missing so the provider falls back
+    to its built-in default chain.
+    """
+    if not raw or not raw.strip():
+        return None
+    models = [m.strip() for m in raw.split(",") if m.strip()]
+    return models or None
 
 
 def _resolve_api_key(provider_name: str, user_id: str | None, settings) -> str:
