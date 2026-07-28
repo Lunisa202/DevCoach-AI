@@ -753,6 +753,15 @@ function Footer() {
             Made with <Heart className="size-4 fill-pink-500 text-pink-500" /> and AI
           </p>
         </div>
+        <div className="mt-6 text-center">
+          <p className="text-xs text-slate-400 dark:text-slate-500">
+            Built by{' '}
+            <span className="font-medium text-slate-600 dark:text-slate-300">Camilo</span>,{' '}
+            <span className="font-medium text-slate-600 dark:text-slate-300">Abner</span>,{' '}
+            <span className="font-medium text-slate-600 dark:text-slate-300">Carolina</span> &{' '}
+            <span className="font-medium text-slate-600 dark:text-slate-300">Génesis</span>
+          </p>
+        </div>
       </div>
     </footer>
   )
